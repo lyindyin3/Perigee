@@ -1,0 +1,109 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 02cdd2e74b496334d8baed45d6a88bd7, type: 3}
+  m_Name: GameConfig
+  m_EditorClassIdentifier: Assembly-CSharp::Perigee.GameConfig
+  starRadius: 1
+  starMaxHp: 120
+  H: 6.2
+  spawnRadius: 7
+  arrowSpawnRadius: 5.3
+  spawnFadeIn: 0.25
+  telegraphRadius: 6.6
+  simHz: 60
+  maxFrameDelta: 0.1
+  maxStepsPerFrame: 4
+  rMin: 1.35
+  ringMax: 6.2
+  satMaxRadius: 6.2
+  ringGap: 0.8
+  satRadius: 0.2
+  maxSatellites: 3
+  radialSpeed: 8
+  tMin: 1
+  satStartAngle: 90
+  satFadeIn: 0.3
+  powerNear: 3
+  powerFar: 1
+  powerFarRadius: 4.6
+  powerFloor: 1
+  armorBase: 2
+  hitCooldown: 0.2
+  heatZoneMax: 2
+  coolZoneMin: 2.6
+  heatRate: 0.35
+  coolRate: 0.25
+  stunTime: 1
+  heatAfterStun: 0.4
+  resonanceHalfAngle: 35
+  resonanceMul: 2
+  crystalLife: 10
+  crystalRadius: 0.14
+  magnetSpeed: 7
+  eras:
+  - kExp: 0.9
+    spinMul: 1
+    hpMul: 1
+    countMul: 1
+  - kExp: 0.9
+    spinMul: 1.3
+    hpMul: 1.3
+    countMul: 1.2
+  - kExp: 1.2
+    spinMul: 1
+    hpMul: 1.6
+    countMul: 1.4
+  background: {r: 0.05490196, g: 0.05490196, b: 0.05490196, a: 1}
+  cream: {r: 0.9372549, g: 0.89411765, b: 0.78431374, a: 1}
+  red: {r: 0.8392157, g: 0.15686275, b: 0.12156863, a: 1}
+  gold: {r: 0.8901961, g: 0.69803923, b: 0.23529412, a: 1}
+  silver: {r: 0.7254902, g: 0.7411765, b: 0.7607843, a: 1}
+  spriteMaterial: {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
+  outlineWidth: 0.02
+  starRayCount: 36
+  starRaysInner: 1.05
+  starRaysOuter: 1.35
+  starRayFill: 0.5
+  starRaysSpin: 6
+  starPulseScale: 1.03
+  starPulseHz: 1.5
+  satTrailTime: 0.35
+  satTrailWidth: 0.12
+  rings:
+  - radius: 1.7
+    tickCount: 60
+    spinSpeed: 24
+  - radius: 2.6
+    tickCount: 48
+    spinSpeed: -18
+  - radius: 3.5
+    tickCount: 40
+    spinSpeed: 13
+  - radius: 4.4
+    tickCount: 32
+    spinSpeed: -10
+  - radius: 5.3
+    tickCount: 28
+    spinSpeed: 7
+  - radius: 6.2
+    tickCount: 24
+    spinSpeed: -5
+  ringAlpha: 0.35
+  ringWidth: 0.06
+  ringDashFill: 0.5
+  sortBars: 0
+  sortRings: 10
+  sortCrystals: 20
+  sortEnemies: 30
+  sortStar: 40
+  sortSatellites: 50
+  sortFx: 60
