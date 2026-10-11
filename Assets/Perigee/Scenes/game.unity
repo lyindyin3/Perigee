@@ -1630,6 +1630,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 572245146}
+  - {fileID: 283488617}
   m_Father: {fileID: 1697818819}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &276326366
@@ -1646,6 +1647,53 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Perigee.BackgroundAnimator
   config: {fileID: 11400000, guid: 82eb375ff384b7e4d8b7ff1a232eeadb, type: 2}
   ringsRoot: {fileID: 572245146}
+--- !u!1 &283488616
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 283488617}
+  - component: {fileID: 283488618}
+  m_Layer: 0
+  m_Name: ArmorRing
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &283488617
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 283488616}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 276326365}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &283488618
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 283488616}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f793b2868f13f104381730fc6bd38584, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Perigee.ArmorRing
+  config: {fileID: 11400000, guid: 82eb375ff384b7e4d8b7ff1a232eeadb, type: 2}
+  loop: {fileID: 295103240}
+  satellites: {fileID: 295103239}
 --- !u!1 &293460920
 GameObject:
   m_ObjectHideFlags: 0

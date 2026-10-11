@@ -79,6 +79,8 @@ namespace Perigee
                 float nearestSq = float.MaxValue;
                 for (int k = 0; k < satellites.Count; k++)
                 {
+                    // оглушённый или ещё не появившийся спутник кристаллы не берёт и не притягивает
+                    if (!satellites.Active(k)) continue;
                     float sq = (satellites.Position(k) - c.position).sqrMagnitude;
                     if (sq >= nearestSq) continue;
                     nearestSq = sq;

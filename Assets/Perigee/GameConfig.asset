@@ -32,6 +32,7 @@ MonoBehaviour:
   tMin: 1
   satStartAngle: 90
   satFadeIn: 0.3
+  satStunWall: 0.3
   powerNear: 3
   powerFar: 1
   powerFarRadius: 4.6
@@ -44,8 +45,24 @@ MonoBehaviour:
   coolRate: 0.25
   stunTime: 1
   heatAfterStun: 0.4
+  heatArcRadius: 0.32
+  heatArcWidth: 0.05
+  heatArcSegments: 32
+  heatFlickerFrom: 0.8
+  heatFlickerHz: 12
   resonanceHalfAngle: 35
   resonanceMul: 2
+  threadSegments: 6
+  threadInterval: 0.05
+  threadWidth: 0.05
+  threadJitter: 0.15
+  threadLabelSize: 3
+  threadLabelOffset: 0.3
+  armorRingSpin: 10
+  armorRingTicks: 36
+  armorRingWidth: 0.02
+  armorRingAlpha: 0.7
+  armorShieldSize: 0.2
   crystalLife: 10
   crystalRadius: 0.14
   magnetSpeed: 7
@@ -171,11 +188,98 @@ MonoBehaviour:
     armor: 0
     starDamage: 3
     crystals: 1
+    behavior: 0
+  - id: 1
+    radius: 0.15
+    hp: 1
+    speed: 2.6
+    armor: 0
+    starDamage: 9
+    crystals: 2
+    behavior: 0
+  - id: 2
+    radius: 0.15
+    hp: 1
+    speed: 3.5
+    armor: 0
+    starDamage: 4
+    crystals: 0
+    behavior: 0
+  - id: 3
+    radius: 0.55
+    hp: 5
+    speed: 0.35
+    armor: 2
+    starDamage: 20
+    crystals: 6
+    behavior: 0
+  - id: 4
+    radius: 0.25
+    hp: 5
+    speed: 1.6
+    armor: 0
+    starDamage: 0
+    crystals: 3
+    behavior: 1
+  - id: 5
+    radius: 0.3
+    hp: 2
+    speed: 1
+    armor: 0
+    starDamage: 0
+    crystals: 4
+    behavior: 2
+  - id: 6
+    radius: 0.6
+    hp: 4
+    speed: 0.7
+    armor: 0
+    starDamage: 0
+    crystals: 8
+    behavior: 3
+  - id: 7
+    radius: 0.9
+    hp: 80
+    speed: 0
+    armor: 0
+    starDamage: 8
+    crystals: 30
+    behavior: 4
+  parasiteAttachOffset: 0.15
+  parasiteDrainBase: 1.5
+  parasiteDrainGrowth: 0.4
+  parasiteDrainMax: 5
+  shooterStopRadius: 5.8
+  shooterFirstDelay: 2
+  shooterFireInterval: 2.5
+  hiveBurstRadius: 3
+  hiveSwarmers: 8
+  hiveBurstSpread: 0.5
+  arrowLength: 0.6
+  arrowWidth: 0.2
+  arrowTailLength: 0.3
+  arrowTailFill: 0.3
+  bastionTrim: 0.1
+  bastionRivetLength: 0.25
+  bastionRivetWidth: 0.04
+  bastionRivetStep: 0.3
+  parasiteBody: 0.6
+  parasiteLegFill: 0.3
+  parasiteMarkerRadius: 0.45
+  parasiteMarkerWall: 0.15
+  parasiteMarkerPulse: 0.2
+  parasiteMarkerPulseHz: 2
+  shooterWall: 0.3
+  shooterBarrelLength: 0.35
+  shooterBarrelWidth: 0.08
+  hiveHoleRadius: 0.25
+  hiveHoleOffset: 0.45
   opening:
   - time: 2
     groups:
     - type: 0
       count: 4
+      angleMode: 0
       spreadDeg: 30
       speedMul: 1
       radius: 0
@@ -183,6 +287,196 @@ MonoBehaviour:
     groups:
     - type: 0
       count: 6
+      angleMode: 0
+      spreadDeg: 30
+      speedMul: 1
+      radius: 0
+  - time: 14
+    groups:
+    - type: 3
+      count: 1
+      angleMode: 0
+      spreadDeg: 30
+      speedMul: 1
+      radius: 0
+  timeline:
+  - time: 20
+    groups:
+    - type: 0
+      count: 8
+      angleMode: 0
+      spreadDeg: 30
+      speedMul: 1
+      radius: 0
+  - time: 30
+    groups:
+    - type: 0
+      count: 8
+      angleMode: 0
+      spreadDeg: 30
+      speedMul: 1
+      radius: 0
+  - time: 36
+    groups:
+    - type: 3
+      count: 1
+      angleMode: 0
+      spreadDeg: 30
+      speedMul: 1
+      radius: 0
+  - time: 46
+    groups:
+    - type: 1
+      count: 2
+      angleMode: 2
+      spreadDeg: 30
+      speedMul: 1
+      radius: 0
+  - time: 56
+    groups:
+    - type: 0
+      count: 10
+      angleMode: 0
+      spreadDeg: 30
+      speedMul: 1
+      radius: 0
+  - time: 62
+    groups:
+    - type: 1
+      count: 2
+      angleMode: 2
+      spreadDeg: 30
+      speedMul: 1
+      radius: 0
+  - time: 70
+    groups:
+    - type: 4
+      count: 1
+      angleMode: 0
+      spreadDeg: 30
+      speedMul: 1
+      radius: 0
+  - time: 80
+    groups:
+    - type: 3
+      count: 1
+      angleMode: 0
+      spreadDeg: 30
+      speedMul: 1
+      radius: 0
+    - type: 0
+      count: 8
+      angleMode: 1
+      spreadDeg: 30
+      speedMul: 1
+      radius: 0
+  - time: 88
+    groups:
+    - type: 4
+      count: 2
+      angleMode: 2
+      spreadDeg: 30
+      speedMul: 1
+      radius: 0
+  - time: 98
+    groups:
+    - type: 5
+      count: 1
+      angleMode: 0
+      spreadDeg: 30
+      speedMul: 1
+      radius: 0
+  - time: 108
+    groups:
+    - type: 1
+      count: 3
+      angleMode: 3
+      spreadDeg: 30
+      speedMul: 1
+      radius: 0
+  - time: 116
+    groups:
+    - type: 6
+      count: 1
+      angleMode: 0
+      spreadDeg: 30
+      speedMul: 1
+      radius: 0
+  - time: 126
+    groups:
+    - type: 0
+      count: 11
+      angleMode: 0
+      spreadDeg: 30
+      speedMul: 1
+      radius: 0
+    - type: 5
+      count: 1
+      angleMode: 1
+      spreadDeg: 30
+      speedMul: 1
+      radius: 0
+  - time: 136
+    groups:
+    - type: 3
+      count: 2
+      angleMode: 4
+      spreadDeg: 30
+      speedMul: 1
+      radius: 0
+  - time: 146
+    groups:
+    - type: 6
+      count: 1
+      angleMode: 0
+      spreadDeg: 30
+      speedMul: 1
+      radius: 0
+    - type: 1
+      count: 2
+      angleMode: 2
+      spreadDeg: 30
+      speedMul: 1
+      radius: 0
+  - time: 156
+    groups:
+    - type: 4
+      count: 2
+      angleMode: 2
+      spreadDeg: 30
+      speedMul: 1
+      radius: 0
+    - type: 0
+      count: 10
+      angleMode: 0
+      spreadDeg: 30
+      speedMul: 1
+      radius: 0
+  - time: 164
+    groups:
+    - type: 5
+      count: 2
+      angleMode: 4
+      spreadDeg: 30
+      speedMul: 1
+      radius: 0
+    - type: 3
+      count: 1
+      angleMode: 0
+      spreadDeg: 30
+      speedMul: 1
+      radius: 0
+  - time: 172
+    groups:
+    - type: 1
+      count: 4
+      angleMode: 3
+      spreadDeg: 30
+      speedMul: 1
+      radius: 0
+    - type: 0
+      count: 11
+      angleMode: 0
       spreadDeg: 30
       speedMul: 1
       radius: 0
@@ -191,6 +485,13 @@ MonoBehaviour:
   ambientInterval: 3.5
   swarmRadiusJitter: 1
   telegraphLeadSwarm: 1
+  telegraphLeadArrow: 1.5
+  telegraphLeadOther: 0.8
+  arrowWedgeSize: 0.35
+  arrowWedgePulse: 0.2
+  arrowWedgePulseHz: 3
+  arrowLineWidth: 0.04
+  arrowLineAlpha: 0.3
   telegraphInset: 0.5
   telegraphSize: 0.3
   telegraphBlinkHz: 4

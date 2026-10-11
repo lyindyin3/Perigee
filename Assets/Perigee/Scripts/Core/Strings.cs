@@ -6,6 +6,7 @@ namespace Perigee
         public const string Resume = "ПРОДОЛЖИТЬ";
         public const string Restart = "ЗАНОВО";
         public const string CardPickTitle = "ВЫБЕРИ КАРТОЧКУ";
+        public const string MulFormat = "×{0}";
 
         // по порядку CardId
         public static readonly string[] CardTitle =
