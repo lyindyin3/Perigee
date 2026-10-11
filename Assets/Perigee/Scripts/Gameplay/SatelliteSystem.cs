@@ -77,6 +77,8 @@ namespace Perigee
 
         public int Count => count;
 
+        public float Radius => config.satRadius * loop.Stats.satRadiusMul;
+
         public Vector2 Position(int i)
         {
             return satellites[i].position;
@@ -99,7 +101,7 @@ namespace Perigee
             float rad = s.angle * Mathf.Deg2Rad;
             s.position = new Vector2(Mathf.Cos(rad) * s.r, Mathf.Sin(rad) * s.r);
             s.transform.localPosition = s.position;
-            s.transform.localScale = new Vector3(config.satRadius, config.satRadius, 1f);
+            s.transform.localScale = new Vector3(Radius, Radius, 1f);
             s.trail.time = config.satTrailTime;
             s.trail.startWidth = config.satTrailWidth;
         }

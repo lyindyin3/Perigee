@@ -52,6 +52,37 @@ namespace Perigee
         public SpawnGroup[] groups;
     }
 
+    public enum CardId { Heavy, Swift, AddSat, Magnet, Coolant, StarPlating, Resonator, Apogee, BigSat, Beacon, AbilityHaste, AbilityLong }
+
+    // Параметры на Mul перемножаются, остальные складываются.
+    public enum StatId
+    {
+        PowerMul, RadialSpeedMul, HeatMul, SpinMul, ResonanceAngleMul, SatRadiusMul, CrystalLifeMul, ArrowSpeedMul,
+        AbilityCooldownMul, AbilityDurationMul, MagnetRadius, PowerFarBonus, StarMaxHp, Satellites, Beacon
+    }
+
+    [Serializable]
+    public struct StatMod
+    {
+        public StatId stat;
+        public float value;
+
+        public StatMod(StatId stat, float value)
+        {
+            this.stat = stat;
+            this.value = value;
+        }
+    }
+
+    [Serializable]
+    public class CardDef
+    {
+        public CardId id;
+        public int maxStacks;
+        public StatMod plus;
+        public StatMod minus;
+    }
+
     [CreateAssetMenu(fileName = "GameConfig", menuName = "Perigee/GameConfig")]
     public class GameConfig : ScriptableObject
     {
@@ -105,6 +136,41 @@ namespace Perigee
         public float crystalLife = 10f;
         public float crystalRadius = 0.14f;
         public float magnetSpeed = 7f;
+        public float crystalSpread = 0.3f;
+        public float crystalBlinkTime = 2f;
+        public float crystalBlinkHz = 6f;
+        public float crystalSpin = 180f;
+        public int maxCrystals = 256;
+
+        [Title("Опыт и карточки")]
+        public int xpBase = 8;
+        public int xpPerLevel = 3;
+        public int cardChoices = 3;
+        public float pickInputDelay = 0.4f;
+        public float pickFadeOut = 0.4f;
+        [TableList]
+        public CardDef[] cards =
+        {
+            new CardDef { id = CardId.Heavy, maxStacks = 2, plus = new StatMod(StatId.PowerMul, 1.4f), minus = new StatMod(StatId.RadialSpeedMul, 0.7f) },
+            new CardDef { id = CardId.Swift, maxStacks = 2, plus = new StatMod(StatId.RadialSpeedMul, 1.5f), minus = new StatMod(StatId.HeatMul, 1.2f) },
+            new CardDef { id = CardId.AddSat, maxStacks = 2, plus = new StatMod(StatId.Satellites, 1f), minus = new StatMod(StatId.HeatMul, 1.25f) },
+            new CardDef { id = CardId.Magnet, maxStacks = 1, plus = new StatMod(StatId.MagnetRadius, 1.3f), minus = new StatMod(StatId.ArrowSpeedMul, 1.15f) },
+            new CardDef { id = CardId.Coolant, maxStacks = 2, plus = new StatMod(StatId.HeatMul, 0.6f), minus = new StatMod(StatId.PowerMul, 0.9f) },
+            new CardDef { id = CardId.StarPlating, maxStacks = 2, plus = new StatMod(StatId.StarMaxHp, 25f), minus = new StatMod(StatId.SpinMul, 0.9f) },
+            new CardDef { id = CardId.Resonator, maxStacks = 1, plus = new StatMod(StatId.ResonanceAngleMul, 1.5f), minus = new StatMod(StatId.PowerMul, 0.9f) },
+            new CardDef { id = CardId.Apogee, maxStacks = 2, plus = new StatMod(StatId.PowerFarBonus, 0.5f), minus = new StatMod(StatId.HeatMul, 1.15f) },
+            new CardDef { id = CardId.BigSat, maxStacks = 1, plus = new StatMod(StatId.SatRadiusMul, 1.5f), minus = new StatMod(StatId.HeatMul, 1.2f) },
+            new CardDef { id = CardId.Beacon, maxStacks = 1, plus = new StatMod(StatId.Beacon, 1f), minus = new StatMod(StatId.CrystalLifeMul, 0.6f) },
+            new CardDef { id = CardId.AbilityHaste, maxStacks = 2, plus = new StatMod(StatId.AbilityCooldownMul, 0.75f), minus = new StatMod(StatId.PowerMul, 0.9f) },
+            new CardDef { id = CardId.AbilityLong, maxStacks = 1, plus = new StatMod(StatId.AbilityDurationMul, 1.4f), minus = new StatMod(StatId.AbilityCooldownMul, 1.15f) },
+        };
+
+        [Title("Маяк")]
+        public float beaconInterval = 8f;
+        public float beaconRadius = 2.5f;
+        public float beaconDamage = 1f;
+        public float beaconFxTime = 0.35f;
+        public float beaconFxWidth = 0.08f;
 
         [Title("Враги")]
         public int maxEnemies = 200;

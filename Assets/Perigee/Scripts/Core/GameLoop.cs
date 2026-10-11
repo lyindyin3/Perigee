@@ -12,8 +12,11 @@ namespace Perigee
         [SerializeField] InputHold input;
         [SerializeField] SatelliteSystem satellites;
         [SerializeField] EnemySystem enemies;
+        [SerializeField] CrystalSystem crystals;
         [SerializeField] Director director;
         [SerializeField] StarController star;
+        [SerializeField] CardSystem cards;
+        [SerializeField] PauseView pauseView;
 
         public GameState State { get; private set; }
         public Stats Stats { get; } = new Stats();
@@ -23,16 +26,23 @@ namespace Perigee
         int eraIndex;
         float accumulator;
         InputAction restartKey;
+        InputAction pauseKey;
 
         void Awake()
         {
             restartKey = new InputAction(binding: "<Keyboard>/r");
             restartKey.Enable();
+
+            pauseKey = new InputAction(type: InputActionType.Button);
+            pauseKey.AddBinding("<Keyboard>/escape");
+            pauseKey.AddBinding("<Keyboard>/p");
+            pauseKey.Enable();
         }
 
         void OnDestroy()
         {
             restartKey.Dispose();
+            pauseKey.Dispose();
         }
 
         void Start()
@@ -42,11 +52,13 @@ namespace Perigee
 
         public void StartRun()
         {
-            Stats.Reset(Era);
             Run.Reset(config, Random.Range(0, int.MaxValue));
+            RecomputeStats();
             satellites.ResetRun();
             enemies.ResetRun();
+            crystals.ResetRun();
             director.ResetRun(Run.seed);
+            cards.ResetRun(Run.seed + Rng.CardOffset);
             accumulator = 0f;
             SetState(GameState.Playing);
         }
@@ -55,6 +67,18 @@ namespace Perigee
         {
             if (State == GameState.Playing && next != GameState.Playing) input.Clear();
             State = next;
+            pauseView.gameObject.SetActive(next == GameState.Paused);
+        }
+
+        public void TogglePause()
+        {
+            if (State == GameState.Playing) SetState(GameState.Paused);
+            else if (State == GameState.Paused) SetState(GameState.Playing);
+        }
+
+        public void RecomputeStats()
+        {
+            Stats.Recompute(config, Era, Run.cardStacks);
         }
 
         void Update()
@@ -63,6 +87,7 @@ namespace Perigee
             cam.orthographicSize = config.H * Mathf.Max(1f, 1f / cam.aspect);
             cam.backgroundColor = config.background;
 
+            if (pauseKey.WasPressedThisFrame()) TogglePause();
             if (State == GameState.Defeat && restartKey.WasPressedThisFrame()) StartRun();
             if (State != GameState.Playing) return;
 
@@ -79,12 +104,17 @@ namespace Perigee
 
         void Step(float dt)
         {
+            // пересчёт каждый шаг: правка конфига в инспекторе сразу попадает в Stats
+            RecomputeStats();
             Run.time += dt;
             satellites.Tick(dt);
             enemies.Tick(dt);
             enemies.Collide();
+            crystals.Tick(dt);
             director.Tick(dt);
             star.Tick();
+            // поражение важнее экрана карточек
+            if (State == GameState.Playing) cards.Tick(dt);
         }
     }
 }

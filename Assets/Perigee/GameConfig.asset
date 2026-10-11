@@ -49,6 +49,118 @@ MonoBehaviour:
   crystalLife: 10
   crystalRadius: 0.14
   magnetSpeed: 7
+  crystalSpread: 0.3
+  crystalBlinkTime: 2
+  crystalBlinkHz: 6
+  crystalSpin: 180
+  maxCrystals: 256
+  xpBase: 8
+  xpPerLevel: 3
+  cardChoices: 3
+  pickInputDelay: 0.4
+  pickFadeOut: 0.4
+  cards:
+  - id: 0
+    maxStacks: 2
+    plus:
+      stat: 0
+      value: 1.4
+    minus:
+      stat: 1
+      value: 0.7
+  - id: 1
+    maxStacks: 2
+    plus:
+      stat: 1
+      value: 1.5
+    minus:
+      stat: 2
+      value: 1.2
+  - id: 2
+    maxStacks: 2
+    plus:
+      stat: 13
+      value: 1
+    minus:
+      stat: 2
+      value: 1.25
+  - id: 3
+    maxStacks: 1
+    plus:
+      stat: 10
+      value: 1.3
+    minus:
+      stat: 7
+      value: 1.15
+  - id: 4
+    maxStacks: 2
+    plus:
+      stat: 2
+      value: 0.6
+    minus:
+      stat: 0
+      value: 0.9
+  - id: 5
+    maxStacks: 2
+    plus:
+      stat: 12
+      value: 25
+    minus:
+      stat: 3
+      value: 0.9
+  - id: 6
+    maxStacks: 1
+    plus:
+      stat: 4
+      value: 1.5
+    minus:
+      stat: 0
+      value: 0.9
+  - id: 7
+    maxStacks: 2
+    plus:
+      stat: 11
+      value: 0.5
+    minus:
+      stat: 2
+      value: 1.15
+  - id: 8
+    maxStacks: 1
+    plus:
+      stat: 5
+      value: 1.5
+    minus:
+      stat: 2
+      value: 1.2
+  - id: 9
+    maxStacks: 1
+    plus:
+      stat: 14
+      value: 1
+    minus:
+      stat: 6
+      value: 0.6
+  - id: 10
+    maxStacks: 2
+    plus:
+      stat: 8
+      value: 0.75
+    minus:
+      stat: 0
+      value: 0.9
+  - id: 11
+    maxStacks: 1
+    plus:
+      stat: 9
+      value: 1.4
+    minus:
+      stat: 8
+      value: 1.15
+  beaconInterval: 8
+  beaconRadius: 2.5
+  beaconDamage: 1
+  beaconFxTime: 0.35
+  beaconFxWidth: 0.08
   maxEnemies: 200
   eraHpMinBaseHp: 2
   enemies:

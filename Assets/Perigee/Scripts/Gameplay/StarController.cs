@@ -33,7 +33,7 @@ namespace Perigee
             rays.transform.localScale = new Vector3(config.starRaysOuter, config.starRaysOuter, 1f);
             rays.transform.Rotate(0f, 0f, -config.starRaysSpin * Time.deltaTime);
 
-            float hpFraction = loop.Run.hp / config.starMaxHp;
+            float hpFraction = loop.Run.hp / loop.Stats.starMaxHp;
             bool low = hpFraction < config.starLowHpFraction;
 
             pulsePhase = Mathf.Repeat(pulsePhase + (low ? config.starLowHpPulseHz : config.starPulseHz) * Time.deltaTime, 1f);

@@ -20,6 +20,7 @@ namespace Perigee
         [SerializeField] GameLoop loop;
         [SerializeField] SatelliteSystem satellites;
         [SerializeField] StarController star;
+        [SerializeField] CrystalSystem crystals;
         [SerializeField] Transform root;
 
         // живые враги лежат в начале массива: [0, count)
@@ -89,7 +90,7 @@ namespace Perigee
                 Enemy e = pool[i];
                 if (e.age < config.spawnFadeIn) continue;
 
-                float reach = config.satRadius + e.def.radius;
+                float reach = satellites.Radius + e.def.radius;
                 for (int k = 0; k < satellites.Count; k++)
                 {
                     if (e.hitCooldown[k] > 0f) continue;
@@ -103,11 +104,31 @@ namespace Perigee
                     e.hp -= damage;
                     if (e.hp <= 0f)
                     {
-                        Remove(i);
+                        Kill(i);
                         break;
                     }
                 }
             }
+        }
+
+        // волна от звезды: Рой гибнет сразу, остальные получают урон
+        public void Blast(float radius, float damage)
+        {
+            for (int i = count - 1; i >= 0; i--)
+            {
+                Enemy e = pool[i];
+                if (e.position.sqrMagnitude > radius * radius) continue;
+
+                if (e.def.id == EnemyType.Swarmer) e.hp = 0f;
+                else e.hp -= damage;
+                if (e.hp <= 0f) Kill(i);
+            }
+        }
+
+        void Kill(int i)
+        {
+            crystals.Spawn(pool[i].position, pool[i].def.crystals);
+            Remove(i);
         }
 
         // на место убранного встаёт последний живой; при обходе с конца он уже обработан
