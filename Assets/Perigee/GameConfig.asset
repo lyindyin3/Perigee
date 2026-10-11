@@ -49,6 +49,40 @@ MonoBehaviour:
   crystalLife: 10
   crystalRadius: 0.14
   magnetSpeed: 7
+  maxEnemies: 200
+  eraHpMinBaseHp: 2
+  enemies:
+  - id: 0
+    radius: 0.2
+    hp: 1
+    speed: 1.1
+    armor: 0
+    starDamage: 3
+    crystals: 1
+  opening:
+  - time: 2
+    groups:
+    - type: 0
+      count: 4
+      spreadDeg: 30
+      speedMul: 1
+      radius: 0
+  - time: 8
+    groups:
+    - type: 0
+      count: 6
+      spreadDeg: 30
+      speedMul: 1
+      radius: 0
+  ambientStart: 6
+  ambientEnd: 175
+  ambientInterval: 3.5
+  swarmRadiusJitter: 1
+  telegraphLeadSwarm: 1
+  telegraphInset: 0.5
+  telegraphSize: 0.3
+  telegraphBlinkHz: 4
+  maxMarkers: 8
   eras:
   - kExp: 0.9
     spinMul: 1
@@ -76,6 +110,8 @@ MonoBehaviour:
   starRaysSpin: 6
   starPulseScale: 1.03
   starPulseHz: 1.5
+  starLowHpFraction: 0.3
+  starLowHpPulseHz: 3
   satTrailTime: 0.35
   satTrailWidth: 0.12
   rings:

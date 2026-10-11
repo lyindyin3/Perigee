@@ -8,6 +8,7 @@ namespace Perigee
         {
             public Transform transform;
             public TrailRenderer trail;
+            public Vector2 position;
             public float angle;
             public float r;
         }
@@ -74,10 +75,30 @@ namespace Perigee
             return 360f / config.tMin * Mathf.Pow(config.rMin / r, loop.Era.kExp) * loop.Stats.spinMul;
         }
 
+        public int Count => count;
+
+        public Vector2 Position(int i)
+        {
+            return satellites[i].position;
+        }
+
+        public float Damage(int i)
+        {
+            return Power(satellites[i].r);
+        }
+
+        public float Power(float r)
+        {
+            float far = config.powerFar + loop.Stats.powerFarBonus;
+            float power = Mathf.Lerp(config.powerNear, far, Mathf.InverseLerp(config.rMin, config.powerFarRadius, r)) * loop.Stats.powerMul;
+            return Mathf.Max(power, config.powerFloor);
+        }
+
         void Place(Satellite s)
         {
             float rad = s.angle * Mathf.Deg2Rad;
-            s.transform.localPosition = new Vector3(Mathf.Cos(rad) * s.r, Mathf.Sin(rad) * s.r, 0f);
+            s.position = new Vector2(Mathf.Cos(rad) * s.r, Mathf.Sin(rad) * s.r);
+            s.transform.localPosition = s.position;
             s.transform.localScale = new Vector3(config.satRadius, config.satRadius, 1f);
             s.trail.time = config.satTrailTime;
             s.trail.startWidth = config.satTrailWidth;

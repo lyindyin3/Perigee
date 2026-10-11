@@ -21,6 +21,37 @@ namespace Perigee
         public float spinSpeed;
     }
 
+    public enum EnemyType { Swarmer, Arrow, Bolt, Bastion, Parasite, Shooter, Hive, Boss }
+
+    [Serializable]
+    public class EnemyDef
+    {
+        public EnemyType id;
+        public float radius;
+        public float hp;
+        public float speed;
+        public float armor;
+        public float starDamage;
+        public int crystals;
+    }
+
+    [Serializable]
+    public class SpawnGroup
+    {
+        public EnemyType type;
+        public int count = 1;
+        public float spreadDeg = 30f;
+        public float speedMul = 1f;
+        public float radius;
+    }
+
+    [Serializable]
+    public class SpawnEvent
+    {
+        public float time;
+        public SpawnGroup[] groups;
+    }
+
     [CreateAssetMenu(fileName = "GameConfig", menuName = "Perigee/GameConfig")]
     public class GameConfig : ScriptableObject
     {
@@ -75,6 +106,33 @@ namespace Perigee
         public float crystalRadius = 0.14f;
         public float magnetSpeed = 7f;
 
+        [Title("Враги")]
+        public int maxEnemies = 200;
+        public float eraHpMinBaseHp = 2f;
+        [TableList]
+        public EnemyDef[] enemies =
+        {
+            new EnemyDef { id = EnemyType.Swarmer, radius = 0.2f, hp = 1f, speed = 1.1f, armor = 0f, starDamage = 3f, crystals = 1 },
+        };
+
+        [Title("Расписание")]
+        public SpawnEvent[] opening =
+        {
+            new SpawnEvent { time = 2f, groups = new[] { new SpawnGroup { type = EnemyType.Swarmer, count = 4 } } },
+            new SpawnEvent { time = 8f, groups = new[] { new SpawnGroup { type = EnemyType.Swarmer, count = 6 } } },
+        };
+        public float ambientStart = 6f;
+        public float ambientEnd = 175f;
+        public float ambientInterval = 3.5f;
+        public float swarmRadiusJitter = 1f;
+
+        [Title("Телеграф")]
+        public float telegraphLeadSwarm = 1f;
+        public float telegraphInset = 0.5f;
+        public float telegraphSize = 0.3f;
+        public float telegraphBlinkHz = 4f;
+        public int maxMarkers = 8;
+
         [Title("Эры")]
         [TableList]
         public EraConfig[] eras =
@@ -101,6 +159,8 @@ namespace Perigee
         public float starRaysSpin = 6f;
         public float starPulseScale = 1.03f;
         public float starPulseHz = 1.5f;
+        public float starLowHpFraction = 0.3f;
+        public float starLowHpPulseHz = 3f;
         public float satTrailTime = 0.35f;
         public float satTrailWidth = 0.12f;
 

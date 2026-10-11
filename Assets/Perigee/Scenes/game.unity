@@ -166,6 +166,37 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Perigee.BackgroundAnimator
   config: {fileID: 11400000, guid: 82eb375ff384b7e4d8b7ff1a232eeadb, type: 2}
   ringsRoot: {fileID: 572245146}
+--- !u!1 &293460920
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 293460921}
+  m_Layer: 0
+  m_Name: Enemies
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &293460921
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 293460920}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1697818819}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &295103238
 GameObject:
   m_ObjectHideFlags: 0
@@ -177,6 +208,8 @@ GameObject:
   - component: {fileID: 295103241}
   - component: {fileID: 295103240}
   - component: {fileID: 295103239}
+  - component: {fileID: 295103243}
+  - component: {fileID: 295103242}
   m_Layer: 0
   m_Name: Systems
   m_TagString: Untagged
@@ -216,6 +249,9 @@ MonoBehaviour:
   cam: {fileID: 1318026739}
   input: {fileID: 1107503216}
   satellites: {fileID: 295103239}
+  enemies: {fileID: 295103243}
+  director: {fileID: 295103242}
+  star: {fileID: 1842730283}
 --- !u!4 &295103241
 Transform:
   m_ObjectHideFlags: 0
@@ -231,6 +267,40 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &295103242
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 295103238}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3513f16da62ccc744bdc583f3f7ab71b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Perigee.Director
+  config: {fileID: 11400000, guid: 82eb375ff384b7e4d8b7ff1a232eeadb, type: 2}
+  loop: {fileID: 295103240}
+  enemies: {fileID: 295103243}
+  cam: {fileID: 1318026739}
+  root: {fileID: 864121473}
+--- !u!114 &295103243
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 295103238}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6de9ec250e8cddc4dad5a5d1100c14fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Perigee.EnemySystem
+  config: {fileID: 11400000, guid: 82eb375ff384b7e4d8b7ff1a232eeadb, type: 2}
+  loop: {fileID: 295103240}
+  satellites: {fileID: 295103239}
+  star: {fileID: 1842730283}
+  root: {fileID: 293460921}
 --- !u!1 &410469410
 GameObject:
   m_ObjectHideFlags: 0
@@ -473,6 +543,37 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &864121472
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 864121473}
+  m_Layer: 0
+  m_Name: Telegraphs
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &864121473
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 864121472}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1697818819}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1107503215
 GameObject:
@@ -732,6 +833,8 @@ Transform:
   - {fileID: 1842730282}
   - {fileID: 491850490}
   - {fileID: 276326365}
+  - {fileID: 293460921}
+  - {fileID: 864121473}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1842730281
@@ -779,6 +882,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Perigee.StarController
   config: {fileID: 11400000, guid: 82eb375ff384b7e4d8b7ff1a232eeadb, type: 2}
+  loop: {fileID: 295103240}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
