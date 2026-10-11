@@ -12,7 +12,9 @@ namespace Perigee
         [SerializeField] GameLoop loop;
         [SerializeField] SatelliteSystem satellites;
         [SerializeField] EnemySystem enemies;
+        [SerializeField] AbilitySystem abilities;
         [SerializeField] CardPickView view;
+        [SerializeField] AbilityPickView abilityView;
         [SerializeField] Transform fxRoot;
 
         SpriteRenderer beaconRing;
@@ -88,6 +90,15 @@ namespace Perigee
             run.xp -= Need(run.level);
             run.level++;
 
+            // это повышение уровня открывает выбор второй способности вместо карточек
+            if (run.level == config.abilityPickLevel)
+            {
+                abilities.OfferRandom(cardRng);
+                loop.SetState(GameState.CardPick);
+                abilityView.Show();
+                return;
+            }
+
             Roll();
             // все карточки набраны до предела: уровень растёт без экрана выбора
             if (offerCount == 0) return;
@@ -130,8 +141,8 @@ namespace Perigee
             CardDef card = config.cards[i];
             if (loop.Run.cardStacks[i] >= card.maxStacks) return false;
             if (card.id == CardId.Resonator && satellites.Count < ResonancePair) return false;
-            // ABILITY_LONG нужна способность с длительностью; способностей пока нет (M5)
-            if (card.id == CardId.AbilityLong) return false;
+            // ABILITY_LONG нужна способность с длительностью
+            if (card.id == CardId.AbilityLong && !abilities.HasTimed) return false;
             return true;
         }
 

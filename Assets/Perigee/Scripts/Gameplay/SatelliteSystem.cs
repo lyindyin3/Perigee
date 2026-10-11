@@ -32,10 +32,12 @@ namespace Perigee
         [SerializeField] GameConfig config;
         [SerializeField] GameLoop loop;
         [SerializeField] InputHold input;
+        [SerializeField] AbilitySystem abilities;
         [SerializeField] Transform root;
 
         Satellite[] satellites;
         Thread[] threads;
+        SpriteRenderer anchorRing;
         Sprite solid;
         Sprite hollow;
         int count;
@@ -46,6 +48,10 @@ namespace Perigee
         {
             solid = ShapeFactory.Diamond(config.outlineWidth / config.satRadius);
             hollow = ShapeFactory.Diamond(0f, config.satStunWall);
+
+            Sprite ring = ShapeFactory.Ring(config.anchorRingTicks, config.anchorRingWidth, config.ringDashFill);
+            anchorRing = ShapeFactory.NewRenderer("AnchorRing", root, ring, config.silver, config.sortRings, config.spriteMaterial);
+            anchorRing.enabled = false;
 
             satellites = new Satellite[config.maxSatellites];
             for (int i = 0; i < satellites.Length; i++)
@@ -90,6 +96,7 @@ namespace Perigee
                 Show(satellites[i], false);
             }
             for (int i = 0; i < threads.Length; i++) threads[i].line.gameObject.SetActive(false);
+            anchorRing.enabled = false;
 
             baseR = config.rMin;
             threadTimer = 0f;
@@ -111,9 +118,16 @@ namespace Perigee
         {
             while (count < Mathf.Min(1 + loop.Stats.extraSatellites, satellites.Length)) Add();
 
-            // при удержании внешний спутник всегда доходит до внешнего кольца
-            float target = input.IsHolding ? config.ringMax - (count - 1) * config.ringGap : config.rMin;
-            baseR = Mathf.MoveTowards(baseR, target, config.radialSpeed * loop.Stats.radialSpeedMul * dt);
+            // ЯКОРЬ: радиус заморожен, удержание и отпускание не действуют
+            bool anchored = abilities.Active(AbilityId.Anchor);
+            if (!anchored)
+            {
+                // при удержании внешний спутник всегда доходит до внешнего кольца
+                float target = input.IsHolding ? config.ringMax - (count - 1) * config.ringGap : config.rMin;
+                baseR = Mathf.MoveTowards(baseR, target, config.radialSpeed * loop.Stats.radialSpeedMul * dt);
+            }
+            anchorRing.enabled = anchored;
+            anchorRing.transform.localScale = new Vector3(baseR, baseR, 1f);
 
             for (int i = 0; i < count; i++)
             {
@@ -198,6 +212,14 @@ namespace Perigee
 
         void Heat(Satellite s, float dt)
         {
+            // ХОЛОД: нагрев на нуле, оглушение снято, греться нельзя
+            if (abilities.Active(AbilityId.Chill))
+            {
+                s.heat = 0f;
+                s.stun = 0f;
+                return;
+            }
+
             // пока спутник оглушён, нагрев держится на 1
             if (s.stun > 0f)
             {
@@ -265,12 +287,18 @@ namespace Perigee
             s.transform.localScale = new Vector3(Radius, Radius, 1f);
             s.trail.time = config.satTrailTime;
             s.trail.startWidth = config.satTrailWidth;
+            // ВСПЛЕСК: след золотой, пока способность действует
+            Color trail = abilities.Active(AbilityId.Surge) ? config.gold : config.cream;
+            s.trail.startColor = trail;
+            s.trail.endColor = trail;
 
             bool stunned = s.stun > 0f;
             s.body.sprite = stunned ? hollow : solid;
             s.trail.emitting = !stunned;
             // прозрачность ведёт твин появления, поэтому её не трогаем
             Color color = stunned ? config.silver : config.cream;
+            // ХОЛОД: белая вспышка сразу после нажатия
+            if (abilities.Active(AbilityId.Chill) && abilities.Elapsed(AbilityId.Chill) < config.chillFlashTime) color = Color.white;
             color.a = s.body.color.a;
             s.body.color = color;
 

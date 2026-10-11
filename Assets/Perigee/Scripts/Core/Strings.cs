@@ -7,6 +7,22 @@ namespace Perigee
         public const string Restart = "ЗАНОВО";
         public const string CardPickTitle = "ВЫБЕРИ КАРТОЧКУ";
         public const string MulFormat = "×{0}";
+        public const string AbilityPickTitle = "ВЫБЕРИ СПОСОБНОСТЬ";
+        //   = неразрывный пробел: число и «с» не разъезжаются по строкам
+        public const string CooldownFormat = "Перезарядка {0:0.#} с";
+
+        // по порядку AbilityId
+        public static readonly string[] AbilityTitle = { "ЯКОРЬ", "РОСТ", "ИМПУЛЬС", "ХОЛОД", "ВСПЛЕСК" };
+
+        // строка эффекта, по порядку AbilityId; {0} = длительность, {1} = число способности
+        public static readonly string[] AbilityEffect =
+        {
+            "Орбита замирает на {0:0.#} с",
+            "Спутники ×{1} на {0:0.#} с",
+            "Волна от звезды, урон {1}",
+            "Нагрев сброшен, {0:0.#} с без перегрева",
+            "Сила удара ×{1} сквозь броню, {0:0.#} с",
+        };
 
         // по порядку CardId
         public static readonly string[] CardTitle =

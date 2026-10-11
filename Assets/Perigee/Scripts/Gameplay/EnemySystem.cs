@@ -28,6 +28,7 @@ namespace Perigee
         [SerializeField] SatelliteSystem satellites;
         [SerializeField] StarController star;
         [SerializeField] CrystalSystem crystals;
+        [SerializeField] AbilitySystem abilities;
         [SerializeField] Transform root;
 
         // живые враги лежат в начале массива: [0, count)
@@ -183,8 +184,8 @@ namespace Perigee
 
                     e.hitCooldown[k] = config.hitCooldown;
                     float damage = satellites.Damage(k);
-                    // броня: удар слабее брони урона не наносит
-                    if (damage < e.def.armor) continue;
+                    // броня: удар слабее брони урона не наносит; ВСПЛЕСК броню не замечает
+                    if (damage < e.def.armor && !abilities.Active(AbilityId.Surge)) continue;
 
                     e.hp -= damage;
                     if (e.hp <= 0f)
@@ -207,6 +208,31 @@ namespace Perigee
                 if (e.def.id == EnemyType.Swarmer) e.hp = 0f;
                 else e.hp -= damage;
                 if (e.hp <= 0f) Kill(i);
+            }
+        }
+
+        // ИМПУЛЬС: Рой и Стрелы гибнут, остальные получают урон и отлетают наружу
+        public void Pulse(float radius, float damage, float push)
+        {
+            for (int i = count - 1; i >= 0; i--)
+            {
+                Enemy e = pool[i];
+                float r = e.position.magnitude;
+                if (r > radius) continue;
+
+                if (e.def.id == EnemyType.Swarmer || e.def.id == EnemyType.Arrow) e.hp = 0f;
+                else e.hp -= damage;
+                if (e.hp <= 0f)
+                {
+                    Kill(i);
+                    continue;
+                }
+
+                e.position *= (r + push) / r;
+                // Паразит отцепляется и летит обратно, Стрелок заново идёт на позицию
+                e.engaged = false;
+                e.timer = 0f;
+                Place(e);
             }
         }
 

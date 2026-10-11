@@ -11,6 +11,8 @@ namespace Perigee
         const int Size = 512;
         const float Half = Size / 2f; // он же PPU
         const float Tau = Mathf.PI * 2f;
+        // половина толщины линии пиктограммы
+        const float Stroke = 0.08f;
 
         static readonly float Sqrt3 = Mathf.Sqrt(3f);
         static readonly Dictionary<string, Sprite> cache = new Dictionary<string, Sprite>();
@@ -130,6 +132,43 @@ namespace Perigee
             return Build("Rect", 0f, (x, y) => Mathf.Max(Mathf.Abs(x), Mathf.Abs(y)) - 1f);
         }
 
+        // Пиктограммы способностей, рисунок целиком в квадрате [-1..1].
+        public static Sprite Pictogram(AbilityId id)
+        {
+            return Build($"Pictogram_{id}", 0f, (x, y) =>
+            {
+                float ax = Mathf.Abs(x);
+                float ay = Mathf.Abs(y);
+                float rho = Mathf.Sqrt(x * x + y * y);
+                switch (id)
+                {
+                    // кольцо, под ним короткая ножка и перекладина
+                    case AbilityId.Anchor:
+                        float eye = Hollow(Mathf.Sqrt(x * x + (y - 0.5f) * (y - 0.5f)) - 0.4f, 2f * Stroke);
+                        return Mathf.Min(eye, Mathf.Min(Box(ax, y, 0f, -0.3f, Stroke, 0.4f), Box(ax, y, 0f, -0.7f, 0.6f, Stroke)));
+
+                    // круг и кольцо, до которого он вырастет
+                    case AbilityId.Grow:
+                        return Mathf.Min(rho - 0.35f, Hollow(rho - 0.9f, 2f * Stroke));
+
+                    // три кольца с общим центром
+                    case AbilityId.Pulse:
+                        return Mathf.Min(Hollow(rho - 0.9f, 2f * Stroke), Mathf.Min(Hollow(rho - 0.6f, 2f * Stroke), Hollow(rho - 0.3f, 2f * Stroke)));
+
+                    // крест с засечкой на каждом луче
+                    case AbilityId.Chill:
+                        float cross = Mathf.Min(Box(ax, ay, 0f, 0f, Stroke, 0.9f), Box(ax, ay, 0f, 0f, 0.9f, Stroke));
+                        return Mathf.Min(cross, Mathf.Min(Box(ax, ay, 0f, 0.6f, 0.28f, Stroke), Box(ax, ay, 0.6f, 0f, Stroke, 0.28f)));
+
+                    // три шеврона остриём вверх
+                    default:
+                        float d = float.MaxValue;
+                        for (int k = 0; k < 3; k++) d = Mathf.Min(d, Mathf.Abs(y - (0.75f - 0.5f * k - 0.6f * ax)) - Stroke);
+                        return Mathf.Max(d, ax - 0.75f);
+                }
+            });
+        }
+
         public static SpriteRenderer NewRenderer(string name, Transform parent, Sprite sprite, Color color, int order, Material material)
         {
             var go = new GameObject(name);
@@ -153,6 +192,12 @@ namespace Perigee
             float arc = Mathf.Sqrt(x * x + qy * qy) - Sqrt3;
             float side = Mathf.Abs(x) * Sqrt3 * 0.5f - qy * 0.5f;
             return Mathf.Max(arc, side);
+        }
+
+        // прямоугольник с центром (cx, cy) и полуразмерами halfW и halfH
+        static float Box(float x, float y, float cx, float cy, float halfW, float halfH)
+        {
+            return Mathf.Max(Mathf.Abs(x - cx) - halfW, Mathf.Abs(y - cy) - halfH);
         }
 
         static float Band(float rho, float width)

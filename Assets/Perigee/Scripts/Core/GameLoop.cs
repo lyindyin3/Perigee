@@ -16,7 +16,9 @@ namespace Perigee
         [SerializeField] Director director;
         [SerializeField] StarController star;
         [SerializeField] CardSystem cards;
+        [SerializeField] AbilitySystem abilities;
         [SerializeField] PauseView pauseView;
+        [SerializeField] AbilityPickView abilityPickView;
 
         public GameState State { get; private set; }
         public Stats Stats { get; } = new Stats();
@@ -47,12 +49,24 @@ namespace Perigee
 
         void Start()
         {
-            StartRun();
+            // меню появится в M6: до него игра открывается так, как будто в меню нажали «Играть»
+            StartFromMenu();
         }
 
+        // забег из меню: сначала выбор способности слота A
+        public void StartFromMenu()
+        {
+            StartRun();
+            SetState(GameState.AbilityPick);
+            abilities.OfferAll();
+            abilityPickView.Show();
+        }
+
+        // Retry: экран выбора пропускается, слот A остаётся прежним
         public void StartRun()
         {
             Run.Reset(config, Random.Range(0, int.MaxValue));
+            abilities.ResetRun();
             RecomputeStats();
             satellites.ResetRun();
             enemies.ResetRun();
@@ -78,7 +92,7 @@ namespace Perigee
 
         public void RecomputeStats()
         {
-            Stats.Recompute(config, Era, Run.cardStacks);
+            Stats.Recompute(config, Era, Run.cardStacks, abilities);
         }
 
         void Update()
@@ -108,6 +122,7 @@ namespace Perigee
             RecomputeStats();
             Run.time += dt;
             satellites.Tick(dt);
+            abilities.Tick(dt);
             enemies.Tick(dt);
             enemies.Collide();
             crystals.Tick(dt);

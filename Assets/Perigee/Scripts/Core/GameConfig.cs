@@ -89,6 +89,16 @@ namespace Perigee
         public StatMod minus;
     }
 
+    public enum AbilityId { Anchor, Grow, Pulse, Chill, Surge }
+
+    [Serializable]
+    public class AbilityDef
+    {
+        public AbilityId id;
+        public float duration;
+        public float cooldown;
+    }
+
     [CreateAssetMenu(fileName = "GameConfig", menuName = "Perigee/GameConfig")]
     public class GameConfig : ScriptableObject
     {
@@ -197,6 +207,35 @@ namespace Perigee
         public float beaconDamage = 1f;
         public float beaconFxTime = 0.35f;
         public float beaconFxWidth = 0.08f;
+
+        [Title("Способности")]
+        public int abilityPickLevel = 3;
+        public int abilityChoices = 3;
+        [TableList]
+        public AbilityDef[] abilities =
+        {
+            new AbilityDef { id = AbilityId.Anchor, duration = 4f, cooldown = 30f },
+            new AbilityDef { id = AbilityId.Grow, duration = 6f, cooldown = 35f },
+            new AbilityDef { id = AbilityId.Pulse, duration = 0f, cooldown = 45f },
+            new AbilityDef { id = AbilityId.Chill, duration = 5f, cooldown = 30f },
+            new AbilityDef { id = AbilityId.Surge, duration = 4f, cooldown = 40f },
+        };
+        public float growRadiusMul = 2f;
+        public float growResonanceMul = 1.3f;
+        public float growScaleTime = 0.2f;
+        public float pulseRadius = 3f;
+        public float pulseTime = 0.35f;
+        public float pulseDamage = 2f;
+        public float pulsePush = 1f;
+        public float pulseFxWidth = 0.1f;
+        public float chillFlashTime = 0.2f;
+        public float surgePowerMul = 2f;
+        public int anchorRingTicks = 48;
+        [InfoBox("anchorRingWidth и abilityRingWall в долях радиуса")]
+        public float anchorRingWidth = 0.02f;
+        public float abilityRingWall = 0.12f;
+        public float abilityReadyPulse = 1.08f;
+        public float abilityReadyPulseTime = 0.6f;
 
         [Title("Враги")]
         public int maxEnemies = 200;

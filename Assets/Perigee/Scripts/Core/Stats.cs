@@ -1,3 +1,5 @@
+using UnityEngine;
+
 namespace Perigee
 {
     public class Stats
@@ -18,8 +20,8 @@ namespace Perigee
         public int extraSatellites;
         public int beacons;
 
-        // база × карточки: множители перемножаются, бонусы складываются
-        public void Recompute(GameConfig config, EraConfig era, int[] cardStacks)
+        // база × карточки × активные способности: множители перемножаются, бонусы складываются
+        public void Recompute(GameConfig config, EraConfig era, int[] cardStacks, AbilitySystem abilities)
         {
             radialSpeedMul = 1f;
             spinMul = era.spinMul;
@@ -46,6 +48,11 @@ namespace Perigee
                     Apply(cards[i].minus);
                 }
             }
+
+            // временные множители способностей, отдельно от карточек
+            satRadiusMul *= Mathf.Lerp(1f, config.growRadiusMul, abilities.GrowBlend);
+            if (abilities.Active(AbilityId.Grow)) resonanceAngleMul *= config.growResonanceMul;
+            if (abilities.Active(AbilityId.Surge)) powerMul *= config.surgePowerMul;
         }
 
         void Apply(StatMod mod)
