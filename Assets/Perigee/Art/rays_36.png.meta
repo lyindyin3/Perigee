@@ -1,0 +1,1079 @@
+fileFormatVersion: 2
+guid: e83b9d87cdc95554296f8b32252bcef9
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -8367840558173557639
+    second: rays_36_0
+  - first:
+      213: -2641450681445818058
+    second: rays_36_1
+  - first:
+      213: 1053890675840052043
+    second: rays_36_2
+  - first:
+      213: 4898290992288048902
+    second: rays_36_3
+  - first:
+      213: -2440866976644296029
+    second: rays_36_4
+  - first:
+      213: -9105089069134949937
+    second: rays_36_5
+  - first:
+      213: 1547718825350424007
+    second: rays_36_6
+  - first:
+      213: -6370147383167599984
+    second: rays_36_7
+  - first:
+      213: -3556704059081609460
+    second: rays_36_8
+  - first:
+      213: 6319968238530599866
+    second: rays_36_9
+  - first:
+      213: -5050119097353633163
+    second: rays_36_10
+  - first:
+      213: -568248821068899069
+    second: rays_36_11
+  - first:
+      213: 1227098385272472156
+    second: rays_36_12
+  - first:
+      213: -2092126153992593907
+    second: rays_36_13
+  - first:
+      213: 4572460162958270915
+    second: rays_36_14
+  - first:
+      213: -2357141839510772320
+    second: rays_36_15
+  - first:
+      213: -5470117150864953011
+    second: rays_36_16
+  - first:
+      213: -1226375566365921186
+    second: rays_36_17
+  - first:
+      213: 9042446882916372485
+    second: rays_36_18
+  - first:
+      213: -3400350098183933999
+    second: rays_36_19
+  - first:
+      213: 5375687958870263989
+    second: rays_36_20
+  - first:
+      213: -8226056630173254032
+    second: rays_36_21
+  - first:
+      213: -2703169405824026376
+    second: rays_36_22
+  - first:
+      213: 592647304364050166
+    second: rays_36_23
+  - first:
+      213: -8296428859879348215
+    second: rays_36_24
+  - first:
+      213: 8199587341172543356
+    second: rays_36_25
+  - first:
+      213: 3750831533221332178
+    second: rays_36_26
+  - first:
+      213: 7325502007178949811
+    second: rays_36_27
+  - first:
+      213: -3581920356393178222
+    second: rays_36_28
+  - first:
+      213: -2113330159686155767
+    second: rays_36_29
+  - first:
+      213: -2830546479001721449
+    second: rays_36_30
+  - first:
+      213: 3683813116200341585
+    second: rays_36_31
+  - first:
+      213: 2006777633167499435
+    second: rays_36_32
+  - first:
+      213: -2587408255376714823
+    second: rays_36_33
+  - first:
+      213: 7719875436481355893
+    second: rays_36_34
+  - first:
+      213: -4522456609110066189
+    second: rays_36_35
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 0
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 256
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 512
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: rays_36_0
+      rect:
+        serializedVersion: 2
+        x: 90
+        y: 401
+        width: 46
+        height: 53
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 97c65f8d8557fdb80800000000000000
+      internalID: -8367840558173557639
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rays_36_1
+      rect:
+        serializedVersion: 2
+        x: 127
+        y: 423
+        width: 39
+        height: 56
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 63165b8a99ea75bd0800000000000000
+      internalID: -2641450681445818058
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rays_36_2
+      rect:
+        serializedVersion: 2
+        x: 167
+        y: 438
+        width: 31
+        height: 60
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b4bea856cfb20ae00800000000000000
+      internalID: 1053890675840052043
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rays_36_3
+      rect:
+        serializedVersion: 2
+        x: 210
+        y: 449
+        width: 21
+        height: 61
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 60723d984b93af340800000000000000
+      internalID: 4898290992288048902
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rays_36_4
+      rect:
+        serializedVersion: 2
+        x: 246
+        y: 453
+        width: 20
+        height: 59
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3a29221ca6c402ed0800000000000000
+      internalID: -2440866976644296029
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rays_36_5
+      rect:
+        serializedVersion: 2
+        x: 281
+        y: 449
+        width: 21
+        height: 61
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fc15be18bb934a180800000000000000
+      internalID: -9105089069134949937
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rays_36_6
+      rect:
+        serializedVersion: 2
+        x: 314
+        y: 438
+        width: 31
+        height: 60
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7c5623d421a9a7510800000000000000
+      internalID: 1547718825350424007
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rays_36_7
+      rect:
+        serializedVersion: 2
+        x: 346
+        y: 423
+        width: 39
+        height: 56
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 09a396b94b0b897a0800000000000000
+      internalID: -6370147383167599984
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rays_36_8
+      rect:
+        serializedVersion: 2
+        x: 376
+        y: 401
+        width: 46
+        height: 53
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c0f2043a08c04aec0800000000000000
+      internalID: -3556704059081609460
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rays_36_9
+      rect:
+        serializedVersion: 2
+        x: 33
+        y: 346
+        width: 56
+        height: 39
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: abb1e59d0a905b750800000000000000
+      internalID: 6319968238530599866
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rays_36_10
+      rect:
+        serializedVersion: 2
+        x: 58
+        y: 376
+        width: 53
+        height: 46
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 57202d8007f5ae9b0800000000000000
+      internalID: -5050119097353633163
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rays_36_11
+      rect:
+        serializedVersion: 2
+        x: 401
+        y: 376
+        width: 53
+        height: 46
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 30d572c35bc2d18f0800000000000000
+      internalID: -568248821068899069
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rays_36_12
+      rect:
+        serializedVersion: 2
+        x: 423
+        y: 346
+        width: 56
+        height: 39
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c520f9eda77870110800000000000000
+      internalID: 1227098385272472156
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rays_36_13
+      rect:
+        serializedVersion: 2
+        x: 14
+        y: 314
+        width: 60
+        height: 31
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d0e97f5f85647f2e0800000000000000
+      internalID: -2092126153992593907
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rays_36_14
+      rect:
+        serializedVersion: 2
+        x: 438
+        y: 314
+        width: 60
+        height: 31
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3c1a0c2da44a47f30800000000000000
+      internalID: 4572460162958270915
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rays_36_15
+      rect:
+        serializedVersion: 2
+        x: 2
+        y: 281
+        width: 61
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0a5efb25cffb94fd0800000000000000
+      internalID: -2357141839510772320
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rays_36_16
+      rect:
+        serializedVersion: 2
+        x: 449
+        y: 281
+        width: 61
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d413ce6ee6d3614b0800000000000000
+      internalID: -5470117150864953011
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rays_36_17
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 246
+        width: 59
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e507a858be90bfee0800000000000000
+      internalID: -1226375566365921186
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rays_36_18
+      rect:
+        serializedVersion: 2
+        x: 453
+        y: 246
+        width: 59
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5009194f7893d7d70800000000000000
+      internalID: 9042446882916372485
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rays_36_19
+      rect:
+        serializedVersion: 2
+        x: 2
+        y: 210
+        width: 61
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1df28cdf9978fc0d0800000000000000
+      internalID: -3400350098183933999
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rays_36_20
+      rect:
+        serializedVersion: 2
+        x: 449
+        y: 210
+        width: 61
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5b88ecb87b74a9a40800000000000000
+      internalID: 5375687958870263989
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rays_36_21
+      rect:
+        serializedVersion: 2
+        x: 14
+        y: 167
+        width: 60
+        height: 31
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 07eb640141d27dd80800000000000000
+      internalID: -8226056630173254032
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rays_36_22
+      rect:
+        serializedVersion: 2
+        x: 438
+        y: 167
+        width: 60
+        height: 31
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8f8b7265fb96c7ad0800000000000000
+      internalID: -2703169405824026376
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rays_36_23
+      rect:
+        serializedVersion: 2
+        x: 33
+        y: 127
+        width: 56
+        height: 39
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6f646b55591893800800000000000000
+      internalID: 592647304364050166
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rays_36_24
+      rect:
+        serializedVersion: 2
+        x: 58
+        y: 90
+        width: 53
+        height: 46
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 908a79688e92ddc80800000000000000
+      internalID: -8296428859879348215
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rays_36_25
+      rect:
+        serializedVersion: 2
+        x: 401
+        y: 90
+        width: 53
+        height: 46
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c7f01675e39cac170800000000000000
+      internalID: 8199587341172543356
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rays_36_26
+      rect:
+        serializedVersion: 2
+        x: 423
+        y: 127
+        width: 56
+        height: 39
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2d4cdfd1861ad0430800000000000000
+      internalID: 3750831533221332178
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rays_36_27
+      rect:
+        serializedVersion: 2
+        x: 90
+        y: 58
+        width: 46
+        height: 53
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3b4ff4b634969a560800000000000000
+      internalID: 7325502007178949811
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rays_36_28
+      rect:
+        serializedVersion: 2
+        x: 127
+        y: 33
+        width: 39
+        height: 56
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 29ba177e9667a4ec0800000000000000
+      internalID: -3581920356393178222
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rays_36_29
+      rect:
+        serializedVersion: 2
+        x: 167
+        y: 14
+        width: 31
+        height: 60
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 90289caaa61fba2e0800000000000000
+      internalID: -2113330159686155767
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rays_36_30
+      rect:
+        serializedVersion: 2
+        x: 210
+        y: 2
+        width: 21
+        height: 61
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 795aed669f0e7b8d0800000000000000
+      internalID: -2830546479001721449
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rays_36_31
+      rect:
+        serializedVersion: 2
+        x: 246
+        y: 0
+        width: 20
+        height: 59
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 150db02f2888f1330800000000000000
+      internalID: 3683813116200341585
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rays_36_32
+      rect:
+        serializedVersion: 2
+        x: 281
+        y: 2
+        width: 21
+        height: 61
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ba0e52000a189db10800000000000000
+      internalID: 2006777633167499435
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rays_36_33
+      rect:
+        serializedVersion: 2
+        x: 314
+        y: 14
+        width: 31
+        height: 60
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9b39b5186eda71cd0800000000000000
+      internalID: -2587408255376714823
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rays_36_34
+      rect:
+        serializedVersion: 2
+        x: 346
+        y: 33
+        width: 39
+        height: 56
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5702cbdcec1822b60800000000000000
+      internalID: 7719875436481355893
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rays_36_35
+      rect:
+        serializedVersion: 2
+        x: 376
+        y: 58
+        width: 46
+        height: 53
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3fb70edcca10d31c0800000000000000
+      internalID: -4522456609110066189
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      rays_36_0: -8367840558173557639
+      rays_36_1: -2641450681445818058
+      rays_36_10: -5050119097353633163
+      rays_36_11: -568248821068899069
+      rays_36_12: 1227098385272472156
+      rays_36_13: -2092126153992593907
+      rays_36_14: 4572460162958270915
+      rays_36_15: -2357141839510772320
+      rays_36_16: -5470117150864953011
+      rays_36_17: -1226375566365921186
+      rays_36_18: 9042446882916372485
+      rays_36_19: -3400350098183933999
+      rays_36_2: 1053890675840052043
+      rays_36_20: 5375687958870263989
+      rays_36_21: -8226056630173254032
+      rays_36_22: -2703169405824026376
+      rays_36_23: 592647304364050166
+      rays_36_24: -8296428859879348215
+      rays_36_25: 8199587341172543356
+      rays_36_26: 3750831533221332178
+      rays_36_27: 7325502007178949811
+      rays_36_28: -3581920356393178222
+      rays_36_29: -2113330159686155767
+      rays_36_3: 4898290992288048902
+      rays_36_30: -2830546479001721449
+      rays_36_31: 3683813116200341585
+      rays_36_32: 2006777633167499435
+      rays_36_33: -2587408255376714823
+      rays_36_34: 7719875436481355893
+      rays_36_35: -4522456609110066189
+      rays_36_4: -2440866976644296029
+      rays_36_5: -9105089069134949937
+      rays_36_6: 1547718825350424007
+      rays_36_7: -6370147383167599984
+      rays_36_8: -3556704059081609460
+      rays_36_9: 6319968238530599866
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -8,15 +8,16 @@ namespace Perigee
     {
         const int SecondsPerMinute = 60;
         const int DigitBase = 10;
+        // обязательная часть префаба HudCardIcon: картинка карточки
+        const string IconName = "Icon";
 
         [SerializeField] GameConfig config;
+        [SerializeField] ArtSet art;
         [SerializeField] GameLoop loop;
         [SerializeField] CardSystem cards;
         [SerializeField] RectTransform safeArea;
         [SerializeField] Image hpFill;
         [SerializeField] Image xpFill;
-        [SerializeField] Image starIcon;
-        [SerializeField] Image crystalIcon;
         [SerializeField] TMP_Text dustText;
         [SerializeField] TMP_Text timerText;
         // блоки, которые меняют место при повороте экрана, и их места в двух раскладках
@@ -26,10 +27,12 @@ namespace Perigee
         [SerializeField] RectTransform dust;
         [SerializeField] RectTransform dustPortrait;
         [SerializeField] RectTransform dustLandscape;
-        // по индексу карточки в config.cards
-        [SerializeField] GameObject[] cardIcons;
-        [SerializeField] TMP_Text[] cardIconTexts;
+        [SerializeField] RectTransform cardIconsRoot;
+        [SerializeField] GameObject cardIconPrefab;
 
+        // по индексу карточки в config.cards
+        GameObject[] cardIcons;
+        TMP_Text[] cardIconTexts;
         int[] shownStacks;
         int shownDust = -1;
         int shownSeconds = -1;
@@ -38,13 +41,9 @@ namespace Perigee
 
         void Awake()
         {
+            cardIcons = new GameObject[config.cards.Length];
+            cardIconTexts = new TMP_Text[cardIcons.Length];
             shownStacks = new int[cardIcons.Length];
-            // Image.fillAmount работает только со спрайтом
-            Sprite rect = ShapeFactory.Rect();
-            hpFill.sprite = rect;
-            xpFill.sprite = rect;
-            starIcon.sprite = ShapeFactory.Circle();
-            crystalIcon.sprite = ShapeFactory.Diamond();
         }
 
         void Update()
@@ -75,9 +74,17 @@ namespace Perigee
                 int stacks = run.cardStacks[i];
                 if (stacks == shownStacks[i]) continue;
 
+                // иконка создаётся, когда карточку взяли впервые, и убирается с новым забегом
+                CardId id = config.cards[i].id;
+                if (shownStacks[i] == 0)
+                {
+                    cardIcons[i] = Instantiate(cardIconPrefab, cardIconsRoot);
+                    cardIcons[i].transform.Find(IconName).GetComponent<Image>().sprite = art.cardIcons[(int)id];
+                    cardIconTexts[i] = cardIcons[i].GetComponentInChildren<TMP_Text>();
+                }
                 shownStacks[i] = stacks;
-                cardIcons[i].SetActive(stacks > 0);
-                if (stacks > 0) cardIconTexts[i].text = Strings.CardShort[(int)config.cards[i].id] + "\n" + stacks;
+                if (stacks == 0) Destroy(cardIcons[i]);
+                else cardIconTexts[i].text = Strings.CardShort[(int)id] + "\n" + stacks;
             }
         }
 

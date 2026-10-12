@@ -7,12 +7,11 @@ namespace Perigee
     public class AbilityButtonView : MonoBehaviour
     {
         [SerializeField] GameConfig config;
+        [SerializeField] ArtSet art;
         [SerializeField] AbilitySystem abilities;
         [SerializeField] int slot;
         // всё видимое: скрыто, пока слот пуст
         [SerializeField] GameObject button;
-        [SerializeField] Image back;
-        [SerializeField] Image track;
         [SerializeField] Image fill;
         [SerializeField] Image readyRing;
         [SerializeField] Image icon;
@@ -22,12 +21,6 @@ namespace Perigee
 
         void Awake()
         {
-            // Image.fillAmount работает только со спрайтом
-            Sprite ring = ShapeFactory.Circle(0f, config.abilityRingWall);
-            back.sprite = ShapeFactory.Circle();
-            track.sprite = ring;
-            fill.sprite = ring;
-            readyRing.sprite = ring;
             readyRing.enabled = false;
         }
 
@@ -46,7 +39,7 @@ namespace Perigee
             if (id == shownId) return;
 
             shownId = id;
-            icon.sprite = ShapeFactory.Pictogram(abilities.Id(slot));
+            icon.sprite = art.abilityIcons[id];
         }
 
         void SetReady(bool ready)

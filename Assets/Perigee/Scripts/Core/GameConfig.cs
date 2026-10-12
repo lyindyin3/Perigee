@@ -13,14 +13,6 @@ namespace Perigee
         public float countMul;
     }
 
-    [Serializable]
-    public class RingDef
-    {
-        public float radius;
-        public int tickCount;
-        public float spinSpeed;
-    }
-
     public enum EnemyType { Swarmer, Arrow, Bolt, Bastion, Parasite, Shooter, Hive, Boss }
 
     public enum EnemyBehavior { Straight, Attach, Stopper, Burster, Ellipse }
@@ -38,6 +30,10 @@ namespace Perigee
         public float starDamage;
         public int crystals;
         public EnemyBehavior behavior;
+        // корень картинки поворачивается осью +Y к звезде
+        public bool faceStar;
+        // сколько объектов создаётся заранее в начале забега
+        public int prewarm;
     }
 
     [Serializable]
@@ -105,6 +101,8 @@ namespace Perigee
         [Title("Мир")]
         public float starRadius = 1f;
         public float starMaxHp = 120f;
+        public float starLowHpFraction = 0.3f;
+        public Color starHitFlashColor = new Color32(0xD6, 0x28, 0x1F, 0xFF);
         public float H = 6.2f;
         public float spawnRadius = 7f;
         public float arrowSpawnRadius = 5.3f;
@@ -127,7 +125,6 @@ namespace Perigee
         public float tMin = 1f;
         public float satStartAngle = 90f;
         public float satFadeIn = 0.3f;
-        public float satStunWall = 0.3f;
 
         [Title("Сила удара")]
         public float powerNear = 3f;
@@ -144,9 +141,9 @@ namespace Perigee
         public float coolRate = 0.25f;
         public float stunTime = 1f;
         public float heatAfterStun = 0.4f;
+        public Color stunTint = new Color32(0xB9, 0xBD, 0xC2, 0x99);
         public float heatArcRadius = 0.32f;
-        public float heatArcWidth = 0.05f;
-        public int heatArcSegments = 32;
+        public int heatArcPoints = 48;
         public float heatFlickerFrom = 0.8f;
         public float heatFlickerHz = 12f;
 
@@ -155,18 +152,9 @@ namespace Perigee
         public float resonanceMul = 2f;
         public int threadSegments = 6;
         public float threadInterval = 0.05f;
-        public float threadWidth = 0.05f;
         public float threadJitter = 0.15f;
-        public float threadLabelSize = 3f;
         public float threadLabelOffset = 0.3f;
-
-        [Title("Кольцо брони")]
-        public float armorRingSpin = 10f;
-        public int armorRingTicks = 36;
-        [InfoBox("armorRingWidth в долях радиуса кольца")]
-        public float armorRingWidth = 0.02f;
-        public float armorRingAlpha = 0.7f;
-        public float armorShieldSize = 0.2f;
+        public int threadPrewarm = 3;
 
         [Title("Кристаллы")]
         public float crystalLife = 10f;
@@ -175,8 +163,8 @@ namespace Perigee
         public float crystalSpread = 0.3f;
         public float crystalBlinkTime = 2f;
         public float crystalBlinkHz = 6f;
-        public float crystalSpin = 180f;
         public int maxCrystals = 256;
+        public int crystalPrewarm = 60;
 
         [Title("Опыт и карточки")]
         public int xpBase = 8;
@@ -206,7 +194,6 @@ namespace Perigee
         public float beaconRadius = 2.5f;
         public float beaconDamage = 1f;
         public float beaconFxTime = 0.35f;
-        public float beaconFxWidth = 0.08f;
 
         [Title("Способности")]
         public int abilityPickLevel = 3;
@@ -227,13 +214,8 @@ namespace Perigee
         public float pulseTime = 0.35f;
         public float pulseDamage = 2f;
         public float pulsePush = 1f;
-        public float pulseFxWidth = 0.1f;
         public float chillFlashTime = 0.2f;
         public float surgePowerMul = 2f;
-        public int anchorRingTicks = 48;
-        [InfoBox("anchorRingWidth и abilityRingWall в долях радиуса")]
-        public float anchorRingWidth = 0.02f;
-        public float abilityRingWall = 0.12f;
         public float abilityReadyPulse = 1.08f;
         public float abilityReadyPulseTime = 0.6f;
 
@@ -243,14 +225,14 @@ namespace Perigee
         [TableList]
         public EnemyDef[] enemies =
         {
-            new EnemyDef { id = EnemyType.Swarmer, radius = 0.2f, hp = 1f, speed = 1.1f, armor = 0f, starDamage = 3f, crystals = 1, behavior = EnemyBehavior.Straight },
-            new EnemyDef { id = EnemyType.Arrow, radius = 0.15f, hp = 1f, speed = 2.6f, armor = 0f, starDamage = 9f, crystals = 2, behavior = EnemyBehavior.Straight },
-            new EnemyDef { id = EnemyType.Bolt, radius = 0.15f, hp = 1f, speed = 3.5f, armor = 0f, starDamage = 4f, crystals = 0, behavior = EnemyBehavior.Straight },
-            new EnemyDef { id = EnemyType.Bastion, radius = 0.55f, hp = 5f, speed = 0.35f, armor = 2f, starDamage = 20f, crystals = 6, behavior = EnemyBehavior.Straight },
-            new EnemyDef { id = EnemyType.Parasite, radius = 0.25f, hp = 5f, speed = 1.6f, armor = 0f, starDamage = 0f, crystals = 3, behavior = EnemyBehavior.Attach },
-            new EnemyDef { id = EnemyType.Shooter, radius = 0.3f, hp = 2f, speed = 1f, armor = 0f, starDamage = 0f, crystals = 4, behavior = EnemyBehavior.Stopper },
-            new EnemyDef { id = EnemyType.Hive, radius = 0.6f, hp = 4f, speed = 0.7f, armor = 0f, starDamage = 0f, crystals = 8, behavior = EnemyBehavior.Burster },
-            new EnemyDef { id = EnemyType.Boss, radius = 0.9f, hp = 80f, speed = 0f, armor = 0f, starDamage = 8f, crystals = 30, behavior = EnemyBehavior.Ellipse },
+            new EnemyDef { id = EnemyType.Swarmer, radius = 0.2f, hp = 1f, speed = 1.1f, armor = 0f, starDamage = 3f, crystals = 1, behavior = EnemyBehavior.Straight, faceStar = true, prewarm = 60 },
+            new EnemyDef { id = EnemyType.Arrow, radius = 0.15f, hp = 1f, speed = 2.6f, armor = 0f, starDamage = 9f, crystals = 2, behavior = EnemyBehavior.Straight, faceStar = true, prewarm = 8 },
+            new EnemyDef { id = EnemyType.Bolt, radius = 0.15f, hp = 1f, speed = 3.5f, armor = 0f, starDamage = 4f, crystals = 0, behavior = EnemyBehavior.Straight, faceStar = true, prewarm = 8 },
+            new EnemyDef { id = EnemyType.Bastion, radius = 0.55f, hp = 5f, speed = 0.35f, armor = 2f, starDamage = 20f, crystals = 6, behavior = EnemyBehavior.Straight, faceStar = true, prewarm = 8 },
+            new EnemyDef { id = EnemyType.Parasite, radius = 0.25f, hp = 5f, speed = 1.6f, armor = 0f, starDamage = 0f, crystals = 3, behavior = EnemyBehavior.Attach, faceStar = false, prewarm = 8 },
+            new EnemyDef { id = EnemyType.Shooter, radius = 0.3f, hp = 2f, speed = 1f, armor = 0f, starDamage = 0f, crystals = 4, behavior = EnemyBehavior.Stopper, faceStar = true, prewarm = 8 },
+            new EnemyDef { id = EnemyType.Hive, radius = 0.6f, hp = 4f, speed = 0.7f, armor = 0f, starDamage = 0f, crystals = 8, behavior = EnemyBehavior.Burster, faceStar = false, prewarm = 8 },
+            new EnemyDef { id = EnemyType.Boss, radius = 0.9f, hp = 80f, speed = 0f, armor = 0f, starDamage = 8f, crystals = 30, behavior = EnemyBehavior.Ellipse, faceStar = false, prewarm = 0 },
         };
 
         [Title("Поведение врагов")]
@@ -264,28 +246,6 @@ namespace Perigee
         public float hiveBurstRadius = 3f;
         public int hiveSwarmers = 8;
         public float hiveBurstSpread = 0.5f;
-
-        [Title("Вид врагов")]
-        [InfoBox("Trim, Rivet, Body, Wall, Hole, Fill и Pulse заданы в долях радиуса формы; Length, Width и MarkerRadius в единицах мира")]
-        public float arrowLength = 0.6f;
-        public float arrowWidth = 0.2f;
-        public float arrowTailLength = 0.3f;
-        public float arrowTailFill = 0.3f;
-        public float bastionTrim = 0.1f;
-        public float bastionRivetLength = 0.25f;
-        public float bastionRivetWidth = 0.04f;
-        public float bastionRivetStep = 0.3f;
-        public float parasiteBody = 0.6f;
-        public float parasiteLegFill = 0.3f;
-        public float parasiteMarkerRadius = 0.45f;
-        public float parasiteMarkerWall = 0.15f;
-        public float parasiteMarkerPulse = 0.2f;
-        public float parasiteMarkerPulseHz = 2f;
-        public float shooterWall = 0.3f;
-        public float shooterBarrelLength = 0.35f;
-        public float shooterBarrelWidth = 0.08f;
-        public float hiveHoleRadius = 0.25f;
-        public float hiveHoleOffset = 0.45f;
 
         [Title("Расписание")]
         public SpawnEvent[] opening =
@@ -324,15 +284,8 @@ namespace Perigee
         public float telegraphLeadSwarm = 1f;
         public float telegraphLeadArrow = 1.5f;
         public float telegraphLeadOther = 0.8f;
-        public float arrowWedgeSize = 0.35f;
-        public float arrowWedgePulse = 0.2f;
-        public float arrowWedgePulseHz = 3f;
-        public float arrowLineWidth = 0.04f;
-        public float arrowLineAlpha = 0.3f;
         public float telegraphInset = 0.5f;
-        public float telegraphSize = 0.3f;
-        public float telegraphBlinkHz = 4f;
-        public int maxMarkers = 8;
+        public int markerPrewarm = 8;
 
         [Title("Эры")]
         [TableList]
@@ -342,52 +295,6 @@ namespace Perigee
             new EraConfig { kExp = 0.9f, spinMul = 1.3f, hpMul = 1.3f, countMul = 1.2f },
             new EraConfig { kExp = 1.2f, spinMul = 1f, hpMul = 1.6f, countMul = 1.4f },
         };
-
-        [Title("Палитра")]
-        public Color background = new Color32(0x0E, 0x0E, 0x0E, 0xFF);
-        public Color cream = new Color32(0xEF, 0xE4, 0xC8, 0xFF);
-        public Color red = new Color32(0xD6, 0x28, 0x1F, 0xFF);
-        public Color gold = new Color32(0xE3, 0xB2, 0x3C, 0xFF);
-        public Color silver = new Color32(0xB9, 0xBD, 0xC2, 0xFF);
-        public Material spriteMaterial;
-
-        [Title("Вид звезды и спутника")]
-        public float outlineWidth = 0.02f;
-        public int starRayCount = 36;
-        public float starRaysInner = 1.05f;
-        public float starRaysOuter = 1.35f;
-        public float starRayFill = 0.5f;
-        public float starRaysSpin = 6f;
-        public float starPulseScale = 1.03f;
-        public float starPulseHz = 1.5f;
-        public float starLowHpFraction = 0.3f;
-        public float starLowHpPulseHz = 3f;
-        public float satTrailTime = 0.35f;
-        public float satTrailWidth = 0.12f;
-
-        [Title("Фоновые кольца")]
-        [TableList]
-        public RingDef[] rings =
-        {
-            new RingDef { radius = 1.7f, tickCount = 60, spinSpeed = 24f },
-            new RingDef { radius = 2.6f, tickCount = 48, spinSpeed = -18f },
-            new RingDef { radius = 3.5f, tickCount = 40, spinSpeed = 13f },
-            new RingDef { radius = 4.4f, tickCount = 32, spinSpeed = -10f },
-            new RingDef { radius = 5.3f, tickCount = 28, spinSpeed = 7f },
-            new RingDef { radius = 6.2f, tickCount = 24, spinSpeed = -5f },
-        };
-        public float ringAlpha = 0.35f;
-        public float ringWidth = 0.06f;
-        public float ringDashFill = 0.5f;
-
-        [Title("Порядок отрисовки")]
-        public int sortBars = 0;
-        public int sortRings = 10;
-        public int sortCrystals = 20;
-        public int sortEnemies = 30;
-        public int sortStar = 40;
-        public int sortSatellites = 50;
-        public int sortFx = 60;
 
         static SpawnEvent At(float time, params SpawnGroup[] groups)
         {

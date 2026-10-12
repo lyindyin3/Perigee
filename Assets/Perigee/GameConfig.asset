@@ -14,6 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Perigee.GameConfig
   starRadius: 1
   starMaxHp: 120
+  starLowHpFraction: 0.3
+  starHitFlashColor: {r: 0.8392157, g: 0.15686275, b: 0.12156863, a: 1}
   H: 6.2
   spawnRadius: 7
   arrowSpawnRadius: 5.3
@@ -32,7 +34,6 @@ MonoBehaviour:
   tMin: 1
   satStartAngle: 90
   satFadeIn: 0.3
-  satStunWall: 0.3
   powerNear: 3
   powerFar: 1
   powerFarRadius: 4.6
@@ -45,32 +46,26 @@ MonoBehaviour:
   coolRate: 0.25
   stunTime: 1
   heatAfterStun: 0.4
+  stunTint: {r: 0.7254902, g: 0.7411765, b: 0.7607843, a: 0.6}
   heatArcRadius: 0.32
-  heatArcWidth: 0.05
-  heatArcSegments: 32
+  heatArcPoints: 48
   heatFlickerFrom: 0.8
   heatFlickerHz: 12
   resonanceHalfAngle: 35
   resonanceMul: 2
   threadSegments: 6
   threadInterval: 0.05
-  threadWidth: 0.05
   threadJitter: 0.15
-  threadLabelSize: 3
   threadLabelOffset: 0.3
-  armorRingSpin: 10
-  armorRingTicks: 36
-  armorRingWidth: 0.02
-  armorRingAlpha: 0.7
-  armorShieldSize: 0.2
+  threadPrewarm: 3
   crystalLife: 10
   crystalRadius: 0.14
   magnetSpeed: 7
   crystalSpread: 0.3
   crystalBlinkTime: 2
   crystalBlinkHz: 6
-  crystalSpin: 180
   maxCrystals: 256
+  crystalPrewarm: 60
   xpBase: 8
   xpPerLevel: 3
   cardChoices: 3
@@ -177,7 +172,6 @@ MonoBehaviour:
   beaconRadius: 2.5
   beaconDamage: 1
   beaconFxTime: 0.35
-  beaconFxWidth: 0.08
   abilityPickLevel: 3
   abilityChoices: 3
   abilities:
@@ -203,12 +197,8 @@ MonoBehaviour:
   pulseTime: 0.35
   pulseDamage: 2
   pulsePush: 1
-  pulseFxWidth: 0.1
   chillFlashTime: 0.2
   surgePowerMul: 2
-  anchorRingTicks: 48
-  anchorRingWidth: 0.02
-  abilityRingWall: 0.12
   abilityReadyPulse: 1.08
   abilityReadyPulseTime: 0.6
   maxEnemies: 200
@@ -222,6 +212,8 @@ MonoBehaviour:
     starDamage: 3
     crystals: 1
     behavior: 0
+    faceStar: 1
+    prewarm: 60
   - id: 1
     radius: 0.15
     hp: 1
@@ -230,6 +222,8 @@ MonoBehaviour:
     starDamage: 9
     crystals: 2
     behavior: 0
+    faceStar: 1
+    prewarm: 8
   - id: 2
     radius: 0.15
     hp: 1
@@ -238,6 +232,8 @@ MonoBehaviour:
     starDamage: 4
     crystals: 0
     behavior: 0
+    faceStar: 1
+    prewarm: 8
   - id: 3
     radius: 0.55
     hp: 5
@@ -246,6 +242,8 @@ MonoBehaviour:
     starDamage: 20
     crystals: 6
     behavior: 0
+    faceStar: 1
+    prewarm: 8
   - id: 4
     radius: 0.25
     hp: 5
@@ -254,6 +252,8 @@ MonoBehaviour:
     starDamage: 0
     crystals: 3
     behavior: 1
+    faceStar: 0
+    prewarm: 8
   - id: 5
     radius: 0.3
     hp: 2
@@ -262,6 +262,8 @@ MonoBehaviour:
     starDamage: 0
     crystals: 4
     behavior: 2
+    faceStar: 1
+    prewarm: 8
   - id: 6
     radius: 0.6
     hp: 4
@@ -270,6 +272,8 @@ MonoBehaviour:
     starDamage: 0
     crystals: 8
     behavior: 3
+    faceStar: 0
+    prewarm: 8
   - id: 7
     radius: 0.9
     hp: 80
@@ -278,6 +282,8 @@ MonoBehaviour:
     starDamage: 8
     crystals: 30
     behavior: 4
+    faceStar: 0
+    prewarm: 0
   parasiteAttachOffset: 0.15
   parasiteDrainBase: 1.5
   parasiteDrainGrowth: 0.4
@@ -288,25 +294,6 @@ MonoBehaviour:
   hiveBurstRadius: 3
   hiveSwarmers: 8
   hiveBurstSpread: 0.5
-  arrowLength: 0.6
-  arrowWidth: 0.2
-  arrowTailLength: 0.3
-  arrowTailFill: 0.3
-  bastionTrim: 0.1
-  bastionRivetLength: 0.25
-  bastionRivetWidth: 0.04
-  bastionRivetStep: 0.3
-  parasiteBody: 0.6
-  parasiteLegFill: 0.3
-  parasiteMarkerRadius: 0.45
-  parasiteMarkerWall: 0.15
-  parasiteMarkerPulse: 0.2
-  parasiteMarkerPulseHz: 2
-  shooterWall: 0.3
-  shooterBarrelLength: 0.35
-  shooterBarrelWidth: 0.08
-  hiveHoleRadius: 0.25
-  hiveHoleOffset: 0.45
   opening:
   - time: 2
     groups:
@@ -520,15 +507,8 @@ MonoBehaviour:
   telegraphLeadSwarm: 1
   telegraphLeadArrow: 1.5
   telegraphLeadOther: 0.8
-  arrowWedgeSize: 0.35
-  arrowWedgePulse: 0.2
-  arrowWedgePulseHz: 3
-  arrowLineWidth: 0.04
-  arrowLineAlpha: 0.3
   telegraphInset: 0.5
-  telegraphSize: 0.3
-  telegraphBlinkHz: 4
-  maxMarkers: 8
+  markerPrewarm: 8
   eras:
   - kExp: 0.9
     spinMul: 1
@@ -542,50 +522,3 @@ MonoBehaviour:
     spinMul: 1
     hpMul: 1.6
     countMul: 1.4
-  background: {r: 0.05490196, g: 0.05490196, b: 0.05490196, a: 1}
-  cream: {r: 0.9372549, g: 0.89411765, b: 0.78431374, a: 1}
-  red: {r: 0.8392157, g: 0.15686275, b: 0.12156863, a: 1}
-  gold: {r: 0.8901961, g: 0.69803923, b: 0.23529412, a: 1}
-  silver: {r: 0.7254902, g: 0.7411765, b: 0.7607843, a: 1}
-  spriteMaterial: {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
-  outlineWidth: 0.02
-  starRayCount: 36
-  starRaysInner: 1.05
-  starRaysOuter: 1.35
-  starRayFill: 0.5
-  starRaysSpin: 6
-  starPulseScale: 1.03
-  starPulseHz: 1.5
-  starLowHpFraction: 0.3
-  starLowHpPulseHz: 3
-  satTrailTime: 0.35
-  satTrailWidth: 0.12
-  rings:
-  - radius: 1.7
-    tickCount: 60
-    spinSpeed: 24
-  - radius: 2.6
-    tickCount: 48
-    spinSpeed: -18
-  - radius: 3.5
-    tickCount: 40
-    spinSpeed: 13
-  - radius: 4.4
-    tickCount: 32
-    spinSpeed: -10
-  - radius: 5.3
-    tickCount: 28
-    spinSpeed: 7
-  - radius: 6.2
-    tickCount: 24
-    spinSpeed: -5
-  ringAlpha: 0.35
-  ringWidth: 0.06
-  ringDashFill: 0.5
-  sortBars: 0
-  sortRings: 10
-  sortCrystals: 20
-  sortEnemies: 30
-  sortStar: 40
-  sortSatellites: 50
-  sortFx: 60

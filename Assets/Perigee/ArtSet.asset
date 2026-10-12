@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 699fd213cd97a8b46beeca13e369905d, type: 3}
+  m_Name: ArtSet
+  m_EditorClassIdentifier: Assembly-CSharp::Perigee.ArtSet
+  satellite: {fileID: 7693875930388308927, guid: d931483c55b6cdb4ab8b5c2fcdad3acb, type: 3}
+  crystal: {fileID: 4764373594962635259, guid: 875babf7df9991845a0a695afce1554e, type: 3}
+  enemies:
+  - {fileID: 3132394689175449554, guid: 52a286404508d13459c431c1a4a75db7, type: 3}
+  - {fileID: 4774576623608743077, guid: 2529d47957144c44bbd4088dbe4c8ad7, type: 3}
+  - {fileID: 3402766800264253930, guid: 31881b020f1394c4e84917fd1fce0ba2, type: 3}
+  - {fileID: 4258727596427704342, guid: 82d4132e35504354c894515a7e9c6c4c, type: 3}
+  - {fileID: 957804869827739951, guid: 8a636d7724c72324e8224b85abe6fc07, type: 3}
+  - {fileID: 155569817592322869, guid: 39c948787b7105441bd5702e34eaaa23, type: 3}
+  - {fileID: 7893501898878097509, guid: 730b18f08f01b67468c456e9e4522307, type: 3}
+  - {fileID: 6827269638911580012, guid: e575a4bdfacf44b489d8413370b46196, type: 3}
+  resonanceThread: {fileID: 1654234894692130570, guid: 59b7b556ebf8896458be467ad18ccce6, type: 3}
+  telegraphArrow: {fileID: 6095737476598327340, guid: dce6e766a81156e4580d0344597de5e6, type: 3}
+  telegraphWedge: {fileID: 145698744518151677, guid: da94eab66f516084e97610bc903bdf31, type: 3}
+  telegraphLine: {fileID: 8820235256590244160, guid: 074fdb2097c1dd847bffedcacd20ad0e, type: 3}
+  cardIcons:
+  - {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
+  - {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
+  - {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
+  - {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
+  - {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
+  - {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
+  - {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
+  - {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
+  - {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
+  - {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
+  - {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
+  - {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
+  abilityIcons:
+  - {fileID: 21300000, guid: 9634a8d03bdd8c44aa8e68bf04381697, type: 3}
+  - {fileID: 21300000, guid: 8072a9baaafb16640a2cbb587c47a5d9, type: 3}
+  - {fileID: 21300000, guid: 6d5973f32a15af54cadd4e53cd67939a, type: 3}
+  - {fileID: 21300000, guid: 103b01beb9381c043b754035784da77c, type: 3}
+  - {fileID: 21300000, guid: a673a78bf1e9a6c439ec888b26422d02, type: 3}

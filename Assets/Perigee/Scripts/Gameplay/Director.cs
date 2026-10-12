@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Perigee
@@ -13,25 +14,19 @@ namespace Perigee
         }
 
         [SerializeField] GameConfig config;
+        [SerializeField] ArtSet art;
         [SerializeField] GameLoop loop;
         [SerializeField] EnemySystem enemies;
         [SerializeField] Camera cam;
         [SerializeField] Transform root;
 
-        SpriteRenderer[] markers;
-        SpriteRenderer[] arrowWedges;
-        SpriteRenderer[] arrowLines;
+        readonly List<Visual> markers = new List<Visual>();
+        readonly List<Visual> arrowWedges = new List<Visual>();
+        readonly List<Visual> arrowLines = new List<Visual>();
         Pending[] pending;
         Rng spawnRng;
         float ambientTimer;
         float lastCentre;
-
-        void Awake()
-        {
-            markers = NewMarkers("Marker", ShapeFactory.Triangle());
-            arrowWedges = NewMarkers("ArrowWedge", ShapeFactory.Wedge());
-            arrowLines = NewMarkers("ArrowLine", ShapeFactory.Rect());
-        }
 
         public void ResetRun(int seed)
         {
@@ -43,9 +38,11 @@ namespace Perigee
             pending = new Pending[GroupCount(config.opening) + GroupCount(config.timeline)];
             Fill(config.timeline, Fill(config.opening, 0));
 
-            Hide(markers, 0);
-            Hide(arrowWedges, 0);
-            Hide(arrowLines, 0);
+            // метки создаются заново из префабов: правка префаба видна со следующего забега
+            for (int i = root.childCount - 1; i >= 0; i--) Destroy(root.GetChild(i).gameObject);
+            Prewarm(markers, art.telegraphArrow);
+            Prewarm(arrowWedges, art.telegraphWedge);
+            Prewarm(arrowLines, art.telegraphLine);
         }
 
         public void Tick(float dt)
@@ -73,14 +70,8 @@ namespace Perigee
                 for (int k = 0; k < shown; k++)
                 {
                     float angle = UnitAngle(group, pending[i].centre, k, n);
-                    if (group.type == EnemyType.Arrow)
-                    {
-                        if (usedArrows < arrowWedges.Length) PlaceArrowMarker(usedArrows++, angle, Radius(group), t);
-                    }
-                    else if (usedMarkers < markers.Length)
-                    {
-                        PlaceMarker(markers[usedMarkers++], angle, t);
-                    }
+                    if (group.type == EnemyType.Arrow) PlaceArrowMarker(usedArrows++, angle, Radius(group));
+                    else PlaceMarker(Marker(markers, art.telegraphArrow, usedMarkers++), angle);
                 }
             }
             Hide(markers, usedMarkers);
@@ -165,7 +156,7 @@ namespace Perigee
             }
         }
 
-        void PlaceMarker(SpriteRenderer marker, float angle, float t)
+        void PlaceMarker(Visual marker, float angle)
         {
             float rad = angle * Mathf.Deg2Rad;
             float cos = Mathf.Cos(rad);
@@ -180,45 +171,42 @@ namespace Perigee
             marker.transform.localPosition = new Vector3(cos * r, sin * r, 0f);
             // вершина стрелки смотрит на звезду
             marker.transform.localRotation = Quaternion.Euler(0f, 0f, angle + 90f);
-            marker.transform.localScale = new Vector3(config.telegraphSize, config.telegraphSize, 1f);
-            marker.enabled = Mathf.Repeat(t * config.telegraphBlinkHz, 1f) < 0.5f;
+            marker.gameObject.SetActive(true);
         }
 
-        // Стрела: пульсирующий клин на кольце появления и бледная линия до звезды
-        void PlaceArrowMarker(int i, float angle, float radius, float t)
+        // Стрела: клин на кольце появления и бледная линия до звезды
+        void PlaceArrowMarker(int i, float angle, float radius)
         {
-            SpriteRenderer wedge = arrowWedges[i];
-            float size = config.arrowWedgeSize * (1f + config.arrowWedgePulse * Mathf.Sin(t * config.arrowWedgePulseHz * 2f * Mathf.PI));
+            Visual wedge = Marker(arrowWedges, art.telegraphWedge, i);
             wedge.transform.localPosition = Polar(angle, radius);
-            // у клина вершина снизу: поворачиваем её к звезде
-            wedge.transform.localRotation = Quaternion.Euler(0f, 0f, angle - 90f);
-            wedge.transform.localScale = new Vector3(size, size, 1f);
-            wedge.enabled = true;
+            // вершина клина смотрит на звезду
+            wedge.transform.localRotation = Quaternion.Euler(0f, 0f, angle + 90f);
+            wedge.gameObject.SetActive(true);
 
-            SpriteRenderer line = arrowLines[i];
-            Color color = config.red;
-            color.a = config.arrowLineAlpha;
-            line.color = color;
+            // длину линии задаёт код, толщину префаб
+            Visual line = Marker(arrowLines, art.telegraphLine, i);
             line.transform.localPosition = Polar(angle, (config.starRadius + radius) * 0.5f);
             line.transform.localRotation = Quaternion.Euler(0f, 0f, angle);
-            line.transform.localScale = new Vector3((radius - config.starRadius) * 0.5f, config.arrowLineWidth * 0.5f, 1f);
-            line.enabled = true;
+            line.SetSizeMul(radius - config.starRadius, 1f);
+            line.gameObject.SetActive(true);
         }
 
-        SpriteRenderer[] NewMarkers(string name, Sprite sprite)
+        void Prewarm(List<Visual> list, Visual prefab)
         {
-            SpriteRenderer[] result = new SpriteRenderer[config.maxMarkers];
-            for (int i = 0; i < result.Length; i++)
-            {
-                result[i] = ShapeFactory.NewRenderer(name, root, sprite, config.red, config.sortFx, config.spriteMaterial);
-                result[i].enabled = false;
-            }
-            return result;
+            list.Clear();
+            for (int i = 0; i < config.markerPrewarm; i++) Marker(list, prefab, i).gameObject.SetActive(false);
         }
 
-        static void Hide(SpriteRenderer[] list, int from)
+        // метка номер i из пула; если запаса не хватило, создаётся новая
+        Visual Marker(List<Visual> list, Visual prefab, int i)
         {
-            for (int i = from; i < list.Length; i++) list[i].enabled = false;
+            if (i == list.Count) list.Add(Instantiate(prefab, root));
+            return list[i];
+        }
+
+        static void Hide(List<Visual> list, int from)
+        {
+            for (int i = from; i < list.Count; i++) list[i].gameObject.SetActive(false);
         }
 
         static int GroupCount(SpawnEvent[] events)

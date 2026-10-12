@@ -2,17 +2,20 @@ using System.Globalization;
 using DG.Tweening;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Perigee
 {
     public class CardPickView : MonoBehaviour
     {
         [SerializeField] GameConfig config;
+        [SerializeField] ArtSet art;
         [SerializeField] GameLoop loop;
         [SerializeField] CardSystem cards;
         [SerializeField] CanvasGroup group;
         [SerializeField] TMP_Text header;
         [SerializeField] GameObject[] slots;
+        [SerializeField] Image[] icons;
         [SerializeField] TMP_Text[] titles;
         [SerializeField] TMP_Text[] plusLines;
         [SerializeField] TMP_Text[] minusLines;
@@ -30,6 +33,7 @@ namespace Perigee
                 if (!used) continue;
 
                 CardDef card = cards.Offer(i);
+                icons[i].sprite = art.cardIcons[(int)card.id];
                 titles[i].text = Strings.CardTitle[(int)card.id];
                 plusLines[i].text = Line(card.plus);
                 minusLines[i].text = Line(card.minus);

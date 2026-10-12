@@ -1,17 +1,19 @@
-using DG.Tweening;
-using TMPro;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Perigee
 {
     public class SatelliteSystem : MonoBehaviour
     {
+        // обязательная часть префаба спутника: золотой след ВСПЛЕСКА
+        const string SurgeTrailName = "SurgeTrail";
+
         class Satellite
         {
+            public Visual visual;
             public Transform transform;
-            public SpriteRenderer body;
-            public TrailRenderer trail;
-            public LineRenderer heatArc;
+            public HeatArc heatArc;
+            public GameObject surgeTrail;
             public Vector2 position;
             public float angle;
             public float r;
@@ -21,97 +23,50 @@ namespace Perigee
             public bool resonant;
         }
 
-        class Thread
-        {
-            public LineRenderer line;
-            public TextMeshPro label;
-            // боковой сдвиг точек нити, у концов всегда 0
-            public float[] offsets;
-        }
-
         [SerializeField] GameConfig config;
+        [SerializeField] ArtSet art;
         [SerializeField] GameLoop loop;
         [SerializeField] InputHold input;
         [SerializeField] AbilitySystem abilities;
         [SerializeField] Transform root;
+        [SerializeField] Visual anchorRing;
 
+        // по одной нити на каждую пару спутников в резонансе
+        readonly List<ResonanceThread> threads = new List<ResonanceThread>();
         Satellite[] satellites;
-        Thread[] threads;
-        SpriteRenderer anchorRing;
-        Sprite solid;
-        Sprite hollow;
         int count;
         float baseR;
         float threadTimer;
 
         void Awake()
         {
-            solid = ShapeFactory.Diamond(config.outlineWidth / config.satRadius);
-            hollow = ShapeFactory.Diamond(0f, config.satStunWall);
-
-            Sprite ring = ShapeFactory.Ring(config.anchorRingTicks, config.anchorRingWidth, config.ringDashFill);
-            anchorRing = ShapeFactory.NewRenderer("AnchorRing", root, ring, config.silver, config.sortRings, config.spriteMaterial);
-            anchorRing.enabled = false;
-
             satellites = new Satellite[config.maxSatellites];
-            for (int i = 0; i < satellites.Length; i++)
-            {
-                SpriteRenderer body = ShapeFactory.NewRenderer("Satellite" + i, root, solid, config.cream, config.sortSatellites, config.spriteMaterial);
-                TrailRenderer trail = body.gameObject.AddComponent<TrailRenderer>();
-                trail.sharedMaterial = config.spriteMaterial;
-                trail.startColor = config.cream;
-                trail.endColor = config.cream;
-                trail.endWidth = 0f;
-                trail.sortingOrder = config.sortSatellites;
-
-                LineRenderer heatArc = NewLine("Heat" + i, root, config.red, config.sortSatellites);
-                satellites[i] = new Satellite { transform = body.transform, body = body, trail = trail, heatArc = heatArc };
-                Show(satellites[i], false);
-            }
-
-            // по одной нити на каждую пару спутников
-            threads = new Thread[satellites.Length * (satellites.Length - 1) / 2];
-            for (int i = 0; i < threads.Length; i++)
-            {
-                LineRenderer line = NewLine("Thread" + i, root, config.gold, config.sortFx);
-                line.positionCount = config.threadSegments + 1;
-
-                TextMeshPro label = new GameObject("Label").AddComponent<TextMeshPro>();
-                label.transform.SetParent(line.transform, false);
-                label.text = string.Format(Strings.MulFormat, config.resonanceMul);
-                label.alignment = TextAlignmentOptions.Center;
-                label.color = config.gold;
-                label.sortingOrder = config.sortFx;
-
-                line.gameObject.SetActive(false);
-                threads[i] = new Thread { line = line, label = label, offsets = new float[config.threadSegments + 1] };
-            }
+            for (int i = 0; i < satellites.Length; i++) satellites[i] = new Satellite();
         }
 
         public void ResetRun()
         {
+            // спутники и нити создаются заново из префабов: правка префаба видна со следующего забега
+            for (int i = root.childCount - 1; i >= 0; i--) Destroy(root.GetChild(i).gameObject);
+
             for (int i = 0; i < satellites.Length; i++)
             {
-                satellites[i].body.DOKill();
-                Show(satellites[i], false);
+                Satellite s = satellites[i];
+                s.visual = Instantiate(art.satellite, root);
+                s.transform = s.visual.transform;
+                s.heatArc = s.visual.GetComponentInChildren<HeatArc>();
+                s.surgeTrail = s.transform.Find(SurgeTrailName).gameObject;
+                s.visual.gameObject.SetActive(false);
             }
-            for (int i = 0; i < threads.Length; i++) threads[i].line.gameObject.SetActive(false);
-            anchorRing.enabled = false;
+
+            threads.Clear();
+            for (int i = 0; i < config.threadPrewarm; i++) Thread(i).gameObject.SetActive(false);
+            anchorRing.gameObject.SetActive(false);
 
             baseR = config.rMin;
             threadTimer = 0f;
-            count = 1;
-            Satellite s = satellites[0];
-            s.angle = config.satStartAngle;
-            s.r = baseR;
-            s.heat = 0f;
-            s.stun = 0f;
-            s.fade = 0f;
-            s.resonant = false;
-            s.body.color = config.cream;
-            Place(s);
-            Show(s, true);
-            s.trail.Clear();
+            count = 0;
+            Launch(config.satStartAngle, 0f);
         }
 
         public void Tick(float dt)
@@ -126,8 +81,8 @@ namespace Perigee
                 float target = input.IsHolding ? config.ringMax - (count - 1) * config.ringGap : config.rMin;
                 baseR = Mathf.MoveTowards(baseR, target, config.radialSpeed * loop.Stats.radialSpeedMul * dt);
             }
-            anchorRing.enabled = anchored;
-            anchorRing.transform.localScale = new Vector3(baseR, baseR, 1f);
+            if (anchorRing.gameObject.activeSelf != anchored) anchorRing.gameObject.SetActive(anchored);
+            if (anchored) anchorRing.SetSizeMul(baseR);
 
             for (int i = 0; i < count; i++)
             {
@@ -176,6 +131,12 @@ namespace Perigee
             return Mathf.Max(power, config.powerFloor);
         }
 
+        // ХОЛОД: вспышка всех спутников
+        public void Flash(Color color, float sec)
+        {
+            for (int i = 0; i < count; i++) satellites[i].visual.Flash(color, sec);
+        }
+
         // новый спутник встаёт внешним, в середину самого большого углового промежутка
         void Add()
         {
@@ -192,22 +153,23 @@ namespace Perigee
                 bestStart = satellites[i].angle;
             }
 
+            Launch(Mathf.Repeat(bestStart - bestGap * 0.5f, 360f), config.satFadeIn);
+        }
+
+        // fade: за сколько секунд спутник проявится
+        void Launch(float angle, float fade)
+        {
             Satellite s = satellites[count];
-            s.angle = Mathf.Repeat(bestStart - bestGap * 0.5f, 360f);
+            s.angle = angle;
             s.r = Mathf.Min(baseR + count * config.ringGap, config.satMaxRadius);
             s.heat = 0f;
             s.stun = 0f;
-            s.fade = config.satFadeIn;
+            s.fade = fade;
             s.resonant = false;
             count++;
 
-            Color clear = config.cream;
-            clear.a = 0f;
-            s.body.color = clear;
             Place(s);
-            Show(s, true);
-            s.trail.Clear();
-            s.body.DOFade(1f, config.satFadeIn).SetLink(s.body.gameObject);
+            s.visual.gameObject.SetActive(true);
         }
 
         void Heat(Satellite s, float dt)
@@ -257,26 +219,17 @@ namespace Perigee
                     // множитель не складывается: спутник в двух парах всё равно бьёт ×resonanceMul
                     a.resonant = true;
                     b.resonant = true;
-                    DrawThread(threads[used++], a.position, b.position, reroll);
+                    Thread(used++).Draw(a.position, b.position, reroll);
                 }
             }
-            for (int i = used; i < threads.Length; i++) threads[i].line.gameObject.SetActive(false);
+            for (int i = used; i < threads.Count; i++) threads[i].gameObject.SetActive(false);
         }
 
-        void DrawThread(Thread thread, Vector2 a, Vector2 b, bool reroll)
+        // нить номер i из пула; если запаса не хватило, создаётся новая
+        ResonanceThread Thread(int i)
         {
-            int segments = thread.offsets.Length - 1;
-            Vector2 normal = Vector2.Perpendicular(b - a).normalized;
-            for (int k = 0; k <= segments; k++)
-            {
-                if (reroll && k > 0 && k < segments) thread.offsets[k] = Random.Range(-config.threadJitter, config.threadJitter);
-                thread.line.SetPosition(k, Vector2.Lerp(a, b, (float)k / segments) + normal * thread.offsets[k]);
-            }
-            thread.line.startWidth = config.threadWidth;
-            thread.line.endWidth = config.threadWidth;
-            thread.label.transform.localPosition = (a + b) * 0.5f + normal * config.threadLabelOffset;
-            thread.label.fontSize = config.threadLabelSize;
-            thread.line.gameObject.SetActive(true);
+            if (i == threads.Count) threads.Add(Instantiate(art.resonanceThread, root));
+            return threads[i];
         }
 
         void Place(Satellite s)
@@ -284,63 +237,25 @@ namespace Perigee
             float rad = s.angle * Mathf.Deg2Rad;
             s.position = new Vector2(Mathf.Cos(rad) * s.r, Mathf.Sin(rad) * s.r);
             s.transform.localPosition = s.position;
-            s.transform.localScale = new Vector3(Radius, Radius, 1f);
-            s.trail.time = config.satTrailTime;
-            s.trail.startWidth = config.satTrailWidth;
-            // ВСПЛЕСК: след золотой, пока способность действует
-            Color trail = abilities.Active(AbilityId.Surge) ? config.gold : config.cream;
-            s.trail.startColor = trail;
-            s.trail.endColor = trail;
+            s.visual.SetSizeMul(loop.Stats.satRadiusMul);
 
-            bool stunned = s.stun > 0f;
-            s.body.sprite = stunned ? hollow : solid;
-            s.trail.emitting = !stunned;
-            // прозрачность ведёт твин появления, поэтому её не трогаем
-            Color color = stunned ? config.silver : config.cream;
-            // ХОЛОД: белая вспышка сразу после нажатия
-            if (abilities.Active(AbilityId.Chill) && abilities.Elapsed(AbilityId.Chill) < config.chillFlashTime) color = Color.white;
-            color.a = s.body.color.a;
-            s.body.color = color;
+            if (s.stun > 0f) s.visual.Tint(config.stunTint);
+            else s.visual.Untint();
+            // появление: прозрачность идёт за таймером fade
+            s.visual.SetAlpha(1f - s.fade / config.satFadeIn);
 
-            DrawHeat(s);
+            // ВСПЛЕСК: золотой след, пока способность действует
+            bool surge = abilities.Active(AbilityId.Surge);
+            if (s.surgeTrail.activeSelf != surge) s.surgeTrail.SetActive(surge);
+
+            s.heatArc.Draw(s.heat, loop.Run.time);
         }
 
-        // красная дуга вокруг спутника: от верхней точки по часовой стрелке, полный круг при нагреве 1
-        void DrawHeat(Satellite s)
+        // круги попаданий в Scene view
+        void OnDrawGizmos()
         {
-            LineRenderer arc = s.heatArc;
-            int segments = config.heatArcSegments;
-            int n = Mathf.CeilToInt(s.heat * segments);
-            arc.positionCount = n > 0 ? n + 1 : 0;
-
-            float radius = config.heatArcRadius * loop.Stats.satRadiusMul;
-            for (int k = 0; k < arc.positionCount; k++)
-            {
-                float rad = Mathf.Min((float)k / segments, s.heat) * 2f * Mathf.PI;
-                arc.SetPosition(k, s.position + new Vector2(Mathf.Sin(rad), Mathf.Cos(rad)) * radius);
-            }
-            arc.startWidth = config.heatArcWidth;
-            arc.endWidth = config.heatArcWidth;
-            arc.enabled = s.heat < config.heatFlickerFrom || Mathf.Repeat(loop.Run.time * config.heatFlickerHz, 1f) < 0.5f;
-        }
-
-        void Show(Satellite s, bool visible)
-        {
-            s.transform.gameObject.SetActive(visible);
-            s.heatArc.gameObject.SetActive(visible);
-        }
-
-        LineRenderer NewLine(string name, Transform parent, Color color, int order)
-        {
-            LineRenderer line = new GameObject(name).AddComponent<LineRenderer>();
-            line.transform.SetParent(parent, false);
-            line.useWorldSpace = false;
-            line.sharedMaterial = config.spriteMaterial;
-            line.startColor = color;
-            line.endColor = color;
-            line.sortingOrder = order;
-            line.positionCount = 0;
-            return line;
+            if (!Application.isPlaying) return;
+            for (int i = 0; i < count; i++) Gizmos.DrawWireSphere(satellites[i].position, Radius);
         }
     }
 }

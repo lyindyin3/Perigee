@@ -1,4 +1,5 @@
 using DG.Tweening;
+using DG.Tweening.Core;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -13,7 +14,8 @@ namespace Perigee
         [SerializeField] GameConfig config;
         [SerializeField] GameLoop loop;
         [SerializeField] EnemySystem enemies;
-        [SerializeField] Transform fxRoot;
+        [SerializeField] SatelliteSystem satellites;
+        [SerializeField] Visual pulseRing;
 
         readonly AbilityId[] slots = new AbilityId[SlotCount];
         readonly bool[] filled = new bool[SlotCount];
@@ -25,8 +27,12 @@ namespace Perigee
         AbilityId[] offer;
         int offerCount;
         int offerSlot;
-        SpriteRenderer pulseRing;
         InputAction[] keys;
+        // рост кольца ИМПУЛЬСА, 0..1
+        float wave;
+        DOGetter<float> getWave;
+        DOSetter<float> setWave;
+        TweenCallback hideWave;
 
         public int OfferCount => offerCount;
 
@@ -38,10 +44,9 @@ namespace Perigee
             cooldown = new float[n];
             offer = new AbilityId[n];
 
-            // толщина задаётся в мировых единицах, поэтому в текстуре она делится на радиус волны
-            Sprite ring = ShapeFactory.Arc(360f, config.pulseFxWidth / config.pulseRadius);
-            pulseRing = ShapeFactory.NewRenderer("Pulse", fxRoot, ring, config.cream, config.sortFx, config.spriteMaterial);
-            pulseRing.enabled = false;
+            getWave = () => wave;
+            setWave = SetWave;
+            hideWave = HideWave;
 
             // по номеру слота: Q = слот A, E = слот B
             keys = new[] { new InputAction(binding: "<Keyboard>/q"), new InputAction(binding: "<Keyboard>/e") };
@@ -88,6 +93,7 @@ namespace Perigee
             duration[a] = def.duration * loop.Stats.abilityDurationMul;
             cooldown[a] = def.cooldown * loop.Stats.abilityCooldownMul;
             if (id == AbilityId.Pulse) Pulse();
+            if (id == AbilityId.Chill) satellites.Flash(Color.white, config.chillFlashTime);
         }
 
         public bool Filled(int slot)
@@ -191,12 +197,23 @@ namespace Perigee
         {
             enemies.Pulse(config.pulseRadius, config.pulseDamage, config.pulsePush);
 
-            Transform ring = pulseRing.transform;
-            ring.localScale = Vector3.zero;
-            pulseRing.color = config.cream;
-            pulseRing.enabled = true;
-            ring.DOScale(new Vector3(config.pulseRadius, config.pulseRadius, 1f), config.pulseTime).SetLink(pulseRing.gameObject);
-            pulseRing.DOFade(0f, config.pulseTime).SetEase(Ease.InQuad).SetLink(pulseRing.gameObject);
+            // кольцо только рисунок: урон уже нанесён
+            pulseRing.gameObject.SetActive(true);
+            DOTween.Kill(pulseRing);
+            SetWave(0f);
+            DOTween.To(getWave, setWave, 1f, config.pulseTime).SetTarget(pulseRing).SetLink(pulseRing.gameObject).OnComplete(hideWave);
+        }
+
+        void SetWave(float value)
+        {
+            wave = value;
+            pulseRing.SetSizeMul(value * config.pulseRadius);
+            pulseRing.SetAlpha(1f - value);
+        }
+
+        void HideWave()
+        {
+            pulseRing.gameObject.SetActive(false);
         }
 
         AbilityDef Def(AbilityId id)

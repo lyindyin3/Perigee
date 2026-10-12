@@ -1,4 +1,5 @@
 using DG.Tweening;
+using DG.Tweening.Core;
 using UnityEngine;
 
 namespace Perigee
@@ -15,9 +16,8 @@ namespace Perigee
         [SerializeField] AbilitySystem abilities;
         [SerializeField] CardPickView view;
         [SerializeField] AbilityPickView abilityView;
-        [SerializeField] Transform fxRoot;
+        [SerializeField] Visual beaconRing;
 
-        SpriteRenderer beaconRing;
         Rng cardRng;
         // индексы в config.cards
         int[] eligible;
@@ -25,6 +25,11 @@ namespace Perigee
         int offerCount;
         int screens;
         float beaconTimer;
+        // рост кольца МАЯКА, 0..1
+        float wave;
+        DOGetter<float> getWave;
+        DOSetter<float> setWave;
+        TweenCallback hideWave;
 
         public int OfferCount => offerCount;
 
@@ -32,10 +37,9 @@ namespace Perigee
         {
             eligible = new int[config.cards.Length];
             offer = new int[config.cardChoices];
-            // толщина задаётся в мировых единицах, поэтому в текстуре она делится на радиус волны
-            Sprite ring = ShapeFactory.Arc(360f, config.beaconFxWidth / config.beaconRadius);
-            beaconRing = ShapeFactory.NewRenderer("Beacon", fxRoot, ring, config.cream, config.sortFx, config.spriteMaterial);
-            beaconRing.enabled = false;
+            getWave = () => wave;
+            setWave = SetWave;
+            hideWave = HideWave;
         }
 
         public void ResetRun(int seed)
@@ -148,12 +152,22 @@ namespace Perigee
 
         void BeaconFx()
         {
-            Transform ring = beaconRing.transform;
-            ring.localScale = Vector3.zero;
-            beaconRing.color = config.cream;
-            beaconRing.enabled = true;
-            ring.DOScale(new Vector3(config.beaconRadius, config.beaconRadius, 1f), config.beaconFxTime).SetLink(beaconRing.gameObject);
-            beaconRing.DOFade(0f, config.beaconFxTime).SetLink(beaconRing.gameObject);
+            beaconRing.gameObject.SetActive(true);
+            DOTween.Kill(beaconRing);
+            SetWave(0f);
+            DOTween.To(getWave, setWave, 1f, config.beaconFxTime).SetTarget(beaconRing).SetLink(beaconRing.gameObject).OnComplete(hideWave);
+        }
+
+        void SetWave(float value)
+        {
+            wave = value;
+            beaconRing.SetSizeMul(value * config.beaconRadius);
+            beaconRing.SetAlpha(1f - value);
+        }
+
+        void HideWave()
+        {
+            beaconRing.gameObject.SetActive(false);
         }
     }
 }

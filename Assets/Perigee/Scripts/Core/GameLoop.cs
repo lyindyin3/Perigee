@@ -17,6 +17,7 @@ namespace Perigee
         [SerializeField] StarController star;
         [SerializeField] CardSystem cards;
         [SerializeField] AbilitySystem abilities;
+        [SerializeField] ArmorRing armorRing;
         [SerializeField] PauseView pauseView;
         [SerializeField] AbilityPickView abilityPickView;
 
@@ -93,13 +94,13 @@ namespace Perigee
         public void RecomputeStats()
         {
             Stats.Recompute(config, Era, Run.cardStacks, abilities);
+            armorRing.Refresh();
         }
 
         void Update()
         {
             // поле радиуса H целиком видно и в альбомной, и в портретной ориентации
             cam.orthographicSize = config.H * Mathf.Max(1f, 1f / cam.aspect);
-            cam.backgroundColor = config.background;
 
             if (pauseKey.WasPressedThisFrame()) TogglePause();
             if (State == GameState.Defeat && restartKey.WasPressedThisFrame()) StartRun();

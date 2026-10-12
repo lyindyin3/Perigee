@@ -4,13 +4,14 @@ namespace Perigee
 {
     public class EnemySystem : MonoBehaviour
     {
+        // обязательная часть префаба Паразита: кольцо, пока он сидит на звезде
+        const string AttachMarkerName = "AttachMarker";
+
         class Enemy
         {
+            public Visual visual;
             public Transform transform;
-            public SpriteRenderer body;
-            public SpriteRenderer detail;
-            public SpriteRenderer marker;
-            public Color detailColor;
+            public GameObject attachMarker;
             public EnemyDef def;
             public Vector2 position;
             public float hp;
@@ -24,6 +25,7 @@ namespace Perigee
         }
 
         [SerializeField] GameConfig config;
+        [SerializeField] ArtSet art;
         [SerializeField] GameLoop loop;
         [SerializeField] SatelliteSystem satellites;
         [SerializeField] StarController star;
@@ -32,65 +34,43 @@ namespace Perigee
         [SerializeField] Transform root;
 
         // живые враги лежат в начале массива: [0, count)
-        Enemy[] pool;
+        Enemy[] live;
         int count;
-
-        Sprite triangle;
-        Sprite spike;
-        Sprite tail;
-        Sprite diamond;
-        Sprite bastion;
-        Sprite bastionTrim;
-        Sprite circle;
-        Sprite legs;
-        Sprite shooter;
-        Sprite rect;
-        Sprite hive;
+        // запас выключенных врагов, свой на каждый тип: free[тип][0, freeCount[тип])
+        Enemy[][] free;
+        int[] freeCount;
 
         void Awake()
         {
-            triangle = ShapeFactory.Triangle();
-            spike = ShapeFactory.Spike();
-            tail = ShapeFactory.Stripes(3, config.arrowTailFill);
-            diamond = ShapeFactory.Diamond();
-            bastion = ShapeFactory.Bastion(config.bastionTrim, config.bastionRivetLength, config.bastionRivetWidth, config.bastionRivetStep);
-            bastionTrim = ShapeFactory.Wedge(0f, config.bastionTrim);
-            circle = ShapeFactory.Circle();
-            legs = ShapeFactory.Rays(6, config.parasiteBody, config.parasiteLegFill);
-            shooter = ShapeFactory.Circle(0f, config.shooterWall);
-            rect = ShapeFactory.Rect();
-            hive = ShapeFactory.Hive(config.hiveHoleRadius, config.hiveHoleOffset);
-            Sprite markerRing = ShapeFactory.Circle(0f, config.parasiteMarkerWall);
-
-            pool = new Enemy[config.maxEnemies];
-            for (int i = 0; i < pool.Length; i++)
-            {
-                Transform enemy = new GameObject("Enemy").transform;
-                enemy.SetParent(root, false);
-                pool[i] = new Enemy
-                {
-                    transform = enemy,
-                    body = ShapeFactory.NewRenderer("Body", enemy, triangle, config.red, config.sortEnemies, config.spriteMaterial),
-                    detail = ShapeFactory.NewRenderer("Detail", enemy, triangle, config.red, config.sortEnemies, config.spriteMaterial),
-                    marker = ShapeFactory.NewRenderer("Marker", enemy, markerRing, config.red, config.sortFx, config.spriteMaterial),
-                    hitCooldown = new float[config.maxSatellites],
-                };
-                enemy.gameObject.SetActive(false);
-            }
+            live = new Enemy[config.maxEnemies];
+            free = new Enemy[config.enemies.Length][];
+            freeCount = new int[free.Length];
+            for (int t = 0; t < free.Length; t++) free[t] = new Enemy[config.maxEnemies];
         }
 
         public void ResetRun()
         {
-            for (int i = 0; i < count; i++) pool[i].transform.gameObject.SetActive(false);
+            // пулы собираются заново из префабов: правка префаба видна со следующего забега
+            for (int i = root.childCount - 1; i >= 0; i--) Destroy(root.GetChild(i).gameObject);
             count = 0;
+
+            EnemyDef[] defs = config.enemies;
+            for (int i = 0; i < defs.Length; i++)
+            {
+                int t = (int)defs[i].id;
+                freeCount[t] = 0;
+                for (int k = 0; k < defs[i].prewarm; k++) free[t][freeCount[t]++] = Create(defs[i]);
+            }
         }
 
         public void Spawn(EnemyType type, Vector2 position, float speedMul)
         {
-            if (count == pool.Length) return;
+            if (count == live.Length) return;
 
             EnemyDef def = Def(type);
-            Enemy e = pool[count++];
+            int t = (int)type;
+            Enemy e = freeCount[t] > 0 ? free[t][--freeCount[t]] : Create(def);
+            live[count++] = e;
             e.def = def;
             e.position = position;
             // эра усиливает только врагов с базовым hp от eraHpMinBaseHp
@@ -100,16 +80,15 @@ namespace Perigee
             e.engaged = false;
             e.timer = 0f;
             System.Array.Clear(e.hitCooldown, 0, e.hitCooldown.Length);
-            Dress(e);
             Place(e);
-            e.transform.gameObject.SetActive(true);
+            e.visual.gameObject.SetActive(true);
         }
 
         public void Tick(float dt)
         {
             for (int i = count - 1; i >= 0; i--)
             {
-                Enemy e = pool[i];
+                Enemy e = live[i];
                 e.age += dt;
                 for (int k = 0; k < e.hitCooldown.Length; k++) e.hitCooldown[k] -= dt;
 
@@ -172,7 +151,7 @@ namespace Perigee
         {
             for (int i = count - 1; i >= 0; i--)
             {
-                Enemy e = pool[i];
+                Enemy e = live[i];
                 if (e.age < config.spawnFadeIn) continue;
 
                 float reach = satellites.Radius + e.def.radius;
@@ -202,7 +181,7 @@ namespace Perigee
         {
             for (int i = count - 1; i >= 0; i--)
             {
-                Enemy e = pool[i];
+                Enemy e = live[i];
                 if (e.position.sqrMagnitude > radius * radius) continue;
 
                 if (e.def.id == EnemyType.Swarmer) e.hp = 0f;
@@ -216,7 +195,7 @@ namespace Perigee
         {
             for (int i = count - 1; i >= 0; i--)
             {
-                Enemy e = pool[i];
+                Enemy e = live[i];
                 float r = e.position.magnitude;
                 if (r > radius) continue;
 
@@ -251,7 +230,7 @@ namespace Perigee
         // Улей лопается у звезды: кристаллов нет, вместо них Рой
         void Burst(int i)
         {
-            Vector2 centre = pool[i].position;
+            Vector2 centre = live[i].position;
             Remove(i);
 
             Rng rng = loop.Run.simRng;
@@ -266,101 +245,40 @@ namespace Perigee
 
         void Kill(int i)
         {
-            crystals.Spawn(pool[i].position, pool[i].def.crystals);
+            crystals.Spawn(live[i].position, live[i].def.crystals);
             Remove(i);
         }
 
         // на место убранного встаёт последний живой; при обходе с конца он уже обработан
         void Remove(int i)
         {
-            Enemy e = pool[i];
-            e.transform.gameObject.SetActive(false);
+            Enemy e = live[i];
+            e.visual.gameObject.SetActive(false);
             count--;
-            pool[i] = pool[count];
-            pool[count] = e;
+            live[i] = live[count];
+
+            int t = (int)e.def.id;
+            free[t][freeCount[t]++] = e;
         }
 
-        // Собирает вид врага из тела и детали. Локальная ось Y врага смотрит на звезду.
-        void Dress(Enemy e)
+        Enemy Create(EnemyDef def)
         {
-            float r = e.def.radius;
-            e.body.transform.localRotation = Quaternion.identity;
-            e.body.transform.localScale = new Vector3(r, r, 1f);
-            e.detail.enabled = false;
-            e.marker.enabled = false;
+            Visual visual = Instantiate(art.enemies[(int)def.id], root);
+            visual.gameObject.SetActive(false);
 
-            switch (e.def.id)
-            {
-                case EnemyType.Swarmer:
-                    e.body.sprite = triangle;
-                    break;
-
-                case EnemyType.Arrow:
-                    e.body.sprite = spike;
-                    e.body.transform.localScale = new Vector3(config.arrowWidth * 0.5f, config.arrowLength * 0.5f, 1f);
-                    // три линии скорости позади
-                    Detail(e, tail, config.red, -(config.arrowLength + config.arrowTailLength) * 0.5f, config.arrowWidth * 0.5f, config.arrowTailLength * 0.5f);
-                    break;
-
-                case EnemyType.Bolt:
-                    e.body.sprite = diamond;
-                    break;
-
-                case EnemyType.Bastion:
-                    e.body.sprite = bastion;
-                    Detail(e, bastionTrim, config.silver, 0f, r, r);
-                    // у клина вершина снизу, а смотреть она должна на звезду
-                    e.body.transform.localRotation = Quaternion.Euler(0f, 0f, 180f);
-                    e.detail.transform.localRotation = Quaternion.Euler(0f, 0f, 180f);
-                    break;
-
-                case EnemyType.Parasite:
-                    e.body.sprite = circle;
-                    e.body.transform.localScale = new Vector3(r * config.parasiteBody, r * config.parasiteBody, 1f);
-                    Detail(e, legs, config.red, 0f, r, r);
-                    break;
-
-                case EnemyType.Shooter:
-                    e.body.sprite = shooter;
-                    // ствол торчит из кольца в сторону звезды
-                    Detail(e, rect, config.red, r, config.shooterBarrelWidth * 0.5f, config.shooterBarrelLength * 0.5f);
-                    break;
-
-                case EnemyType.Hive:
-                    e.body.sprite = hive;
-                    break;
-            }
-        }
-
-        void Detail(Enemy e, Sprite sprite, Color color, float offsetY, float halfWidth, float halfLength)
-        {
-            e.detail.sprite = sprite;
-            e.detail.enabled = true;
-            e.detailColor = color;
-            e.detail.transform.localPosition = new Vector3(0f, offsetY, 0f);
-            e.detail.transform.localRotation = Quaternion.identity;
-            e.detail.transform.localScale = new Vector3(halfWidth, halfLength, 1f);
+            var e = new Enemy { visual = visual, transform = visual.transform, def = def, hitCooldown = new float[config.maxSatellites] };
+            if (def.behavior == EnemyBehavior.Attach) e.attachMarker = e.transform.Find(AttachMarkerName).gameObject;
+            return e;
         }
 
         void Place(Enemy e)
         {
             e.transform.localPosition = e.position;
-            e.transform.localRotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(-e.position.y, -e.position.x) * Mathf.Rad2Deg - 90f);
+            // ось +Y картинки смотрит на звезду
+            if (e.def.faceStar) e.transform.localRotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(-e.position.y, -e.position.x) * Mathf.Rad2Deg - 90f);
+            e.visual.SetAlpha(Mathf.Clamp01(e.age / config.spawnFadeIn));
 
-            float alpha = Mathf.Clamp01(e.age / config.spawnFadeIn);
-            Color color = config.red;
-            color.a = alpha;
-            e.body.color = color;
-            color = e.detailColor;
-            color.a = alpha;
-            e.detail.color = color;
-
-            if (e.def.behavior != EnemyBehavior.Attach) return;
-
-            // пульсирующее красное кольцо вокруг присосавшегося Паразита
-            float pulse = 1f + config.parasiteMarkerPulse * Mathf.Sin(e.timer * config.parasiteMarkerPulseHz * 2f * Mathf.PI);
-            e.marker.enabled = e.engaged;
-            e.marker.transform.localScale = new Vector3(config.parasiteMarkerRadius * pulse, config.parasiteMarkerRadius * pulse, 1f);
+            if (e.def.behavior == EnemyBehavior.Attach && e.attachMarker.activeSelf != e.engaged) e.attachMarker.SetActive(e.engaged);
         }
 
         EnemyDef Def(EnemyType type)
@@ -369,6 +287,13 @@ namespace Perigee
             for (int i = 0; i < defs.Length; i++)
                 if (defs[i].id == type) return defs[i];
             return null;
+        }
+
+        // круги попаданий в Scene view
+        void OnDrawGizmos()
+        {
+            if (!Application.isPlaying) return;
+            for (int i = 0; i < count; i++) Gizmos.DrawWireSphere(live[i].position, live[i].def.radius);
         }
     }
 }

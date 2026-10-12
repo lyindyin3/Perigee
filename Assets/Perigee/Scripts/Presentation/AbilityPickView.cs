@@ -9,6 +9,7 @@ namespace Perigee
     public class AbilityPickView : MonoBehaviour
     {
         [SerializeField] GameConfig config;
+        [SerializeField] ArtSet art;
         [SerializeField] GameLoop loop;
         [SerializeField] AbilitySystem abilities;
         [SerializeField] CanvasGroup group;
@@ -33,7 +34,7 @@ namespace Perigee
                 if (!used) continue;
 
                 AbilityDef def = abilities.Offer(i);
-                icons[i].sprite = ShapeFactory.Pictogram(def.id);
+                icons[i].sprite = art.abilityIcons[(int)def.id];
                 titles[i].text = Strings.AbilityTitle[(int)def.id];
                 effectLines[i].text = string.Format(CultureInfo.InvariantCulture, Strings.AbilityEffect[(int)def.id], def.duration * loop.Stats.abilityDurationMul, Value(def.id));
                 cooldownLines[i].text = string.Format(CultureInfo.InvariantCulture, Strings.CooldownFormat, def.cooldown * loop.Stats.abilityCooldownMul);
