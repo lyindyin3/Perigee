@@ -14,6 +14,7 @@ namespace Perigee
         [SerializeField] GameConfig config;
         [SerializeField] GameLoop loop;
         [SerializeField] EnemySystem enemies;
+        [SerializeField] BossComet boss;
         [SerializeField] SatelliteSystem satellites;
         [SerializeField] Visual pulseRing;
 
@@ -184,6 +185,11 @@ namespace Perigee
         {
             slots[offerSlot] = offer[i];
             filled[offerSlot] = true;
+            if (offerSlot != SlotA) return;
+
+            // выбор слота A запоминается в сохранении
+            loop.Save.Data.lastAbilityA = (int)offer[i];
+            loop.Save.Save();
         }
 
         bool Owns(AbilityId id)
@@ -196,6 +202,7 @@ namespace Perigee
         void Pulse()
         {
             enemies.Pulse(config.pulseRadius, config.pulseDamage, config.pulsePush);
+            boss.Blast(config.pulseRadius, config.pulseDamage);
 
             // кольцо только рисунок: урон уже нанесён
             pulseRing.gameObject.SetActive(true);

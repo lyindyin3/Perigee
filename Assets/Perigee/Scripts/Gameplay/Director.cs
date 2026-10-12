@@ -27,12 +27,14 @@ namespace Perigee
         Rng spawnRng;
         float ambientTimer;
         float lastCentre;
+        bool stopped;
 
         public void ResetRun(int seed)
         {
             spawnRng = new Rng(seed);
             ambientTimer = 0f;
             lastCentre = 0f;
+            stopped = false;
 
             // углы групп выбираем сразу: телеграф показывает их раньше, чем группа появится
             pending = new Pending[GroupCount(config.opening) + GroupCount(config.timeline)];
@@ -45,8 +47,19 @@ namespace Perigee
             Prewarm(arrowLines, art.telegraphLine);
         }
 
+        // Комета появилась: новые враги больше не приходят
+        public void Stop()
+        {
+            stopped = true;
+            Hide(markers, 0);
+            Hide(arrowWedges, 0);
+            Hide(arrowLines, 0);
+        }
+
         public void Tick(float dt)
         {
+            if (stopped) return;
+
             float t = loop.Run.time;
 
             int usedMarkers = 0;

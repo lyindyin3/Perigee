@@ -95,6 +95,18 @@ namespace Perigee
         public float cooldown;
     }
 
+    public enum BlueprintId { Hull, Capacitor, CoolantBp, Magnetism }
+
+    [Serializable]
+    public class BlueprintDef
+    {
+        public BlueprintId id;
+        // эффект одного уровня
+        public StatMod perLevel;
+        // цена каждого уровня: уровней столько, сколько цен
+        public int[] costs;
+    }
+
     [CreateAssetMenu(fileName = "GameConfig", menuName = "Perigee/GameConfig")]
     public class GameConfig : ScriptableObject
     {
@@ -247,6 +259,17 @@ namespace Perigee
         public int hiveSwarmers = 8;
         public float hiveBurstSpread = 0.5f;
 
+        [Title("Комета")]
+        public float bossTime = 180f;
+        public float bossPeriapsis = 1.8f;
+        public float bossApoapsis = 5.5f;
+        public float bossPeriod = 6f;
+        public float bossFadeIn = 0.5f;
+        public float bossPhiStep = 40f;
+        public int bossNewtonSteps = 4;
+        public float bossOrbitLineTime = 1.5f;
+        public int bossOrbitLinePoints = 64;
+
         [Title("Расписание")]
         public SpawnEvent[] opening =
         {
@@ -294,6 +317,23 @@ namespace Perigee
             new EraConfig { kExp = 0.9f, spinMul = 1f, hpMul = 1f, countMul = 1f },
             new EraConfig { kExp = 0.9f, spinMul = 1.3f, hpMul = 1.3f, countMul = 1.2f },
             new EraConfig { kExp = 1.2f, spinMul = 1f, hpMul = 1.6f, countMul = 1.4f },
+        };
+
+        [Title("Итоги")]
+        public float victoryTime = 1.5f;
+        public int victoryDust = 50;
+        public int dailyDustMul = 2;
+        public float scorePerSecond = 2f;
+        public int scoreVictory = 500;
+
+        [Title("Чертежи")]
+        [TableList]
+        public BlueprintDef[] blueprints =
+        {
+            new BlueprintDef { id = BlueprintId.Hull, perLevel = new StatMod(StatId.StarMaxHp, 10f), costs = new[] { 50, 100, 200, 400, 800 } },
+            new BlueprintDef { id = BlueprintId.Capacitor, perLevel = new StatMod(StatId.AbilityCooldownMul, 0.95f), costs = new[] { 50, 100, 200, 400, 800 } },
+            new BlueprintDef { id = BlueprintId.CoolantBp, perLevel = new StatMod(StatId.HeatMul, 0.95f), costs = new[] { 50, 100, 200, 400, 800 } },
+            new BlueprintDef { id = BlueprintId.Magnetism, perLevel = new StatMod(StatId.MagnetRadius, 0.35f), costs = new[] { 40, 80, 160 } },
         };
 
         static SpawnEvent At(float time, params SpawnGroup[] groups)

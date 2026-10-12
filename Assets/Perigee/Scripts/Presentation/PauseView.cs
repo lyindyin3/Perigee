@@ -9,12 +9,14 @@ namespace Perigee
         [SerializeField] TMP_Text title;
         [SerializeField] TMP_Text resumeLabel;
         [SerializeField] TMP_Text restartLabel;
+        [SerializeField] TMP_Text menuLabel;
 
         void Awake()
         {
             title.text = Strings.Pause;
             resumeLabel.text = Strings.Resume;
             restartLabel.text = Strings.Restart;
+            menuLabel.text = Strings.Menu;
         }
 
         public void Resume()
@@ -25,6 +27,11 @@ namespace Perigee
         public void Restart()
         {
             loop.StartRun();
+        }
+
+        public void Menu()
+        {
+            loop.ToMenu();
         }
     }
 }

@@ -20,8 +20,8 @@ namespace Perigee
         public int extraSatellites;
         public int beacons;
 
-        // база × карточки × активные способности: множители перемножаются, бонусы складываются
-        public void Recompute(GameConfig config, EraConfig era, int[] cardStacks, AbilitySystem abilities)
+        // база × карточки × чертежи × активные способности: множители перемножаются, бонусы складываются
+        public void Recompute(GameConfig config, EraConfig era, int[] cardStacks, int[] blueprintLevels, AbilitySystem abilities)
         {
             radialSpeedMul = 1f;
             spinMul = era.spinMul;
@@ -48,6 +48,11 @@ namespace Perigee
                     Apply(cards[i].minus);
                 }
             }
+
+            // чертежи: эффект за каждый купленный уровень
+            BlueprintDef[] blueprints = config.blueprints;
+            for (int i = 0; i < blueprints.Length; i++)
+                for (int l = 0; l < blueprintLevels[i]; l++) Apply(blueprints[i].perLevel);
 
             // временные множители способностей, отдельно от карточек
             satRadiusMul *= Mathf.Lerp(1f, config.growRadiusMul, abilities.GrowBlend);

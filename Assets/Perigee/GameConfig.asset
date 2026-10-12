@@ -294,6 +294,15 @@ MonoBehaviour:
   hiveBurstRadius: 3
   hiveSwarmers: 8
   hiveBurstSpread: 0.5
+  bossTime: 180
+  bossPeriapsis: 1.8
+  bossApoapsis: 5.5
+  bossPeriod: 6
+  bossFadeIn: 0.5
+  bossPhiStep: 40
+  bossNewtonSteps: 4
+  bossOrbitLineTime: 1.5
+  bossOrbitLinePoints: 64
   opening:
   - time: 2
     groups:
@@ -522,3 +531,29 @@ MonoBehaviour:
     spinMul: 1
     hpMul: 1.6
     countMul: 1.4
+  victoryTime: 1.5
+  victoryDust: 50
+  dailyDustMul: 2
+  scorePerSecond: 2
+  scoreVictory: 500
+  blueprints:
+  - id: 0
+    perLevel:
+      stat: 12
+      value: 10
+    costs: 3200000064000000c80000009001000020030000
+  - id: 1
+    perLevel:
+      stat: 8
+      value: 0.95
+    costs: 3200000064000000c80000009001000020030000
+  - id: 2
+    perLevel:
+      stat: 2
+      value: 0.95
+    costs: 3200000064000000c80000009001000020030000
+  - id: 3
+    perLevel:
+      stat: 10
+      value: 0.35
+    costs: 2800000050000000a0000000

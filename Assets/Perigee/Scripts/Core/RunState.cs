@@ -3,6 +3,7 @@ namespace Perigee
     public class RunState
     {
         public int seed;
+        // hp выставляет GameLoop после пересчёта Stats: максимум зависит от чертежей
         public float hp;
         public float time;
         public int dust;
@@ -12,10 +13,17 @@ namespace Perigee
         public int[] cardStacks;
         public Rng simRng;
 
+        // итоги: GameLoop заполняет их перед экраном Result
+        public bool victory;
+        public int earned;
+        // сколько секунд не хватило до рекорда; ноль и меньше = новый рекорд
+        public float recordGap;
+        // номер открытой этим забегом эры в config.eras; 0 = ничего, первая эра открыта всегда
+        public int unlockedEra;
+
         public void Reset(GameConfig config, int runSeed)
         {
             seed = runSeed;
-            hp = config.starMaxHp;
             time = 0f;
             dust = 0;
             xp = 0;

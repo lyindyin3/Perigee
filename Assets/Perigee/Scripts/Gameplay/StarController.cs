@@ -15,7 +15,7 @@ namespace Perigee
 
         public void Tick()
         {
-            if (loop.Run.hp <= 0f) loop.SetState(GameState.Defeat);
+            if (loop.Run.hp <= 0f) loop.Lose();
         }
 
         void Update()

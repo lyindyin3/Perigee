@@ -281,7 +281,7 @@ namespace Perigee
             if (e.def.behavior == EnemyBehavior.Attach && e.attachMarker.activeSelf != e.engaged) e.attachMarker.SetActive(e.engaged);
         }
 
-        EnemyDef Def(EnemyType type)
+        public EnemyDef Def(EnemyType type)
         {
             EnemyDef[] defs = config.enemies;
             for (int i = 0; i < defs.Length; i++)

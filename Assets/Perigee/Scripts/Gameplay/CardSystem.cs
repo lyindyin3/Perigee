@@ -13,6 +13,7 @@ namespace Perigee
         [SerializeField] GameLoop loop;
         [SerializeField] SatelliteSystem satellites;
         [SerializeField] EnemySystem enemies;
+        [SerializeField] BossComet boss;
         [SerializeField] AbilitySystem abilities;
         [SerializeField] CardPickView view;
         [SerializeField] AbilityPickView abilityView;
@@ -69,9 +70,12 @@ namespace Perigee
                 {
                     beaconTimer -= config.beaconInterval;
                     enemies.Blast(config.beaconRadius, config.beaconDamage);
+                    boss.Blast(config.beaconRadius, config.beaconDamage);
                     BeaconFx();
                 }
             }
+            // волна МАЯКА добила Комету: победа важнее экрана карточек
+            if (loop.State != GameState.Playing) return;
 
             // за шаг открывается один экран: остаток опыта переносится, следующий экран откроется после выбора
             RunState run = loop.Run;

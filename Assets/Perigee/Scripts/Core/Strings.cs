@@ -2,9 +2,56 @@ namespace Perigee
 {
     public static class Strings
     {
+        const int SecondsPerMinute = 60;
+
         public const string Pause = "ПАУЗА";
         public const string Resume = "ПРОДОЛЖИТЬ";
         public const string Restart = "ЗАНОВО";
+        public const string Menu = "МЕНЮ";
+
+        public const string GameTitle = "ПЕРИГЕЙ";
+        public const string Play = "ИГРАТЬ";
+        public const string Daily = "ДНЕВНОЙ ЗАБЕГ";
+        public const string EraFormat = "ЭРА: {0}";
+        public const string BestTimeFormat = "Рекорд {0}";
+        public const string Blueprints = "ЧЕРТЕЖИ";
+        public const string Back = "НАЗАД";
+        public const string DustFormat = "Пыль: {0}";
+        // {0} = название, {1} = купленный уровень, {2} = всего уровней
+        public const string BlueprintLevelFormat = "{0}  {1}/{2}";
+        public const string BlueprintMax = "МАКС";
+
+        public const string Victory = "ПОБЕДА";
+        public const string Defeat = "ПОРАЖЕНИЕ";
+        public const string Retry = "ЕЩЁ РАЗ";
+        public const string TimeFormat = "Время {0}";
+        public const string RecordGapFormat = "До рекорда не хватило {0} с";
+        public const string NewRecord = "Новый рекорд!";
+        public const string DustEarnedFormat = "Пыль +{0}";
+        public const string EraUnlockedFormat = "Открыта эра: {0}";
+
+        // по порядку config.eras
+        public static readonly string[] EraTitle = { "СОЛНЦЕ", "КРАСНЫЙ КАРЛИК", "ТЯЖЁЛАЯ ЗВЕЗДА" };
+
+        // по порядку BlueprintId
+        public static readonly string[] BlueprintTitle = { "КОРПУС", "КОНДЕНСАТОР", "ОХЛАДИТЕЛЬ", "МАГНЕТИЗМ" };
+
+        // строка эффекта, по порядку BlueprintId; {0} = значение за уровень
+        public static readonly string[] BlueprintEffect =
+        {
+            "HP звезды +{0} за уровень",
+            "Перезарядка способностей ×{0} за уровень",
+            "Нагрев ×{0} за уровень",
+            "Радиус магнита +{0} за уровень",
+        };
+
+        // время вида мм:сс
+        public static string Clock(float seconds)
+        {
+            int total = (int)seconds;
+            return string.Format("{0:00}:{1:00}", total / SecondsPerMinute, total % SecondsPerMinute);
+        }
+
         public const string CardPickTitle = "ВЫБЕРИ КАРТОЧКУ";
         public const string MulFormat = "×{0}";
         public const string AbilityPickTitle = "ВЫБЕРИ СПОСОБНОСТЬ";

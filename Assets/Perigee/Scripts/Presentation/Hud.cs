@@ -15,9 +15,13 @@ namespace Perigee
         [SerializeField] ArtSet art;
         [SerializeField] GameLoop loop;
         [SerializeField] CardSystem cards;
+        [SerializeField] BossComet boss;
         [SerializeField] RectTransform safeArea;
         [SerializeField] Image hpFill;
         [SerializeField] Image xpFill;
+        // полоса HP Кометы: видна, пока Комета жива
+        [SerializeField] GameObject bossBar;
+        [SerializeField] Image bossFill;
         [SerializeField] TMP_Text dustText;
         [SerializeField] TMP_Text timerText;
         // блоки, которые меняют место при повороте экрана, и их места в двух раскладках
@@ -53,6 +57,8 @@ namespace Perigee
             RunState run = loop.Run;
             hpFill.fillAmount = run.hp / loop.Stats.starMaxHp;
             xpFill.fillAmount = (float)run.xp / cards.Need(run.level);
+            if (bossBar.activeSelf != boss.Alive) bossBar.SetActive(boss.Alive);
+            if (boss.Alive) bossFill.fillAmount = boss.HpFraction;
 
             if (run.dust != shownDust)
             {

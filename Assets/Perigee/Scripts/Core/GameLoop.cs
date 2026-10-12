@@ -1,3 +1,5 @@
+using System;
+using System.Globalization;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -7,32 +9,46 @@ namespace Perigee
 
     public class GameLoop : MonoBehaviour
     {
+        // зерно дневного забега = дата UTC в таком виде
+        const string DateFormat = "yyyyMMdd";
+
         [SerializeField] GameConfig config;
         [SerializeField] Camera cam;
         [SerializeField] InputHold input;
         [SerializeField] SatelliteSystem satellites;
         [SerializeField] EnemySystem enemies;
+        [SerializeField] BossComet boss;
         [SerializeField] CrystalSystem crystals;
         [SerializeField] Director director;
         [SerializeField] StarController star;
         [SerializeField] CardSystem cards;
         [SerializeField] AbilitySystem abilities;
         [SerializeField] ArmorRing armorRing;
+        [SerializeField] Hud hud;
         [SerializeField] PauseView pauseView;
         [SerializeField] AbilityPickView abilityPickView;
+        [SerializeField] MenuView menuView;
+        [SerializeField] ResultView resultView;
 
         public GameState State { get; private set; }
         public Stats Stats { get; } = new Stats();
         public RunState Run { get; } = new RunState();
+        public ISaveService Save { get; private set; }
+        public Blueprints Blueprints { get; private set; }
         public EraConfig Era => config.eras[eraIndex];
 
         int eraIndex;
+        bool daily;
         float accumulator;
+        float victoryTimer;
         InputAction restartKey;
         InputAction pauseKey;
 
         void Awake()
         {
+            Save = new SaveService(config.blueprints.Length);
+            Blueprints = new Blueprints(config, Save);
+
             restartKey = new InputAction(binding: "<Keyboard>/r");
             restartKey.Enable();
 
@@ -50,27 +66,40 @@ namespace Perigee
 
         void Start()
         {
-            // меню появится в M6: до него игра открывается так, как будто в меню нажали «Играть»
-            StartFromMenu();
+            // звезда и кольцо брони видны за меню и читают Run и Stats ещё до первого забега
+            Run.Reset(config, 0);
+            RecomputeStats();
+            Run.hp = Stats.starMaxHp;
+            ToMenu();
         }
 
-        // забег из меню: сначала выбор способности слота A
-        public void StartFromMenu()
+        // из паузы и с экрана итогов
+        public void ToMenu()
         {
+            SetState(GameState.Menu);
+        }
+
+        // забег из меню: сначала выбор способности слота A. Дневной забег всегда идёт в первой эре.
+        public void StartFromMenu(int era, bool dailyRun)
+        {
+            eraIndex = dailyRun ? 0 : era;
+            daily = dailyRun;
             StartRun();
             SetState(GameState.AbilityPick);
             abilities.OfferAll();
             abilityPickView.Show();
         }
 
-        // Retry: экран выбора пропускается, слот A остаётся прежним
+        // Retry: экран выбора пропускается; слот A, эра и режим остаются прежними
         public void StartRun()
         {
-            Run.Reset(config, Random.Range(0, int.MaxValue));
+            Run.Reset(config, daily ? Today() : UnityEngine.Random.Range(0, int.MaxValue));
             abilities.ResetRun();
             RecomputeStats();
+            Run.hp = Stats.starMaxHp;
             satellites.ResetRun();
             enemies.ResetRun();
+            boss.ResetRun();
             crystals.ResetRun();
             director.ResetRun(Run.seed);
             cards.ResetRun(Run.seed + Rng.CardOffset);
@@ -82,7 +111,10 @@ namespace Perigee
         {
             if (State == GameState.Playing && next != GameState.Playing) input.Clear();
             State = next;
+            hud.gameObject.SetActive(next != GameState.Menu);
             pauseView.gameObject.SetActive(next == GameState.Paused);
+            menuView.gameObject.SetActive(next == GameState.Menu);
+            resultView.gameObject.SetActive(next == GameState.Result);
         }
 
         public void TogglePause()
@@ -93,8 +125,22 @@ namespace Perigee
 
         public void RecomputeStats()
         {
-            Stats.Recompute(config, Era, Run.cardStacks, abilities);
+            Stats.Recompute(config, Era, Run.cardStacks, Save.Data.blueprints, abilities);
             armorRing.Refresh();
+        }
+
+        // Комета убита: короткое празднование, потом итоги
+        public void Win()
+        {
+            victoryTimer = config.victoryTime;
+            SetState(GameState.Victory);
+        }
+
+        // предложение возрождения появится в M8: пока поражение сразу ведёт к итогам
+        public void Lose()
+        {
+            SetState(GameState.Defeat);
+            Finish(false);
         }
 
         void Update()
@@ -103,7 +149,13 @@ namespace Perigee
             cam.orthographicSize = config.H * Mathf.Max(1f, 1f / cam.aspect);
 
             if (pauseKey.WasPressedThisFrame()) TogglePause();
-            if (State == GameState.Defeat && restartKey.WasPressedThisFrame()) StartRun();
+            if (State == GameState.Result && restartKey.WasPressedThisFrame()) StartRun();
+            if (State == GameState.Victory)
+            {
+                // симуляция стоит, поэтому празднование идёт по настоящему времени
+                victoryTimer -= Time.unscaledDeltaTime;
+                if (victoryTimer <= 0f) Finish(true);
+            }
             if (State != GameState.Playing) return;
 
             float step = 1f / config.simHz;
@@ -125,12 +177,55 @@ namespace Perigee
             satellites.Tick(dt);
             abilities.Tick(dt);
             enemies.Tick(dt);
+            boss.Tick(dt);
             enemies.Collide();
+            boss.Collide();
             crystals.Tick(dt);
             director.Tick(dt);
-            star.Tick();
-            // поражение важнее экрана карточек
+            // победа важнее поражения, поражение важнее экрана карточек
+            if (State == GameState.Playing) star.Tick();
             if (State == GameState.Playing) cards.Tick(dt);
+        }
+
+        // итоги забега: пыль, рекорды и новая эра уходят в сохранение, потом открывается экран Result
+        void Finish(bool victory)
+        {
+            SaveData data = Save.Data;
+            Run.victory = victory;
+
+            // пыль: собранные кристаллы и премия за победу; первый за дату дневной забег её удваивает
+            Run.earned = Run.dust + (victory ? config.victoryDust : 0);
+            if (daily && data.dailyBonusDate != Run.seed)
+            {
+                Run.earned *= config.dailyDustMul;
+                data.dailyBonusDate = Run.seed;
+            }
+            data.dust += Run.earned;
+
+            Run.recordGap = data.bestTime - Run.time;
+            data.bestTime = Mathf.Max(data.bestTime, Run.time);
+
+            int score = Run.dust + Mathf.RoundToInt(config.scorePerSecond * Run.time) + (victory ? config.scoreVictory : 0);
+            if (daily) data.bestDaily = Mathf.Max(data.bestDaily, score);
+
+            // победа в последней открытой эре открывает следующую
+            Run.unlockedEra = 0;
+            if (victory && eraIndex == data.erasUnlocked - 1 && data.erasUnlocked < config.eras.Length)
+            {
+                Run.unlockedEra = data.erasUnlocked;
+                data.erasUnlocked++;
+            }
+
+            data.runs++;
+            if (!victory) data.defeats++;
+            data.tutorialDone = true;
+            Save.Save();
+            SetState(GameState.Result);
+        }
+
+        static int Today()
+        {
+            return int.Parse(DateTime.UtcNow.ToString(DateFormat, CultureInfo.InvariantCulture), CultureInfo.InvariantCulture);
         }
     }
 }
