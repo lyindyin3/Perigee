@@ -24,6 +24,8 @@ namespace Perigee
         [SerializeField] CardSystem cards;
         [SerializeField] AbilitySystem abilities;
         [SerializeField] ArmorRing armorRing;
+        [SerializeField] Fx fx;
+        [SerializeField] AudioManager sfx;
         [SerializeField] Hud hud;
         [SerializeField] PauseView pauseView;
         [SerializeField] AbilityPickView abilityPickView;
@@ -103,6 +105,7 @@ namespace Perigee
             crystals.ResetRun();
             director.ResetRun(Run.seed);
             cards.ResetRun(Run.seed + Rng.CardOffset);
+            fx.ResetRun();
             accumulator = 0f;
             SetState(GameState.Playing);
         }
@@ -134,12 +137,14 @@ namespace Perigee
         {
             victoryTimer = config.victoryTime;
             SetState(GameState.Victory);
+            sfx.Play(SfxId.Win);
         }
 
         // предложение возрождения появится в M8: пока поражение сразу ведёт к итогам
         public void Lose()
         {
             SetState(GameState.Defeat);
+            sfx.Play(SfxId.Lose);
             Finish(false);
         }
 
@@ -156,11 +161,12 @@ namespace Perigee
                 victoryTimer -= Time.unscaledDeltaTime;
                 if (victoryTimer <= 0f) Finish(true);
             }
-            if (State != GameState.Playing) return;
+            // hit-stop: симуляция стоит, время за него не копится
+            if (State != GameState.Playing || fx.HitStopped) return;
 
             float step = 1f / config.simHz;
             accumulator += Mathf.Min(Time.deltaTime, config.maxFrameDelta);
-            for (int i = 0; i < config.maxStepsPerFrame && accumulator >= step && State == GameState.Playing; i++)
+            for (int i = 0; i < config.maxStepsPerFrame && accumulator >= step && State == GameState.Playing && !fx.HitStopped; i++)
             {
                 accumulator -= step;
                 Step(step);
@@ -185,6 +191,7 @@ namespace Perigee
             // победа важнее поражения, поражение важнее экрана карточек
             if (State == GameState.Playing) star.Tick();
             if (State == GameState.Playing) cards.Tick(dt);
+            fx.Tick(dt);
         }
 
         // итоги забега: пыль, рекорды и новая эра уходят в сохранение, потом открывается экран Result

@@ -1,3 +1,4 @@
+using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -62,6 +63,13 @@ namespace Perigee
 
             if (run.dust != shownDust)
             {
+                // подобран кристалл: счётчик подпрыгивает; первый показ и сброс в начале забега не в счёт
+                if (shownDust >= 0 && run.dust > shownDust)
+                {
+                    // прошлый прыжок доводим до конца, иначе масштаб накапливается
+                    dustText.rectTransform.DOKill(true);
+                    dustText.rectTransform.DOPunchScale(Vector3.one * config.dustPunch, config.dustPunchTime).SetLink(gameObject);
+                }
                 shownDust = run.dust;
                 dustText.SetText("{0}", shownDust);
             }

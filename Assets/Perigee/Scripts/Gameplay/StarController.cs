@@ -7,8 +7,21 @@ namespace Perigee
         [SerializeField] GameConfig config;
         [SerializeField] GameLoop loop;
         [SerializeField] Visual visual;
+        [SerializeField] Fx fx;
+        [SerializeField] AudioManager sfx;
 
+        // удар по звезде: вспышка, тряска и hit-stop
         public void Damage(float amount)
+        {
+            Drain(amount);
+            visual.Flash(config.starHitFlashColor, config.starFlashTime);
+            fx.Shake(config.starShakeAmp, config.starShakeTime);
+            fx.HitStop(config.hitStopTime);
+            sfx.Play(SfxId.StarHit);
+        }
+
+        // Паразит пьёт понемногу каждый шаг: урон без эффектов удара
+        public void Drain(float amount)
         {
             loop.Run.hp = Mathf.Max(loop.Run.hp - amount, 0f);
         }

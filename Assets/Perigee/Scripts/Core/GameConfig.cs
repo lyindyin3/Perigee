@@ -270,6 +270,35 @@ namespace Perigee
         public float bossOrbitLineTime = 1.5f;
         public int bossOrbitLinePoints = 64;
 
+        [Title("Эффекты")]
+        public float hitStopTime = 0.04f;
+        public float clinkHitStop = 0.02f;
+        public float hitStopMinInterval = 0.25f;
+        public float hitStopMinBaseHp = 2f;
+        public float starFlashTime = 0.15f;
+        public float starShakeAmp = 0.12f;
+        public float starShakeTime = 0.12f;
+        public float pulseShakeAmp = 0.15f;
+        public float pulseShakeTime = 0.2f;
+        public float shakeMinInterval = 0.2f;
+        public int killShards = 6;
+        public int hitShards = 2;
+        public float shardTime = 0.4f;
+        public float shardSpeed = 3f;
+        public int shardPrewarm = 40;
+        public int clinkSparks = 4;
+        public float sparkTime = 0.2f;
+        public float sparkSpeed = 4f;
+        public int sparkPrewarm = 20;
+        public float crystalPopTime = 0.1f;
+        public float crystalPopScale = 1.8f;
+        public float dustPunch = 0.3f;
+        public float dustPunchTime = 0.2f;
+
+        [Title("Звук")]
+        public float dronePitchMin = 0.8f;
+        public float dronePitchMax = 1.5f;
+
         [Title("Расписание")]
         public SpawnEvent[] opening =
         {

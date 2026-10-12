@@ -14,6 +14,8 @@ namespace Perigee
         [SerializeField] CrystalSystem crystals;
         [SerializeField] Director director;
         [SerializeField] BossOrbitLine orbitLine;
+        [SerializeField] Fx fx;
+        [SerializeField] AudioManager sfx;
         [SerializeField] Transform root;
 
         Visual visual;
@@ -95,6 +97,9 @@ namespace Perigee
                     Die();
                     return;
                 }
+                fx.Shards(satellites.Position(k), config.hitShards);
+                fx.HitStop(config.hitStopTime);
+                sfx.Play(SfxId.Hit);
             }
         }
 
@@ -125,6 +130,7 @@ namespace Perigee
             Place();
             visual.gameObject.SetActive(true);
             ShowOrbit();
+            sfx.Play(SfxId.BossIn);
         }
 
         void Die()

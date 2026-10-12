@@ -9,13 +9,16 @@ namespace Perigee
             public Visual visual;
             public Transform transform;
             public Vector2 position;
+            // пока лежит: секунды с появления; после подбора: секунды хлопка
             public float age;
+            public bool picked;
         }
 
         [SerializeField] GameConfig config;
         [SerializeField] ArtSet art;
         [SerializeField] GameLoop loop;
         [SerializeField] SatelliteSystem satellites;
+        [SerializeField] AudioManager sfx;
         [SerializeField] Transform root;
 
         // живые кристаллы лежат в начале массива: [0, count), за ними запас выключенных: [count, created)
@@ -53,6 +56,8 @@ namespace Perigee
                 Crystal c = pool[count++];
                 c.position = centre + new Vector2(Mathf.Cos(rad) * r, Mathf.Sin(rad) * r);
                 c.age = 0f;
+                c.picked = false;
+                c.visual.SetSizeMul(1f);
                 Place(c, life);
                 c.visual.gameObject.SetActive(true);
             }
@@ -68,6 +73,19 @@ namespace Perigee
             {
                 Crystal c = pool[i];
                 c.age += dt;
+                if (c.picked)
+                {
+                    // хлопок: подобранный кристалл раздувается и гаснет
+                    float t = c.age / config.crystalPopTime;
+                    if (t >= 1f)
+                    {
+                        Remove(i);
+                        continue;
+                    }
+                    c.visual.SetSizeMul(Mathf.Lerp(1f, config.crystalPopScale, t));
+                    c.visual.SetAlpha(1f - t);
+                    continue;
+                }
                 if (c.age >= life)
                 {
                     Remove(i);
@@ -97,7 +115,9 @@ namespace Perigee
                 {
                     loop.Run.dust++;
                     loop.Run.xp++;
-                    Remove(i);
+                    c.picked = true;
+                    c.age = 0f;
+                    sfx.Play(SfxId.Crystal);
                     continue;
                 }
                 Place(c, life);

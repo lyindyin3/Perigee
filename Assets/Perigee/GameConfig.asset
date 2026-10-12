@@ -303,6 +303,31 @@ MonoBehaviour:
   bossNewtonSteps: 4
   bossOrbitLineTime: 1.5
   bossOrbitLinePoints: 64
+  hitStopTime: 0.04
+  clinkHitStop: 0.02
+  hitStopMinInterval: 0.25
+  hitStopMinBaseHp: 2
+  starFlashTime: 0.15
+  starShakeAmp: 0.12
+  starShakeTime: 0.12
+  pulseShakeAmp: 0.15
+  pulseShakeTime: 0.2
+  shakeMinInterval: 0.2
+  killShards: 6
+  hitShards: 2
+  shardTime: 0.4
+  shardSpeed: 3
+  shardPrewarm: 40
+  clinkSparks: 4
+  sparkTime: 0.2
+  sparkSpeed: 4
+  sparkPrewarm: 20
+  crystalPopTime: 0.1
+  crystalPopScale: 1.8
+  dustPunch: 0.3
+  dustPunchTime: 0.2
+  dronePitchMin: 0.8
+  dronePitchMax: 1.5
   opening:
   - time: 2
     groups:

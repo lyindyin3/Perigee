@@ -16,6 +16,7 @@ namespace Perigee
         [SerializeField] EnemySystem enemies;
         [SerializeField] BossComet boss;
         [SerializeField] SatelliteSystem satellites;
+        [SerializeField] Fx fx;
         [SerializeField] Visual pulseRing;
 
         readonly AbilityId[] slots = new AbilityId[SlotCount];
@@ -203,6 +204,7 @@ namespace Perigee
         {
             enemies.Pulse(config.pulseRadius, config.pulseDamage, config.pulsePush);
             boss.Blast(config.pulseRadius, config.pulseDamage);
+            fx.Shake(config.pulseShakeAmp, config.pulseShakeTime);
 
             // кольцо только рисунок: урон уже нанесён
             pulseRing.gameObject.SetActive(true);

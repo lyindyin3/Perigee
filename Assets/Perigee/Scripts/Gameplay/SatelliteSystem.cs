@@ -28,6 +28,7 @@ namespace Perigee
         [SerializeField] GameLoop loop;
         [SerializeField] InputHold input;
         [SerializeField] AbilitySystem abilities;
+        [SerializeField] AudioManager sfx;
         [SerializeField] Transform root;
         [SerializeField] Visual anchorRing;
 
@@ -37,6 +38,7 @@ namespace Perigee
         int count;
         float baseR;
         float threadTimer;
+        bool resonating;
 
         void Awake()
         {
@@ -65,6 +67,7 @@ namespace Perigee
 
             baseR = config.rMin;
             threadTimer = 0f;
+            resonating = false;
             count = 0;
             Launch(config.satStartAngle, 0f);
         }
@@ -110,6 +113,11 @@ namespace Perigee
         public Vector2 Position(int i)
         {
             return satellites[i].position;
+        }
+
+        public float OrbitRadius(int i)
+        {
+            return satellites[i].r;
         }
 
         // оглушённый и ещё не появившийся спутник не бьёт, не собирает и не участвует в резонансе
@@ -194,7 +202,11 @@ namespace Perigee
             else if (s.r >= config.coolZoneMin) s.heat -= config.coolRate * dt;
             s.heat = Mathf.Clamp01(s.heat);
 
-            if (s.heat >= 1f) s.stun = config.stunTime;
+            if (s.heat >= 1f)
+            {
+                s.stun = config.stunTime;
+                sfx.Play(SfxId.Stun);
+            }
         }
 
         void Resonate(float dt)
@@ -223,6 +235,10 @@ namespace Perigee
                 }
             }
             for (int i = used; i < threads.Count; i++) threads[i].gameObject.SetActive(false);
+
+            // звук только в момент, когда резонанс возник
+            if (used > 0 && !resonating) sfx.Play(SfxId.Resonance);
+            resonating = used > 0;
         }
 
         // нить номер i из пула; если запаса не хватило, создаётся новая

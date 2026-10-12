@@ -12,6 +12,7 @@ namespace Perigee
         [SerializeField] ArtSet art;
         [SerializeField] GameLoop loop;
         [SerializeField] CardSystem cards;
+        [SerializeField] AudioManager sfx;
         [SerializeField] CanvasGroup group;
         [SerializeField] TMP_Text header;
         [SerializeField] GameObject[] slots;
@@ -44,6 +45,7 @@ namespace Perigee
             group.alpha = 1f;
             group.blocksRaycasts = false;
             gameObject.SetActive(true);
+            sfx.Play(SfxId.CardOpen);
         }
 
         void Update()
@@ -58,6 +60,7 @@ namespace Perigee
             if (closing) return;
 
             cards.Pick(slot);
+            sfx.Play(SfxId.CardPick);
             closing = true;
             group.blocksRaycasts = false;
             group.DOFade(0f, config.pickFadeOut).SetLink(gameObject).OnComplete(Close);

@@ -31,6 +31,8 @@ namespace Perigee
         [SerializeField] StarController star;
         [SerializeField] CrystalSystem crystals;
         [SerializeField] AbilitySystem abilities;
+        [SerializeField] Fx fx;
+        [SerializeField] AudioManager sfx;
         [SerializeField] Transform root;
 
         // живые враги лежат в начале массива: [0, count)
@@ -108,7 +110,7 @@ namespace Perigee
                         {
                             // чем дольше сидит, тем быстрее пьёт
                             e.timer += dt;
-                            star.Damage(Mathf.Min(config.parasiteDrainBase + config.parasiteDrainGrowth * e.timer, config.parasiteDrainMax) * dt);
+                            star.Drain(Mathf.Min(config.parasiteDrainBase + config.parasiteDrainGrowth * e.timer, config.parasiteDrainMax) * dt);
                         }
                         else if (Advance(e, 0f, dt) <= config.starRadius + e.def.radius)
                         {
@@ -164,7 +166,13 @@ namespace Perigee
                     e.hitCooldown[k] = config.hitCooldown;
                     float damage = satellites.Damage(k);
                     // броня: удар слабее брони урона не наносит; ВСПЛЕСК броню не замечает
-                    if (damage < e.def.armor && !abilities.Active(AbilityId.Surge)) continue;
+                    if (damage < e.def.armor && !abilities.Active(AbilityId.Surge))
+                    {
+                        fx.Sparks(satellites.Position(k), config.clinkSparks);
+                        fx.HitStop(config.clinkHitStop);
+                        sfx.Play(SfxId.Clink);
+                        continue;
+                    }
 
                     e.hp -= damage;
                     if (e.hp <= 0f)
@@ -172,6 +180,8 @@ namespace Perigee
                         Kill(i);
                         break;
                     }
+                    fx.Shards(satellites.Position(k), config.hitShards);
+                    sfx.Play(SfxId.Hit);
                 }
             }
         }
@@ -245,7 +255,12 @@ namespace Perigee
 
         void Kill(int i)
         {
-            crystals.Spawn(live[i].position, live[i].def.crystals);
+            Enemy e = live[i];
+            crystals.Spawn(e.position, e.def.crystals);
+            fx.Shards(e.position, config.killShards);
+            // мелочь гибнет без остановки, иначе стая Роя превращается в слайд-шоу
+            if (e.def.hp >= config.hitStopMinBaseHp) fx.HitStop(config.hitStopTime);
+            sfx.Play(SfxId.Kill);
             Remove(i);
         }
 

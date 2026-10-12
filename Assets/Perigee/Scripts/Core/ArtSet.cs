@@ -10,6 +10,8 @@ namespace Perigee
         public Visual crystal;
         // по порядку EnemyType
         public Visual[] enemies;
+        public Visual shard;
+        public Visual spark;
         public ResonanceThread resonanceThread;
         public Visual telegraphArrow;
         public Visual telegraphWedge;
