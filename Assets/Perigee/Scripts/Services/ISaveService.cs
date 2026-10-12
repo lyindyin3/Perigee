@@ -29,6 +29,8 @@ namespace Perigee
         public int erasUnlocked = 1;
         public int runs;
         public int defeats;
+        // бит на каждый AbilityId; ноль = сохранение старше M10, SaveService ставит стартовый набор
+        public int abilitiesOwned;
         public int lastAbilityA;
         // дата UTC (yyyyMMdd) дневного забега, который уже получил двойную пыль
         public int dailyBonusDate;

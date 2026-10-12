@@ -66,8 +66,9 @@ namespace Perigee
         public void Tick(float dt)
         {
             float life = Life;
-            float pickup = satellites.Radius + config.crystalRadius;
+            float pickup = satellites.HitterRadius + config.crystalRadius;
             float magnet = loop.Stats.magnetRadius;
+            int hitters = satellites.HitterCount;
 
             for (int i = count - 1; i >= 0; i--)
             {
@@ -94,11 +95,11 @@ namespace Perigee
 
                 int nearest = 0;
                 float nearestSq = float.MaxValue;
-                for (int k = 0; k < satellites.Count; k++)
+                for (int k = 0; k < hitters; k++)
                 {
-                    // оглушённый или ещё не появившийся спутник кристаллы не берёт и не притягивает
-                    if (!satellites.Active(k)) continue;
-                    float sq = (satellites.Position(k) - c.position).sqrMagnitude;
+                    // оглушённый или ещё не появившийся спутник и его тень кристаллы не берут и не притягивают
+                    if (!satellites.HitterActive(k)) continue;
+                    float sq = (satellites.HitterPosition(k) - c.position).sqrMagnitude;
                     if (sq >= nearestSq) continue;
                     nearestSq = sq;
                     nearest = k;
@@ -106,7 +107,7 @@ namespace Perigee
 
                 if (nearestSq <= magnet * magnet)
                 {
-                    Vector2 target = satellites.Position(nearest);
+                    Vector2 target = satellites.HitterPosition(nearest);
                     c.position = Vector2.MoveTowards(c.position, target, config.magnetSpeed * dt);
                     nearestSq = (target - c.position).sqrMagnitude;
                 }

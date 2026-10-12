@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: ArtSet
   m_EditorClassIdentifier: Assembly-CSharp::Perigee.ArtSet
   satellite: {fileID: 7693875930388308927, guid: d931483c55b6cdb4ab8b5c2fcdad3acb, type: 3}
+  echo: {fileID: 5187077046948144319, guid: 39724e1bcfa1b8941b28a2520dc1bf60, type: 3}
   crystal: {fileID: 4764373594962635259, guid: 875babf7df9991845a0a695afce1554e, type: 3}
   enemies:
   - {fileID: 3132394689175449554, guid: 52a286404508d13459c431c1a4a75db7, type: 3}
@@ -44,8 +45,10 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
   - {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
   abilityIcons:
-  - {fileID: 21300000, guid: 9634a8d03bdd8c44aa8e68bf04381697, type: 3}
+  - {fileID: 21300000, guid: 6ffd6324143cea845b2c38c49ec4bd7c, type: 3}
   - {fileID: 21300000, guid: 8072a9baaafb16640a2cbb587c47a5d9, type: 3}
   - {fileID: 21300000, guid: 6d5973f32a15af54cadd4e53cd67939a, type: 3}
-  - {fileID: 21300000, guid: 103b01beb9381c043b754035784da77c, type: 3}
-  - {fileID: 21300000, guid: a673a78bf1e9a6c439ec888b26422d02, type: 3}
+  - {fileID: 21300000, guid: d6d4a0a06c3e56a4184a8207c9ddf44d, type: 3}
+  - {fileID: 21300000, guid: 5de27a91169434c408c9b56d5aa0a20f, type: 3}
+  - {fileID: 21300000, guid: 0d9d98192501d844ea9b27ff8a8c871b, type: 3}
+  - {fileID: 21300000, guid: ef612b3a6c775a947ad4f52b376eeed4, type: 3}

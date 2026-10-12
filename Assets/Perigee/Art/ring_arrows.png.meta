@@ -1,16 +1,10 @@
 fileFormatVersion: 2
-guid: a673a78bf1e9a6c439ec888b26422d02
+guid: 6021caf79ea642d468ce9192cb78248e
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -1151416676835352448
-    second: icon_surge_0
-  - first:
-      213: 8161107959563323649
-    second: icon_surge_1
-  - first:
-      213: 7784812378649991651
-    second: icon_surge_2
+      213: -3155554387926972498
+    second: ring_arrows_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -132,13 +126,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: icon_surge_0
+      name: ring_arrows_0
       rect:
         serializedVersion: 2
-        x: 63
-        y: 311
-        width: 386
-        height: 159
+        x: 14
+        y: 14
+        width: 484
+        height: 497
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -147,52 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 080a4c402a85500f0800000000000000
-      internalID: -1151416676835352448
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: icon_surge_1
-      rect:
-        serializedVersion: 2
-        x: 63
-        y: 183
-        width: 386
-        height: 159
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 10982672374124170800000000000000
-      internalID: 8161107959563323649
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: icon_surge_2
-      rect:
-        serializedVersion: 2
-        x: 63
-        y: 55
-        width: 386
-        height: 159
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 3e91f78dc95390c60800000000000000
-      internalID: 7784812378649991651
+      spriteID: ea70036c0083534d0800000000000000
+      internalID: -3155554387926972498
       vertices: []
       indices: 
       edges: []
@@ -211,9 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      icon_surge_0: -1151416676835352448
-      icon_surge_1: 8161107959563323649
-      icon_surge_2: 7784812378649991651
+      ring_arrows_0: -3155554387926972498
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

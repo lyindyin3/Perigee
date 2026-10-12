@@ -85,7 +85,7 @@ namespace Perigee
         public StatMod minus;
     }
 
-    public enum AbilityId { Anchor, Grow, Pulse, Chill, Surge }
+    public enum AbilityId { Reverse, Grow, Pulse, Stasis, Echo, Pull, Dome }
 
     [Serializable]
     public class AbilityDef
@@ -93,6 +93,8 @@ namespace Perigee
         public AbilityId id;
         public float duration;
         public float cooldown;
+        // 0 = есть с начала игры, иначе покупается в Мастерской
+        public int price;
     }
 
     public enum BlueprintId { Hull, Capacitor, CoolantBp, Magnetism }
@@ -110,6 +112,10 @@ namespace Perigee
     [CreateAssetMenu(fileName = "GameConfig", menuName = "Perigee/GameConfig")]
     public class GameConfig : ScriptableObject
     {
+        [Title("Отладка")]
+        // всё открыто без записи в сохранение: эры, режимы, способности, испытания, облик
+        public bool debugUnlockAll;
+
         [Title("Мир")]
         public float starRadius = 1f;
         public float starMaxHp = 120f;
@@ -213,12 +219,17 @@ namespace Perigee
         [TableList]
         public AbilityDef[] abilities =
         {
-            new AbilityDef { id = AbilityId.Anchor, duration = 4f, cooldown = 30f },
-            new AbilityDef { id = AbilityId.Grow, duration = 6f, cooldown = 35f },
-            new AbilityDef { id = AbilityId.Pulse, duration = 0f, cooldown = 45f },
-            new AbilityDef { id = AbilityId.Chill, duration = 5f, cooldown = 30f },
-            new AbilityDef { id = AbilityId.Surge, duration = 4f, cooldown = 40f },
+            new AbilityDef { id = AbilityId.Reverse, duration = 2f, cooldown = 12f, price = 0 },
+            new AbilityDef { id = AbilityId.Grow, duration = 6f, cooldown = 35f, price = 0 },
+            new AbilityDef { id = AbilityId.Pulse, duration = 0f, cooldown = 40f, price = 0 },
+            new AbilityDef { id = AbilityId.Stasis, duration = 4f, cooldown = 40f, price = 300 },
+            new AbilityDef { id = AbilityId.Echo, duration = 6f, cooldown = 35f, price = 500 },
+            new AbilityDef { id = AbilityId.Pull, duration = 3f, cooldown = 35f, price = 500 },
+            new AbilityDef { id = AbilityId.Dome, duration = 5f, cooldown = 50f, price = 700 },
         };
+        public float reverseHitMul = 1.5f;
+        public float reverseFxTime = 0.4f;
+        public float reverseFxTurn = 360f;
         public float growRadiusMul = 2f;
         public float growResonanceMul = 1.3f;
         public float growScaleTime = 0.2f;
@@ -226,8 +237,12 @@ namespace Perigee
         public float pulseTime = 0.35f;
         public float pulseDamage = 2f;
         public float pulsePush = 1f;
-        public float chillFlashTime = 0.2f;
-        public float surgePowerMul = 2f;
+        public float stasisSlow = 0.25f;
+        public Color stasisTint = new Color32(0xB9, 0xBD, 0xC2, 0xFF);
+        public float stasisTintAmount = 0.5f;
+        public float echoLag = 35f;
+        public float echoDamageMul = 0.6f;
+        public float pullSpeed = 3f;
         public float abilityReadyPulse = 1.08f;
         public float abilityReadyPulseTime = 0.6f;
 

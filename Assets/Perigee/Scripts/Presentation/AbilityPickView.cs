@@ -16,10 +16,14 @@ namespace Perigee
         [SerializeField] CanvasGroup group;
         [SerializeField] TMP_Text header;
         [SerializeField] GameObject[] slots;
+        [SerializeField] Button[] buttons;
         [SerializeField] Image[] icons;
         [SerializeField] TMP_Text[] titles;
         [SerializeField] TMP_Text[] effectLines;
         [SerializeField] TMP_Text[] cooldownLines;
+        // затемнение с замком и ценой поверх не купленной способности
+        [SerializeField] GameObject[] locks;
+        [SerializeField] TMP_Text[] prices;
 
         float openTime;
         bool closing;
@@ -37,8 +41,14 @@ namespace Perigee
                 AbilityDef def = abilities.Offer(i);
                 icons[i].sprite = art.abilityIcons[(int)def.id];
                 titles[i].text = Strings.AbilityTitle[(int)def.id];
-                effectLines[i].text = string.Format(CultureInfo.InvariantCulture, Strings.AbilityEffect[(int)def.id], def.duration * loop.Stats.abilityDurationMul, Value(def.id));
+                effectLines[i].text = Strings.AbilityText[(int)def.id];
                 cooldownLines[i].text = string.Format(CultureInfo.InvariantCulture, Strings.CooldownFormat, def.cooldown * loop.Stats.abilityCooldownMul);
+
+                // не купленную способность выбрать нельзя
+                bool owned = abilities.Owned(def.id);
+                buttons[i].interactable = owned;
+                locks[i].SetActive(!owned);
+                prices[i].text = string.Format(CultureInfo.InvariantCulture, Strings.PriceFormat, def.price);
             }
 
             openTime = Time.unscaledTime;
@@ -71,18 +81,6 @@ namespace Perigee
         {
             gameObject.SetActive(false);
             loop.SetState(GameState.Playing);
-        }
-
-        // число в строке эффекта: {1} в Strings.AbilityEffect
-        float Value(AbilityId id)
-        {
-            switch (id)
-            {
-                case AbilityId.Grow: return config.growRadiusMul;
-                case AbilityId.Pulse: return config.pulseDamage;
-                case AbilityId.Surge: return config.surgePowerMul;
-                default: return 0f;
-            }
         }
     }
 }

@@ -8,6 +8,8 @@ namespace Perigee
         public float spinMul;
         public float powerMul;
         public float powerFarBonus;
+        // множитель удара спутников и теней, пока открыто окно способности
+        public float hitMul;
         public float heatMul;
         public float resonanceAngleMul;
         public float satRadiusMul;
@@ -27,6 +29,7 @@ namespace Perigee
             spinMul = era.spinMul;
             powerMul = 1f;
             powerFarBonus = 0f;
+            hitMul = 1f;
             heatMul = 1f;
             resonanceAngleMul = 1f;
             satRadiusMul = 1f;
@@ -57,7 +60,7 @@ namespace Perigee
             // временные множители способностей, отдельно от карточек
             satRadiusMul *= Mathf.Lerp(1f, config.growRadiusMul, abilities.GrowBlend);
             if (abilities.Active(AbilityId.Grow)) resonanceAngleMul *= config.growResonanceMul;
-            if (abilities.Active(AbilityId.Surge)) powerMul *= config.surgePowerMul;
+            if (abilities.Active(AbilityId.Reverse)) hitMul *= config.reverseHitMul;
         }
 
         void Apply(StatMod mod)

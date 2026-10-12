@@ -113,9 +113,13 @@ namespace Perigee
             if (run.level == config.abilityPickLevel)
             {
                 abilities.OfferRandom(cardRng);
-                loop.SetState(GameState.CardPick);
-                abilityView.Show();
-                return;
+                // свободных способностей не осталось: это повышение открывает карточки
+                if (abilities.OfferCount > 0)
+                {
+                    loop.SetState(GameState.CardPick);
+                    abilityView.Show();
+                    return;
+                }
             }
 
             Roll(screens == 0);

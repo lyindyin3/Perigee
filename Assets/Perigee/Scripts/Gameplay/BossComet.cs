@@ -10,6 +10,7 @@ namespace Perigee
         [SerializeField] GameLoop loop;
         [SerializeField] EnemySystem enemies;
         [SerializeField] SatelliteSystem satellites;
+        [SerializeField] AbilitySystem abilities;
         [SerializeField] StarController star;
         [SerializeField] CrystalSystem crystals;
         [SerializeField] Director director;
@@ -47,7 +48,7 @@ namespace Perigee
 
         void Awake()
         {
-            hitCooldown = new float[config.maxSatellites];
+            hitCooldown = new float[satellites.MaxHitters];
         }
 
         public void ResetRun()
@@ -72,7 +73,8 @@ namespace Perigee
             if (!spawned && loop.Run.time >= config.bossTime) Spawn();
             if (!Alive) return;
 
-            age += dt;
+            // СТАЗИС замедляет полёт; перезарядка удара, линия орбиты и кольцо HP идут по обычному времени
+            age += dt * loop.EnemyTimeScale;
             for (int k = 0; k < hitCooldown.Length; k++) hitCooldown[k] -= dt;
 
             lineTimer -= dt;
@@ -96,19 +98,27 @@ namespace Perigee
             // пока Комета проявляется, урон по ней не проходит
             if (!Alive || age < config.bossFadeIn) return;
 
-            float reach = satellites.Radius + def.radius;
-            for (int k = 0; k < satellites.Count; k++)
+            float reach = satellites.HitterRadius + def.radius;
+            int hitters = satellites.HitterCount;
+            for (int k = 0; k < hitters; k++)
             {
-                if (!satellites.Active(k)) continue;
+                if (!satellites.HitterActive(k)) continue;
                 if (hitCooldown[k] > 0f) continue;
-                if ((satellites.Position(k) - position).sqrMagnitude > reach * reach) continue;
+                Vector2 hitter = satellites.HitterPosition(k);
+                if ((hitter - position).sqrMagnitude > reach * reach) continue;
 
                 hitCooldown[k] = config.hitCooldown;
-                if (Hurt(satellites.Damage(k), satellites.Position(k))) return;
-                fx.Shards(satellites.Position(k), config.hitShards);
+                if (Hurt(satellites.HitterDamage(k), hitter)) return;
+                fx.Shards(hitter, config.hitShards);
                 fx.HitStop(config.hitStopTime);
                 sfx.Play(SfxId.Hit);
             }
+        }
+
+        // РЕВЕРС: каждый хиттер может ударить снова, не дожидаясь перезарядки
+        public void ClearHitCooldowns()
+        {
+            System.Array.Clear(hitCooldown, 0, hitCooldown.Length);
         }
 
         // волна от звезды (ИМПУЛЬС, МАЯК): урон без толчка
@@ -207,6 +217,8 @@ namespace Perigee
             position = new Vector2(x * cos - y * sin, x * sin + y * cos);
 
             self.localPosition = position;
+            // СТАЗИС: Комета наполовину серебряная
+            visual.Tint(config.stasisTint, abilities.Active(AbilityId.Stasis) ? config.stasisTintAmount : 0f);
             visual.SetAlpha(Mathf.Clamp01(age / config.bossFadeIn));
         }
 

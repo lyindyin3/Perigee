@@ -18,6 +18,10 @@ namespace Perigee
         [SerializeField] SatelliteSystem satellites;
         [SerializeField] Fx fx;
         [SerializeField] Visual pulseRing;
+        [SerializeField] Visual reverseFx;
+        [SerializeField] GameObject stasisFx;
+        [SerializeField] Visual pullFx;
+        [SerializeField] GameObject domeFx;
 
         readonly AbilityId[] slots = new AbilityId[SlotCount];
         readonly bool[] filled = new bool[SlotCount];
@@ -35,6 +39,12 @@ namespace Perigee
         DOGetter<float> getWave;
         DOSetter<float> setWave;
         TweenCallback hideWave;
+        // поворот кольца РЕВЕРСА, 0..1, и его направление
+        float turn;
+        int turnDir;
+        DOGetter<float> getTurn;
+        DOSetter<float> setTurn;
+        TweenCallback hideTurn;
 
         public int OfferCount => offerCount;
 
@@ -49,6 +59,9 @@ namespace Perigee
             getWave = () => wave;
             setWave = SetWave;
             hideWave = HideWave;
+            getTurn = () => turn;
+            setTurn = SetTurn;
+            hideTurn = HideTurn;
 
             // по номеру слота: Q = слот A, E = слот B
             keys = new[] { new InputAction(binding: "<Keyboard>/q"), new InputAction(binding: "<Keyboard>/e") };
@@ -73,11 +86,13 @@ namespace Perigee
             System.Array.Clear(elapsed, 0, elapsed.Length);
             System.Array.Clear(duration, 0, duration.Length);
             System.Array.Clear(cooldown, 0, cooldown.Length);
+            ShowFx();
         }
 
         public void Tick(float dt)
         {
             for (int i = 0; i < elapsed.Length; i++) elapsed[i] += dt;
+            ShowFx();
         }
 
         // вызывают кнопки способностей, номер слота задан в сцене
@@ -95,7 +110,7 @@ namespace Perigee
             duration[a] = def.duration * loop.Stats.abilityDurationMul;
             cooldown[a] = def.cooldown * loop.Stats.abilityCooldownMul;
             if (id == AbilityId.Pulse) Pulse();
-            if (id == AbilityId.Chill) satellites.Flash(Color.white, config.chillFlashTime);
+            if (id == AbilityId.Reverse) Reverse();
         }
 
         public bool Filled(int slot)
@@ -154,12 +169,18 @@ namespace Perigee
             }
         }
 
+        // способность куплена (или есть с начала игры); debugUnlockAll открывает все без записи в сохранение
+        public bool Owned(AbilityId id)
+        {
+            return config.debugUnlockAll || (loop.Save.Data.abilitiesOwned & 1 << (int)id) != 0;
+        }
+
         public AbilityDef Offer(int i)
         {
             return Def(offer[i]);
         }
 
-        // слот A: на выбор все способности
+        // слот A: на экране все способности, не купленные закрыты замком
         public void OfferAll()
         {
             offerSlot = SlotA;
@@ -167,7 +188,7 @@ namespace Perigee
             for (int i = 0; i < offerCount; i++) offer[i] = config.abilities[i].id;
         }
 
-        // слот B: случайные из ещё не взятых
+        // слот B: случайные из купленных и ещё не взятых; если таких нет, предложение пустое
         public void OfferRandom(Rng rng)
         {
             offerSlot = SlotB;
@@ -175,7 +196,7 @@ namespace Perigee
             for (int i = 0; i < config.abilities.Length; i++)
             {
                 AbilityId id = config.abilities[i].id;
-                if (!Owns(id)) offer[n++] = id;
+                if (Owned(id) && !Slotted(id)) offer[n++] = id;
             }
 
             offerCount = Mathf.Min(config.abilityChoices, n);
@@ -207,11 +228,26 @@ namespace Perigee
             filled[slot] = true;
         }
 
-        bool Owns(AbilityId id)
+        bool Slotted(AbilityId id)
         {
             for (int i = 0; i < SlotCount; i++)
                 if (filled[i] && slots[i] == id) return true;
             return false;
+        }
+
+        // объекты эффектов видны, пока способность действует
+        void ShowFx()
+        {
+            bool stasis = Active(AbilityId.Stasis);
+            if (stasisFx.activeSelf != stasis) stasisFx.SetActive(stasis);
+
+            bool dome = Active(AbilityId.Dome);
+            if (domeFx.activeSelf != dome) domeFx.SetActive(dome);
+
+            // кольцо ПРИТЯЖЕНИЯ стоит на радиусе, куда стягиваются враги
+            bool pull = Active(AbilityId.Pull);
+            if (pullFx.gameObject.activeSelf != pull) pullFx.gameObject.SetActive(pull);
+            if (pull) pullFx.SetSizeMul(satellites.OuterRadius);
         }
 
         void Pulse()
@@ -237,6 +273,36 @@ namespace Perigee
         void HideWave()
         {
             pulseRing.gameObject.SetActive(false);
+        }
+
+        void Reverse()
+        {
+            satellites.Reverse();
+            // спутник может сразу ударить того, кого только что прошёл
+            enemies.ClearHitCooldowns();
+            boss.ClearHitCooldowns();
+
+            // кольцо со стрелками на внешней орбите: поворачивается в новую сторону и гаснет
+            reverseFx.gameObject.SetActive(true);
+            DOTween.Kill(reverseFx);
+            turnDir = satellites.OrbitDir;
+            float r = satellites.OuterRadius;
+            // стрелки на картинке смотрят против часовой; по часовой картинка отражается
+            reverseFx.SetSizeMul(turnDir * r, r);
+            SetTurn(0f);
+            DOTween.To(getTurn, setTurn, 1f, config.reverseFxTime).SetTarget(reverseFx).SetLink(reverseFx.gameObject).OnComplete(hideTurn);
+        }
+
+        void SetTurn(float value)
+        {
+            turn = value;
+            reverseFx.transform.localRotation = Quaternion.Euler(0f, 0f, turnDir * config.reverseFxTurn * value);
+            reverseFx.SetAlpha(1f - value);
+        }
+
+        void HideTurn()
+        {
+            reverseFx.gameObject.SetActive(false);
         }
 
         AbilityDef Def(AbilityId id)

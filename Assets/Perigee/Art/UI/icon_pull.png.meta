@@ -1,10 +1,19 @@
 fileFormatVersion: 2
-guid: 103b01beb9381c043b754035784da77c
+guid: 0d9d98192501d844ea9b27ff8a8c871b
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 6885026019354323651
-    second: icon_chill_0
+      213: 1591052162453268203
+    second: icon_pull_0
+  - first:
+      213: 6002086160918904323
+    second: icon_pull_1
+  - first:
+      213: 473342528530224418
+    second: icon_pull_2
+  - first:
+      213: 6584435481971808900
+    second: icon_pull_3
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -126,13 +135,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: icon_chill_0
+      name: icon_pull_0
       rect:
         serializedVersion: 2
-        x: 24
-        y: 24
-        width: 464
-        height: 464
+        x: 211
+        y: 373
+        width: 90
+        height: 130
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +150,74 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 3caafe8afa68c8f50800000000000000
-      internalID: 6885026019354323651
+      spriteID: be6e422138d841610800000000000000
+      internalID: 1591052162453268203
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: icon_pull_1
+      rect:
+        serializedVersion: 2
+        x: 40
+        y: 124
+        width: 115
+        height: 81
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 30efbdc1091bb4350800000000000000
+      internalID: 6002086160918904323
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: icon_pull_2
+      rect:
+        serializedVersion: 2
+        x: 160
+        y: 160
+        width: 192
+        height: 192
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 22511269586a19600800000000000000
+      internalID: 473342528530224418
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: icon_pull_3
+      rect:
+        serializedVersion: 2
+        x: 357
+        y: 124
+        width: 115
+        height: 81
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 48a586d5f2d906b50800000000000000
+      internalID: 6584435481971808900
       vertices: []
       indices: 
       edges: []
@@ -161,7 +236,10 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      icon_chill_0: 6885026019354323651
+      icon_pull_0: 1591052162453268203
+      icon_pull_1: 6002086160918904323
+      icon_pull_2: 473342528530224418
+      icon_pull_3: 6584435481971808900
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

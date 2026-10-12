@@ -99,17 +99,41 @@ namespace Perigee
 
         public void Tick(float dt)
         {
+            // СТАЗИС замедляет врагов; перезарядка удара и кольцо HP идут по обычному времени
+            float enemyDt = dt * loop.EnemyTimeScale;
+            bool pull = abilities.Active(AbilityId.Pull);
+            bool dome = abilities.Active(AbilityId.Dome);
+            float pullRadius = satellites.OuterRadius;
+
             for (int i = count - 1; i >= 0; i--)
             {
                 Enemy e = live[i];
-                e.age += dt;
+                e.age += enemyDt;
                 for (int k = 0; k < e.hitCooldown.Length; k++) e.hitCooldown[k] -= dt;
+
+                if (pull)
+                {
+                    // ПРИТЯЖЕНИЕ: своё поведение стоит, враг идёт по радиусу к орбите внешнего спутника.
+                    // Паразит отцепляется, Стрелок перестаёт стрелять; потом оба продолжают с того места, где оказались.
+                    float r = e.position.magnitude;
+                    e.position *= Mathf.MoveTowards(r, pullRadius, config.pullSpeed * dt) / r;
+                    e.engaged = false;
+                    e.timer = 0f;
+                    Place(e);
+                    Gauge(e, dt);
+                    continue;
+                }
 
                 switch (e.def.behavior)
                 {
                     case EnemyBehavior.Straight:
-                        if (Advance(e, 0f, dt) <= config.starRadius + e.def.radius)
+                        if (Advance(e, 0f, enemyDt) <= config.starRadius + e.def.radius)
                         {
+                            if (dome)
+                            {
+                                Shatter(i);
+                                continue;
+                            }
                             star.Damage(e.def.starDamage);
                             Remove(i);
                             continue;
@@ -117,13 +141,21 @@ namespace Perigee
                         break;
 
                     case EnemyBehavior.Attach:
+                        if (!e.engaged && Advance(e, 0f, enemyDt) > config.starRadius + e.def.radius) break;
+
+                        // КУПОЛ: Паразит у звезды разбивается, сидел он на ней или только долетел
+                        if (dome)
+                        {
+                            Shatter(i);
+                            continue;
+                        }
                         if (e.engaged)
                         {
                             // чем дольше сидит, тем быстрее пьёт
-                            e.timer += dt;
-                            star.Drain(Mathf.Min(config.parasiteDrainBase + config.parasiteDrainGrowth * e.timer, config.parasiteDrainMax) * dt);
+                            e.timer += enemyDt;
+                            star.Drain(Mathf.Min(config.parasiteDrainBase + config.parasiteDrainGrowth * e.timer, config.parasiteDrainMax) * enemyDt);
                         }
-                        else if (Advance(e, 0f, dt) <= config.starRadius + e.def.radius)
+                        else
                         {
                             e.engaged = true;
                             e.timer = 0f;
@@ -134,14 +166,14 @@ namespace Perigee
                     case EnemyBehavior.Stopper:
                         if (e.engaged)
                         {
-                            e.timer -= dt;
+                            e.timer -= enemyDt;
                             if (e.timer <= 0f)
                             {
                                 e.timer += config.shooterFireInterval;
                                 Spawn(EnemyType.Bolt, e.position, 1f);
                             }
                         }
-                        else if (Advance(e, config.shooterStopRadius, dt) <= config.shooterStopRadius)
+                        else if (Advance(e, config.shooterStopRadius, enemyDt) <= config.shooterStopRadius)
                         {
                             e.engaged = true;
                             e.timer = config.shooterFirstDelay;
@@ -149,7 +181,7 @@ namespace Perigee
                         break;
 
                     case EnemyBehavior.Burster:
-                        if (Advance(e, 0f, dt) <= config.hiveBurstRadius)
+                        if (Advance(e, 0f, enemyDt) <= config.hiveBurstRadius)
                         {
                             Burst(i);
                             continue;
@@ -163,23 +195,24 @@ namespace Perigee
 
         public void Collide()
         {
+            int hitters = satellites.HitterCount;
             for (int i = count - 1; i >= 0; i--)
             {
                 Enemy e = live[i];
                 if (e.age < config.spawnFadeIn) continue;
 
-                float reach = satellites.Radius + e.def.radius;
-                for (int k = 0; k < satellites.Count; k++)
+                float reach = satellites.HitterRadius + e.def.radius;
+                for (int k = 0; k < hitters; k++)
                 {
-                    if (!satellites.Active(k)) continue;
+                    if (!satellites.HitterActive(k)) continue;
                     if (e.hitCooldown[k] > 0f) continue;
-                    if ((satellites.Position(k) - e.position).sqrMagnitude > reach * reach) continue;
+                    Vector2 hitter = satellites.HitterPosition(k);
+                    if ((hitter - e.position).sqrMagnitude > reach * reach) continue;
 
                     e.hitCooldown[k] = config.hitCooldown;
-                    float damage = satellites.Damage(k);
-                    Vector2 hitter = satellites.Position(k);
-                    // броня: удар слабее брони урона не наносит; ВСПЛЕСК броню не замечает
-                    if (damage < e.def.armor && !abilities.Active(AbilityId.Surge))
+                    float damage = satellites.HitterDamage(k);
+                    // броня: удар слабее брони урона не наносит
+                    if (damage < e.def.armor)
                     {
                         fx.Sparks(hitter, config.clinkSparks);
                         if (e.maxHp >= config.numberMinHp) fx.Number(Above(e), 0f, NumberKind.Blocked);
@@ -237,6 +270,12 @@ namespace Perigee
         {
             for (int i = count - 1; i >= 0; i--)
                 if (live[i].position.sqrMagnitude <= radius * radius) Kill(i);
+        }
+
+        // РЕВЕРС: каждый хиттер может ударить снова, не дожидаясь перезарядки
+        public void ClearHitCooldowns()
+        {
+            for (int i = 0; i < count; i++) System.Array.Clear(live[i].hitCooldown, 0, live[i].hitCooldown.Length);
         }
 
         public int Count => count;
@@ -324,6 +363,14 @@ namespace Perigee
             Remove(i);
         }
 
+        // КУПОЛ: враг разбивается о звезду, кристаллов нет
+        void Shatter(int i)
+        {
+            fx.Shards(live[i].position, config.killShards);
+            sfx.Play(SfxId.Kill);
+            Remove(i);
+        }
+
         // на место убранного встаёт последний живой; при обходе с конца он уже обработан
         void Remove(int i)
         {
@@ -341,7 +388,8 @@ namespace Perigee
             Visual visual = Instantiate(art.enemies[(int)def.id], root);
             visual.gameObject.SetActive(false);
 
-            var e = new Enemy { visual = visual, transform = visual.transform, def = def, hitCooldown = new float[config.maxSatellites] };
+            // перезарядка удара своя на каждый хиттер: спутники и их тени
+            var e = new Enemy { visual = visual, transform = visual.transform, def = def, hitCooldown = new float[satellites.MaxHitters] };
             e.body = visual.Body.transform;
             e.flash = fx.Overlay(visual);
             e.hpRing = visual.GetComponentInChildren<HpRing>(true);
@@ -355,6 +403,8 @@ namespace Perigee
             e.transform.localPosition = e.position;
             // ось +Y картинки смотрит на звезду
             if (e.def.faceStar) e.transform.localRotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(-e.position.y, -e.position.x) * Mathf.Rad2Deg - 90f);
+            // СТАЗИС: враг наполовину серебряный
+            e.visual.Tint(config.stasisTint, abilities.Active(AbilityId.Stasis) ? config.stasisTintAmount : 0f);
             e.visual.SetAlpha(Mathf.Clamp01(e.age / config.spawnFadeIn));
 
             if (e.def.behavior == EnemyBehavior.Attach && e.attachMarker.activeSelf != e.engaged) e.attachMarker.SetActive(e.engaged);

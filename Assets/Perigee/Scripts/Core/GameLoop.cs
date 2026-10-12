@@ -40,6 +40,8 @@ namespace Perigee
         public ISaveService Save { get; private set; }
         public Blueprints Blueprints { get; private set; }
         public EraConfig Era => config.eras[eraIndex];
+        // СТАЗИС: враги, их таймеры и боссы живут в замедленном времени
+        public float EnemyTimeScale => abilities.Active(AbilityId.Stasis) ? config.stasisSlow : 1f;
 
         IAdService ads;
         ILeaderboardService leaderboard;

@@ -8,6 +8,8 @@ namespace Perigee
     public class ArtSet : ScriptableObject
     {
         public Visual satellite;
+        // тень спутника, пока действует ЭХО
+        public Visual echo;
         public Visual crystal;
         // по порядку EnemyType
         public Visual[] enemies;

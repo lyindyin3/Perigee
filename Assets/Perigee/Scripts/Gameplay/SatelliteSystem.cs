@@ -5,15 +5,20 @@ namespace Perigee
 {
     public class SatelliteSystem : MonoBehaviour
     {
-        // обязательная часть префаба спутника: золотой след ВСПЛЕСКА
-        const string SurgeTrailName = "SurgeTrail";
+        // в начале забега орбита идёт по часовой стрелке: угол убывает
+        const int Clockwise = -1;
+        // хиттеров вдвое больше спутников: у каждого спутника своя тень ЭХА
+        const int HittersPerSatellite = 2;
 
         class Satellite
         {
             public Visual visual;
             public Transform transform;
             public HeatArc heatArc;
-            public GameObject surgeTrail;
+            // тень ЭХА: своя у каждого спутника
+            public Visual echo;
+            public Transform echoTransform;
+            public Vector2 echoPosition;
             public Vector2 position;
             public float angle;
             public float r;
@@ -30,15 +35,17 @@ namespace Perigee
         [SerializeField] AbilitySystem abilities;
         [SerializeField] AudioManager sfx;
         [SerializeField] Transform root;
-        [SerializeField] Visual anchorRing;
 
         // по одной нити на каждую пару спутников в резонансе
         readonly List<ResonanceThread> threads = new List<ResonanceThread>();
         Satellite[] satellites;
         int count;
+        int orbitDir;
         float baseR;
         float threadTimer;
         bool resonating;
+        // ЭХО действует: тени расставлены в этом шаге
+        bool echoing;
 
         void Awake()
         {
@@ -48,7 +55,7 @@ namespace Perigee
 
         public void ResetRun()
         {
-            // спутники и нити создаются заново из префабов: правка префаба видна со следующего забега
+            // спутники, тени и нити создаются заново из префабов: правка префаба видна со следующего забега
             for (int i = root.childCount - 1; i >= 0; i--) Destroy(root.GetChild(i).gameObject);
 
             for (int i = 0; i < satellites.Length; i++)
@@ -57,17 +64,20 @@ namespace Perigee
                 s.visual = Instantiate(art.satellite, root);
                 s.transform = s.visual.transform;
                 s.heatArc = s.visual.GetComponentInChildren<HeatArc>();
-                s.surgeTrail = s.transform.Find(SurgeTrailName).gameObject;
                 s.visual.gameObject.SetActive(false);
+                s.echo = Instantiate(art.echo, root);
+                s.echoTransform = s.echo.transform;
+                s.echo.gameObject.SetActive(false);
             }
 
             threads.Clear();
             for (int i = 0; i < config.threadPrewarm; i++) Thread(i).gameObject.SetActive(false);
-            anchorRing.gameObject.SetActive(false);
 
             baseR = config.rMin;
+            orbitDir = Clockwise;
             threadTimer = 0f;
             resonating = false;
+            echoing = false;
             count = 0;
             Launch(config.satStartAngle, 0f);
         }
@@ -76,23 +86,16 @@ namespace Perigee
         {
             while (count < Mathf.Min(1 + loop.Stats.extraSatellites, satellites.Length)) Add();
 
-            // ЯКОРЬ: радиус заморожен, удержание и отпускание не действуют
-            bool anchored = abilities.Active(AbilityId.Anchor);
-            if (!anchored)
-            {
-                // при удержании внешний спутник всегда доходит до внешнего кольца
-                float target = input.IsHolding ? config.ringMax - (count - 1) * config.ringGap : config.rMin;
-                baseR = Mathf.MoveTowards(baseR, target, config.radialSpeed * loop.Stats.radialSpeedMul * dt);
-            }
-            if (anchorRing.gameObject.activeSelf != anchored) anchorRing.gameObject.SetActive(anchored);
-            if (anchored) anchorRing.SetSizeMul(baseR);
+            // при удержании внешний спутник всегда доходит до внешнего кольца
+            float target = input.IsHolding ? config.ringMax - (count - 1) * config.ringGap : config.rMin;
+            baseR = Mathf.MoveTowards(baseR, target, config.radialSpeed * loop.Stats.radialSpeedMul * dt);
 
+            echoing = abilities.Active(AbilityId.Echo);
             for (int i = 0; i < count; i++)
             {
                 Satellite s = satellites[i];
                 s.r = Mathf.Min(baseR + i * config.ringGap, config.satMaxRadius);
-                // по часовой стрелке: угол убывает
-                s.angle = Mathf.Repeat(s.angle - AngularSpeed(s.r) * dt, 360f);
+                s.angle = Mathf.Repeat(s.angle + orbitDir * AngularSpeed(s.r) * dt, 360f);
                 s.fade = Mathf.Max(s.fade - dt, 0f);
                 Heat(s, dt);
                 Place(s);
@@ -108,11 +111,13 @@ namespace Perigee
 
         public int Count => count;
 
-        public float Radius => config.satRadius * loop.Stats.satRadiusMul;
+        // -1 = по часовой стрелке, 1 = против
+        public int OrbitDir => orbitDir;
 
-        public Vector2 Position(int i)
+        // РЕВЕРС: орбита сразу идёт в другую сторону
+        public void Reverse()
         {
-            return satellites[i].position;
+            orbitDir = -orbitDir;
         }
 
         public float OrbitRadius(int i)
@@ -120,16 +125,42 @@ namespace Perigee
             return satellites[i].r;
         }
 
-        // оглушённый и ещё не появившийся спутник не бьёт, не собирает и не участвует в резонансе
-        public bool Active(int i)
+        // радиус орбиты внешнего спутника
+        public float OuterRadius => satellites[count - 1].r;
+
+        // Хиттеры: всё, что бьёт и собирает. Сначала спутники, за ними их тени, пока действует ЭХО.
+        public int HitterCount => echoing ? count * HittersPerSatellite : count;
+
+        // сколько хиттеров бывает самое большее: размер массивов перезарядки удара у врагов
+        public int MaxHitters => HittersPerSatellite * config.maxSatellites;
+
+        public float HitterRadius => config.satRadius * loop.Stats.satRadiusMul;
+
+        public Vector2 HitterPosition(int k)
         {
-            return satellites[i].stun <= 0f && satellites[i].fade <= 0f;
+            return k < count ? satellites[k].position : satellites[k - count].echoPosition;
         }
 
-        public float Damage(int i)
+        // тень активна, пока активен её спутник
+        public bool HitterActive(int k)
         {
-            Satellite s = satellites[i];
-            return s.resonant ? Power(s.r) * config.resonanceMul : Power(s.r);
+            return Active(k < count ? k : k - count);
+        }
+
+        public float HitterDamage(int k)
+        {
+            // тень бьёт долей удара своего спутника без резонанса
+            if (k >= count) return Power(satellites[k - count].r) * loop.Stats.hitMul * config.echoDamageMul;
+
+            Satellite s = satellites[k];
+            float damage = Power(s.r) * loop.Stats.hitMul;
+            return s.resonant ? damage * config.resonanceMul : damage;
+        }
+
+        // тень не греется
+        public float HitterHeat(int k)
+        {
+            return k < count ? satellites[k].heat : 0f;
         }
 
         public float Power(float r)
@@ -162,10 +193,10 @@ namespace Perigee
             }
         }
 
-        // ХОЛОД: вспышка всех спутников
-        public void Flash(Color color, float sec)
+        // оглушённый и ещё не появившийся спутник не бьёт, не собирает и не участвует в резонансе
+        bool Active(int i)
         {
-            for (int i = 0; i < count; i++) satellites[i].visual.Flash(color, sec);
+            return satellites[i].stun <= 0f && satellites[i].fade <= 0f;
         }
 
         // новый спутник встаёт внешним, в середину самого большого углового промежутка
@@ -205,14 +236,6 @@ namespace Perigee
 
         void Heat(Satellite s, float dt)
         {
-            // ХОЛОД: нагрев на нуле, оглушение снято, греться нельзя
-            if (abilities.Active(AbilityId.Chill))
-            {
-                s.heat = 0f;
-                s.stun = 0f;
-                return;
-            }
-
             // пока спутник оглушён, нагрев держится на 1
             if (s.stun > 0f)
             {
@@ -283,18 +306,25 @@ namespace Perigee
             // появление: прозрачность идёт за таймером fade
             s.visual.SetAlpha(1f - s.fade / config.satFadeIn);
 
-            // ВСПЛЕСК: золотой след, пока способность действует
-            bool surge = abilities.Active(AbilityId.Surge);
-            if (s.surgeTrail.activeSelf != surge) s.surgeTrail.SetActive(surge);
-
             s.heatArc.Draw(s.heat, loop.Run.time);
+
+            // тень видна, пока бьёт: ЭХО действует, а её спутник не оглушён и уже появился
+            bool echo = echoing && s.stun <= 0f && s.fade <= 0f;
+            if (s.echo.gameObject.activeSelf != echo) s.echo.gameObject.SetActive(echo);
+            if (!echo) return;
+
+            // тень идёт по той же орбите позади спутника
+            float lag = (s.angle - orbitDir * config.echoLag) * Mathf.Deg2Rad;
+            s.echoPosition = new Vector2(Mathf.Cos(lag) * s.r, Mathf.Sin(lag) * s.r);
+            s.echoTransform.localPosition = s.echoPosition;
+            s.echo.SetSizeMul(loop.Stats.satRadiusMul);
         }
 
         // круги попаданий в Scene view
         void OnDrawGizmos()
         {
             if (!Application.isPlaying) return;
-            for (int i = 0; i < count; i++) Gizmos.DrawWireSphere(satellites[i].position, Radius);
+            for (int k = 0; k < HitterCount; k++) Gizmos.DrawWireSphere(HitterPosition(k), HitterRadius);
         }
     }
 }

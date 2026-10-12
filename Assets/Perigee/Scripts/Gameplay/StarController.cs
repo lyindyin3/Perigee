@@ -6,6 +6,7 @@ namespace Perigee
     {
         [SerializeField] GameConfig config;
         [SerializeField] GameLoop loop;
+        [SerializeField] AbilitySystem abilities;
         [SerializeField] Visual visual;
         [SerializeField] Fx fx;
         [SerializeField] AudioManager sfx;
@@ -28,8 +29,8 @@ namespace Perigee
             loop.Run.hp = Mathf.Max(loop.Run.hp - amount, 0f);
         }
 
-        // после возрождения звезда недолго не получает урон
-        bool Immune => loop.Run.time < loop.Run.immuneUntil;
+        // после возрождения и под КУПОЛОМ звезда не получает урон ни от чего
+        bool Immune => loop.Run.time < loop.Run.immuneUntil || abilities.Active(AbilityId.Dome);
 
         public void Tick()
         {

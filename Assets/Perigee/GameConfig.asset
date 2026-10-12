@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 02cdd2e74b496334d8baed45d6a88bd7, type: 3}
   m_Name: GameConfig
   m_EditorClassIdentifier: Assembly-CSharp::Perigee.GameConfig
+  debugUnlockAll: 1
   starRadius: 1
   starMaxHp: 120
   starLowHpFraction: 0.3
@@ -176,20 +177,36 @@ MonoBehaviour:
   abilityChoices: 3
   abilities:
   - id: 0
-    duration: 4
-    cooldown: 30
+    duration: 2
+    cooldown: 12
+    price: 0
   - id: 1
     duration: 6
     cooldown: 35
+    price: 0
   - id: 2
     duration: 0
-    cooldown: 45
+    cooldown: 40
+    price: 0
   - id: 3
-    duration: 5
-    cooldown: 30
-  - id: 4
     duration: 4
     cooldown: 40
+    price: 300
+  - id: 4
+    duration: 6
+    cooldown: 35
+    price: 500
+  - id: 5
+    duration: 3
+    cooldown: 35
+    price: 500
+  - id: 6
+    duration: 5
+    cooldown: 50
+    price: 700
+  reverseHitMul: 1.5
+  reverseFxTime: 0.4
+  reverseFxTurn: 360
   growRadiusMul: 2
   growResonanceMul: 1.3
   growScaleTime: 0.2
@@ -197,8 +214,12 @@ MonoBehaviour:
   pulseTime: 0.35
   pulseDamage: 2
   pulsePush: 1
-  chillFlashTime: 0.2
-  surgePowerMul: 2
+  stasisSlow: 0.25
+  stasisTint: {r: 0.7254902, g: 0.7411765, b: 0.7607843, a: 1}
+  stasisTintAmount: 0.5
+  echoLag: 35
+  echoDamageMul: 0.6
+  pullSpeed: 3
   abilityReadyPulse: 1.08
   abilityReadyPulseTime: 0.6
   maxEnemies: 200
