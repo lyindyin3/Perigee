@@ -1,11 +1,19 @@
 using System.Collections.Generic;
+using DG.Tweening;
+using TMPro;
 using UnityEngine;
 
 namespace Perigee
 {
-    // Hit-stop и тряска идут по настоящему времени, осколки и искры двигает шаг симуляции.
+    public enum NumberKind { Normal, Crit, Blocked }
+
+    // Hit-stop и тряска идут по настоящему времени, осколки, искры и числа урона двигает шаг симуляции.
     public class Fx : MonoBehaviour
     {
+        // обязательная часть префаба врага и босса: белая копия Body для вспышки
+        const string FlashOverlayName = "FlashOverlay";
+        const int Tenths = 10;
+
         class Piece
         {
             public Visual visual;
@@ -22,13 +30,30 @@ namespace Perigee
             public int live;
         }
 
+        class Popup
+        {
+            public TMP_Text text;
+            public Transform transform;
+            // цвет и масштаб из префаба
+            public Color baseColor;
+            public Vector3 baseScale;
+            public Color color;
+            public Vector2 position;
+            public float age;
+            public bool live;
+        }
+
         [SerializeField] GameConfig config;
         [SerializeField] ArtSet art;
+        [SerializeField] GameLoop loop;
         [SerializeField] Transform cam;
         [SerializeField] Transform root;
 
         readonly Pool shards = new Pool();
         readonly Pool sparks = new Pool();
+        // числа урона идут по кругу: когда запас кончился, берётся самое старое
+        Popup[] numbers;
+        int nextNumber;
         Vector3 camBase;
         float hitStopStart = float.NegativeInfinity;
         float hitStopEnd;
@@ -49,12 +74,22 @@ namespace Perigee
             for (int i = root.childCount - 1; i >= 0; i--) Destroy(root.GetChild(i).gameObject);
             Prewarm(shards, art.shard, config.shardPrewarm);
             Prewarm(sparks, art.spark, config.sparkPrewarm);
+
+            numbers = new Popup[config.numberPool];
+            nextNumber = 0;
+            for (int i = 0; i < numbers.Length; i++)
+            {
+                TMP_Text text = Instantiate(art.damageNumber, root);
+                text.gameObject.SetActive(false);
+                numbers[i] = new Popup { text = text, transform = text.transform, baseColor = text.color, baseScale = text.transform.localScale };
+            }
         }
 
         public void Tick(float dt)
         {
             Move(shards, config.shardTime, dt);
             Move(sparks, config.sparkTime, dt);
+            MoveNumbers(dt);
         }
 
         public void HitStop(float sec)
@@ -67,6 +102,8 @@ namespace Perigee
 
         public void Shake(float amp, float dur)
         {
+            if (!loop.Save.Data.settings.shake) return;
+
             float now = Time.unscaledTime;
             if (now - shakeStart < config.shakeMinInterval) return;
             shakeStart = now;
@@ -84,6 +121,60 @@ namespace Perigee
         public void Sparks(Vector2 position, int amount)
         {
             Emit(sparks, art.spark, position, amount, config.sparkSpeed);
+        }
+
+        // число урона: всплывает от position и гаснет
+        public void Number(Vector2 position, float value, NumberKind kind)
+        {
+            if (!loop.Save.Data.settings.damageNumbers) return;
+
+            Popup n = numbers[nextNumber];
+            nextNumber = (nextNumber + 1) % numbers.Length;
+
+            // десятые видны, только когда они есть: «3», «1.5»; крит с восклицательным знаком
+            int tenths = Mathf.RoundToInt(value * Tenths);
+            bool crit = kind == NumberKind.Crit;
+            if (tenths % Tenths == 0) n.text.SetText(crit ? "{0}!" : "{0}", tenths / Tenths);
+            else n.text.SetText(crit ? "{0}.{1}!" : "{0}.{1}", tenths / Tenths, tenths % Tenths);
+
+            n.color = crit ? config.numberCritColor : kind == NumberKind.Blocked ? config.numberBlockedColor : n.baseColor;
+            // чем больше урон, тем крупнее число
+            float scale = config.numberScale * (1f + config.numberScalePerDamage * Mathf.Min(value, config.numberScaleMaxDamage));
+            if (crit) scale *= config.numberCritScale;
+            n.transform.localScale = n.baseScale * scale;
+
+            n.position = position + Vector2.right * Random.Range(-config.numberJitter, config.numberJitter);
+            n.age = 0f;
+            n.live = true;
+            n.transform.localPosition = n.position;
+            n.text.color = n.color;
+            n.text.gameObject.SetActive(true);
+        }
+
+        // белая копия Body для вспышки; картинку берёт у Body, чтобы владелец менял один спрайт
+        public SpriteRenderer Overlay(Visual visual)
+        {
+            SpriteRenderer overlay = visual.Body.transform.Find(FlashOverlayName).GetComponent<SpriteRenderer>();
+            overlay.sprite = visual.Body.sprite;
+            return overlay;
+        }
+
+        // удар прошёл: враг на миг белеет
+        public void Flash(SpriteRenderer overlay)
+        {
+            overlay.DOKill();
+            Color color = overlay.color;
+            color.a = config.hitFlashAlpha;
+            overlay.color = color;
+            overlay.DOFade(0f, config.hitFlashTime).SetLink(overlay.gameObject);
+        }
+
+        // отдача: вздрагивает Body, а не корень, поэтому позиция врага остаётся точной
+        public void Recoil(Transform body, Vector2 direction, float distance)
+        {
+            // прошлый толчок доводим до конца, иначе сдвиг накапливается
+            body.DOKill(true);
+            body.DOPunchPosition(body.parent.InverseTransformDirection(direction) * distance, config.recoilTime).SetLink(body.gameObject);
         }
 
         void Update()
@@ -135,6 +226,30 @@ namespace Perigee
                 p.position += p.velocity * dt;
                 p.transform.localPosition = p.position;
                 p.visual.SetAlpha(1f - p.age / life);
+            }
+        }
+
+        void MoveNumbers(float dt)
+        {
+            for (int i = 0; i < numbers.Length; i++)
+            {
+                Popup n = numbers[i];
+                if (!n.live) continue;
+
+                n.age += dt;
+                if (n.age >= config.numberTime)
+                {
+                    n.live = false;
+                    n.text.gameObject.SetActive(false);
+                    continue;
+                }
+
+                float t = n.age / config.numberTime;
+                n.transform.localPosition = n.position + Vector2.up * (config.numberRise * t);
+                // число гаснет в конце жизни, начиная с доли numberFadeFrom
+                Color color = n.color;
+                color.a *= Mathf.Clamp01((1f - t) / (1f - config.numberFadeFrom));
+                n.text.color = color;
             }
         }
 

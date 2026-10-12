@@ -115,6 +115,13 @@ namespace Perigee
             return elapsed[a] >= cooldown[a] ? 1f : elapsed[a] / cooldown[a];
         }
 
+        // секунды до конца перезарядки
+        public float CooldownLeft(int slot)
+        {
+            int a = (int)slots[slot];
+            return cooldown[a] - elapsed[a];
+        }
+
         public bool Active(AbilityId id)
         {
             return elapsed[(int)id] < duration[(int)id];

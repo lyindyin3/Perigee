@@ -295,6 +295,45 @@ namespace Perigee
         public float dustPunch = 0.3f;
         public float dustPunchTime = 0.2f;
 
+        [Title("Видимый урон")]
+        public float hitFlashAlpha = 0.85f;
+        public float hitFlashTime = 0.1f;
+        public float recoilDistance = 0.08f;
+        public float bossRecoilDistance = 0.04f;
+        public float recoilTime = 0.12f;
+        public float hpRingMinHp = 3f;
+        public float hpRingLerp = 10f;
+        public float hpRingOffset = 0.12f;
+        public int hpRingPoints = 40;
+        public float numberMinHp = 2f;
+        public float numberRise = 0.5f;
+        public float numberTime = 0.6f;
+        public float numberFadeFrom = 0.5f;
+        public float numberJitter = 0.15f;
+        public float numberScale = 0.35f;
+        public float numberScalePerDamage = 0.08f;
+        public float numberScaleMaxDamage = 10f;
+        public float numberCritScale = 1.4f;
+        public Color numberCritColor = new Color32(0xE3, 0xB2, 0x3C, 0xFF);
+        public Color numberBlockedColor = new Color32(0xB9, 0xBD, 0xC2, 0xFF);
+        public int numberPool = 32;
+        public float bigRadius = 0.4f;
+        public int bigKillShardMul = 2;
+        public float bigKillShake = 0.06f;
+        public float bigKillShakeTime = 0.08f;
+
+        [Title("Полоски HUD")]
+        public float barGhostDelay = 0.35f;
+        public float barGhostTime = 0.4f;
+        public float barPunch = 6f;
+        public float barPunchTime = 0.15f;
+        public float barPunchMinDrop = 0.5f;
+        public float barFlashTime = 0.15f;
+        public float barLowAlpha = 0.7f;
+        public float barLowHz = 2f;
+        public float xpFillTime = 0.25f;
+        public float xpFlashTime = 0.2f;
+
         [Title("Звук")]
         public float dronePitchMin = 0.8f;
         public float dronePitchMax = 1.5f;

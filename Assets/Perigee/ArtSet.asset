@@ -29,6 +29,7 @@ MonoBehaviour:
   telegraphArrow: {fileID: 6095737476598327340, guid: dce6e766a81156e4580d0344597de5e6, type: 3}
   telegraphWedge: {fileID: 145698744518151677, guid: da94eab66f516084e97610bc903bdf31, type: 3}
   telegraphLine: {fileID: 8820235256590244160, guid: 074fdb2097c1dd847bffedcacd20ad0e, type: 3}
+  damageNumber: {fileID: 6650806078587790051, guid: 637790c99951ebe4190a5a243aa28993, type: 3}
   cardIcons:
   - {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
   - {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}

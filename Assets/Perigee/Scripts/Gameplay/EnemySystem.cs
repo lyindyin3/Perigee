@@ -11,10 +11,17 @@ namespace Perigee
         {
             public Visual visual;
             public Transform transform;
+            public Transform body;
+            public SpriteRenderer flash;
+            public HpRing hpRing;
+            public DamageStages cracks;
             public GameObject attachMarker;
             public EnemyDef def;
             public Vector2 position;
             public float hp;
+            public float maxHp;
+            // урон уже был: кольцо HP в режиме «после удара» остаётся на виду
+            public bool hurt;
             public float speedMul;
             public float age;
             public float[] hitCooldown;
@@ -76,13 +83,17 @@ namespace Perigee
             e.def = def;
             e.position = position;
             // эра усиливает только врагов с базовым hp от eraHpMinBaseHp
-            e.hp = def.hp >= config.eraHpMinBaseHp ? def.hp * loop.Era.hpMul : def.hp;
+            e.maxHp = def.hp >= config.eraHpMinBaseHp ? def.hp * loop.Era.hpMul : def.hp;
+            e.hp = e.maxHp;
+            e.hurt = false;
+            e.hpRing.Fill();
             e.speedMul = speedMul;
             e.age = 0f;
             e.engaged = false;
             e.timer = 0f;
             System.Array.Clear(e.hitCooldown, 0, e.hitCooldown.Length);
             Place(e);
+            Gauge(e, 0f);
             e.visual.gameObject.SetActive(true);
         }
 
@@ -146,6 +157,7 @@ namespace Perigee
                         break;
                 }
                 Place(e);
+                Gauge(e, dt);
             }
         }
 
@@ -165,22 +177,19 @@ namespace Perigee
 
                     e.hitCooldown[k] = config.hitCooldown;
                     float damage = satellites.Damage(k);
+                    Vector2 hitter = satellites.Position(k);
                     // броня: удар слабее брони урона не наносит; ВСПЛЕСК броню не замечает
                     if (damage < e.def.armor && !abilities.Active(AbilityId.Surge))
                     {
-                        fx.Sparks(satellites.Position(k), config.clinkSparks);
+                        fx.Sparks(hitter, config.clinkSparks);
+                        if (e.maxHp >= config.numberMinHp) fx.Number(Above(e), 0f, NumberKind.Blocked);
                         fx.HitStop(config.clinkHitStop);
                         sfx.Play(SfxId.Clink);
                         continue;
                     }
 
-                    e.hp -= damage;
-                    if (e.hp <= 0f)
-                    {
-                        Kill(i);
-                        break;
-                    }
-                    fx.Shards(satellites.Position(k), config.hitShards);
+                    if (Hurt(i, damage, hitter)) break;
+                    fx.Shards(hitter, config.hitShards);
                     sfx.Play(SfxId.Hit);
                 }
             }
@@ -194,9 +203,8 @@ namespace Perigee
                 Enemy e = live[i];
                 if (e.position.sqrMagnitude > radius * radius) continue;
 
-                if (e.def.id == EnemyType.Swarmer) e.hp = 0f;
-                else e.hp -= damage;
-                if (e.hp <= 0f) Kill(i);
+                if (e.def.id == EnemyType.Swarmer) Kill(i);
+                else Hurt(i, damage, Vector2.zero);
             }
         }
 
@@ -209,13 +217,12 @@ namespace Perigee
                 float r = e.position.magnitude;
                 if (r > radius) continue;
 
-                if (e.def.id == EnemyType.Swarmer || e.def.id == EnemyType.Arrow) e.hp = 0f;
-                else e.hp -= damage;
-                if (e.hp <= 0f)
+                if (e.def.id == EnemyType.Swarmer || e.def.id == EnemyType.Arrow)
                 {
                     Kill(i);
                     continue;
                 }
+                if (Hurt(i, damage, Vector2.zero)) continue;
 
                 e.position *= (r + push) / r;
                 // Паразит отцепляется и летит обратно, Стрелок заново идёт на позицию
@@ -279,11 +286,38 @@ namespace Perigee
             }
         }
 
+        // урон прошёл: над врагом число; выживший белеет и вздрагивает прочь от точки from. true = враг убит
+        bool Hurt(int i, float damage, Vector2 from)
+        {
+            Enemy e = live[i];
+            e.hp -= damage;
+            e.hurt = true;
+            if (e.maxHp >= config.numberMinHp) fx.Number(Above(e), damage, NumberKind.Normal);
+            if (e.hp <= 0f)
+            {
+                Kill(i);
+                return true;
+            }
+
+            fx.Flash(e.flash);
+            fx.Recoil(e.body, (e.position - from).normalized, config.recoilDistance);
+            return false;
+        }
+
+        // точка над врагом: отсюда всплывает число урона
+        static Vector2 Above(Enemy e)
+        {
+            return e.position + Vector2.up * e.def.radius;
+        }
+
         void Kill(int i)
         {
             Enemy e = live[i];
             crystals.Spawn(e.position, e.def.crystals);
-            fx.Shards(e.position, config.killShards);
+            // большой враг: осколков больше и экран вздрагивает
+            bool big = e.def.radius >= config.bigRadius;
+            fx.Shards(e.position, big ? config.killShards * config.bigKillShardMul : config.killShards);
+            if (big) fx.Shake(config.bigKillShake, config.bigKillShakeTime);
             // мелочь гибнет без остановки, иначе стая Роя превращается в слайд-шоу
             if (e.def.hp >= config.hitStopMinBaseHp) fx.HitStop(config.hitStopTime);
             sfx.Play(SfxId.Kill);
@@ -308,6 +342,10 @@ namespace Perigee
             visual.gameObject.SetActive(false);
 
             var e = new Enemy { visual = visual, transform = visual.transform, def = def, hitCooldown = new float[config.maxSatellites] };
+            e.body = visual.Body.transform;
+            e.flash = fx.Overlay(visual);
+            e.hpRing = visual.GetComponentInChildren<HpRing>(true);
+            e.cracks = visual.GetComponentInChildren<DamageStages>(true);
             if (def.behavior == EnemyBehavior.Attach) e.attachMarker = e.transform.Find(AttachMarkerName).gameObject;
             return e;
         }
@@ -320,6 +358,17 @@ namespace Perigee
             e.visual.SetAlpha(Mathf.Clamp01(e.age / config.spawnFadeIn));
 
             if (e.def.behavior == EnemyBehavior.Attach && e.attachMarker.activeSelf != e.engaged) e.attachMarker.SetActive(e.engaged);
+        }
+
+        // кольцо HP и трещины; кольцо есть только у врагов с большим запасом HP и зависит от настройки
+        void Gauge(Enemy e, float dt)
+        {
+            float fraction = e.hp / e.maxHp;
+            HpRingMode mode = (HpRingMode)loop.Save.Data.settings.hpRings;
+            bool ring = e.maxHp >= config.hpRingMinHp && (mode == HpRingMode.Always || mode == HpRingMode.AfterHit && e.hurt);
+            if (e.hpRing.gameObject.activeSelf != ring) e.hpRing.gameObject.SetActive(ring);
+            if (ring) e.hpRing.Draw(e.def.radius + config.hpRingOffset, fraction, dt);
+            e.cracks.Show(fraction);
         }
 
         public EnemyDef Def(EnemyType type)

@@ -19,7 +19,11 @@ namespace Perigee
         [SerializeField] Transform root;
 
         Visual visual;
+        Transform self;
         Transform body;
+        SpriteRenderer flash;
+        HpRing hpRing;
+        DamageStages cracks;
         EnemyDef def;
         float[] hitCooldown;
         Vector2 position;
@@ -32,10 +36,14 @@ namespace Perigee
         int passes;
         float lineTimer;
         bool spawned;
+        // урон уже был: кольцо HP в режиме «после удара» остаётся на виду
+        bool hurt;
 
         public bool Alive { get; private set; }
 
-        public float HpFraction => hp / maxHp;
+        public float Hp => hp;
+
+        public float MaxHp => maxHp;
 
         void Awake()
         {
@@ -48,7 +56,11 @@ namespace Perigee
             for (int i = root.childCount - 1; i >= 0; i--) Destroy(root.GetChild(i).gameObject);
             visual = Instantiate(art.enemies[(int)EnemyType.Boss], root);
             visual.gameObject.SetActive(false);
-            body = visual.transform;
+            self = visual.transform;
+            body = visual.Body.transform;
+            flash = fx.Overlay(visual);
+            hpRing = visual.GetComponentInChildren<HpRing>(true);
+            cracks = visual.GetComponentInChildren<DamageStages>(true);
 
             orbitLine.Hide();
             spawned = false;
@@ -76,6 +88,7 @@ namespace Perigee
                 ShowOrbit();
             }
             Place();
+            Gauge(dt);
         }
 
         public void Collide()
@@ -91,12 +104,7 @@ namespace Perigee
                 if ((satellites.Position(k) - position).sqrMagnitude > reach * reach) continue;
 
                 hitCooldown[k] = config.hitCooldown;
-                hp -= satellites.Damage(k);
-                if (hp <= 0f)
-                {
-                    Die();
-                    return;
-                }
+                if (Hurt(satellites.Damage(k), satellites.Position(k))) return;
                 fx.Shards(satellites.Position(k), config.hitShards);
                 fx.HitStop(config.hitStopTime);
                 sfx.Play(SfxId.Hit);
@@ -109,8 +117,24 @@ namespace Perigee
             if (!Alive || age < config.bossFadeIn) return;
             if (position.sqrMagnitude > radius * radius) return;
 
+            Hurt(damage, Vector2.zero);
+        }
+
+        // урон прошёл: над Кометой число; пока жива, она белеет и вздрагивает прочь от точки from. true = Комета убита
+        bool Hurt(float damage, Vector2 from)
+        {
             hp -= damage;
-            if (hp <= 0f) Die();
+            hurt = true;
+            fx.Number(position + Vector2.up * def.radius, damage, NumberKind.Normal);
+            if (hp <= 0f)
+            {
+                Die();
+                return true;
+            }
+
+            fx.Flash(flash);
+            fx.Recoil(body, (position - from).normalized, config.bossRecoilDistance);
+            return false;
         }
 
         void Spawn()
@@ -122,12 +146,15 @@ namespace Perigee
             def = enemies.Def(EnemyType.Boss);
             maxHp = def.hp * loop.Era.hpMul;
             hp = maxHp;
+            hurt = false;
+            hpRing.Fill();
             age = 0f;
             passes = 0;
             phi = loop.Run.simRng.Range(0f, 360f);
             System.Array.Clear(hitCooldown, 0, hitCooldown.Length);
 
             Place();
+            Gauge(0f);
             visual.gameObject.SetActive(true);
             ShowOrbit();
             sfx.Play(SfxId.BossIn);
@@ -179,8 +206,19 @@ namespace Perigee
             float sin = Mathf.Sin(rad);
             position = new Vector2(x * cos - y * sin, x * sin + y * cos);
 
-            body.localPosition = position;
+            self.localPosition = position;
             visual.SetAlpha(Mathf.Clamp01(age / config.bossFadeIn));
+        }
+
+        // кольцо HP и трещины; кольцо зависит от настройки
+        void Gauge(float dt)
+        {
+            float fraction = hp / maxHp;
+            HpRingMode mode = (HpRingMode)loop.Save.Data.settings.hpRings;
+            bool ring = maxHp >= config.hpRingMinHp && (mode == HpRingMode.Always || mode == HpRingMode.AfterHit && hurt);
+            if (hpRing.gameObject.activeSelf != ring) hpRing.gameObject.SetActive(ring);
+            if (ring) hpRing.Draw(def.radius + config.hpRingOffset, fraction, dt);
+            cracks.Show(fraction);
         }
 
         // круг попаданий в Scene view

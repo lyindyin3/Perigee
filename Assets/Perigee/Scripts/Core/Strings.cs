@@ -48,6 +48,9 @@ namespace Perigee
             "Резонанс: урон ×2",
         };
 
+        // имя над полосой HP босса
+        public const string BossTitle = "КОМЕТА";
+
         // по порядку config.eras
         public static readonly string[] EraTitle = { "СОЛНЦЕ", "КРАСНЫЙ КАРЛИК", "ТЯЖЁЛАЯ ЗВЕЗДА" };
 

@@ -1,4 +1,5 @@
 using DG.Tweening;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -15,8 +16,12 @@ namespace Perigee
         [SerializeField] Image fill;
         [SerializeField] Image readyRing;
         [SerializeField] Image icon;
+        // всё, что видно только во время перезарядки, и секунды до её конца
+        [SerializeField] GameObject cooling;
+        [SerializeField] TMP_Text seconds;
 
         int shownId = -1;
+        int shownSeconds = -1;
         bool shownReady;
 
         void Awake()
@@ -35,6 +40,16 @@ namespace Perigee
             if (!filled) return;
 
             fill.fillAmount = charge;
+            if (!ready)
+            {
+                int left = Mathf.CeilToInt(abilities.CooldownLeft(slot));
+                if (left != shownSeconds)
+                {
+                    shownSeconds = left;
+                    seconds.SetText("{0}", left);
+                }
+            }
+
             int id = (int)abilities.Id(slot);
             if (id == shownId) return;
 
@@ -47,6 +62,7 @@ namespace Perigee
             shownReady = ready;
             fill.enabled = !ready;
             readyRing.enabled = ready;
+            cooling.SetActive(!ready);
 
             Transform ring = readyRing.transform;
             ring.DOKill();

@@ -2,6 +2,21 @@ using System;
 
 namespace Perigee
 {
+    // по порядку значений SettingsData.hpRings
+    public enum HpRingMode { AfterHit, Always, Never }
+
+    [Serializable]
+    public class SettingsData
+    {
+        public float sfxVolume = 1f;
+        public float droneVolume = 0.6f;
+        public bool shake = true;
+        public bool damageNumbers = true;
+        // кольца HP врагов: номер HpRingMode
+        public int hpRings;
+        public bool simpleBackground;
+    }
+
     [Serializable]
     public class SaveData
     {
@@ -17,6 +32,7 @@ namespace Perigee
         public int lastAbilityA;
         // дата UTC (yyyyMMdd) дневного забега, который уже получил двойную пыль
         public int dailyBonusDate;
+        public SettingsData settings = new SettingsData();
     }
 
     public interface ISaveService

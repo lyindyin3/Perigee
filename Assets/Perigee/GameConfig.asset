@@ -326,6 +326,41 @@ MonoBehaviour:
   crystalPopScale: 1.8
   dustPunch: 0.3
   dustPunchTime: 0.2
+  hitFlashAlpha: 0.85
+  hitFlashTime: 0.1
+  recoilDistance: 0.08
+  bossRecoilDistance: 0.04
+  recoilTime: 0.12
+  hpRingMinHp: 3
+  hpRingLerp: 10
+  hpRingOffset: 0.12
+  hpRingPoints: 40
+  numberMinHp: 2
+  numberRise: 0.5
+  numberTime: 0.6
+  numberFadeFrom: 0.5
+  numberJitter: 0.15
+  numberScale: 0.35
+  numberScalePerDamage: 0.08
+  numberScaleMaxDamage: 10
+  numberCritScale: 1.4
+  numberCritColor: {r: 0.8901961, g: 0.69803923, b: 0.23529412, a: 1}
+  numberBlockedColor: {r: 0.7254902, g: 0.7411765, b: 0.7607843, a: 1}
+  numberPool: 32
+  bigRadius: 0.4
+  bigKillShardMul: 2
+  bigKillShake: 0.06
+  bigKillShakeTime: 0.08
+  barGhostDelay: 0.35
+  barGhostTime: 0.4
+  barPunch: 6
+  barPunchTime: 0.15
+  barPunchMinDrop: 0.5
+  barFlashTime: 0.15
+  barLowAlpha: 0.7
+  barLowHz: 2
+  xpFillTime: 0.25
+  xpFlashTime: 0.2
   dronePitchMin: 0.8
   dronePitchMax: 1.5
   opening:
@@ -538,6 +573,41 @@ MonoBehaviour:
   ambientEnd: 175
   ambientInterval: 3.5
   swarmRadiusJitter: 1
+  tutorialOpening:
+  - time: 0.5
+    groups:
+    - type: 0
+      count: 3
+      angleMode: 0
+      spreadDeg: 40
+      speedMul: 0.15
+      radius: 5.4
+  - time: 8
+    groups:
+    - type: 0
+      count: 6
+      angleMode: 0
+      spreadDeg: 30
+      speedMul: 0.6
+      radius: 0
+  - time: 16
+    groups:
+    - type: 3
+      count: 1
+      angleMode: 0
+      spreadDeg: 30
+      speedMul: 1
+      radius: 0
+  tutorialAmbientStart: 20
+  hintFade: 0.3
+  hintHoldTimeout: 12
+  hintReleaseRadius: 3
+  hintReleaseTime: 0.3
+  hintHeatShow: 0.7
+  hintHeatHide: 0.3
+  hintPulseEnemies: 4
+  hintPulseRadius: 3
+  hintResonanceTime: 2
   telegraphLeadSwarm: 1
   telegraphLeadArrow: 1.5
   telegraphLeadOther: 0.8
@@ -561,6 +631,14 @@ MonoBehaviour:
   dailyDustMul: 2
   scorePerSecond: 2
   scoreVictory: 500
+  reviveHpFraction: 0.5
+  reviveKillRadius: 4
+  reviveImmuneTime: 1.5
+  adDustMul: 2
+  interstitialMinRuns: 3
+  interstitialMinRunTime: 30
+  interstitialMinInterval: 150
+  interstitialAfterRewarded: 60
   blueprints:
   - id: 0
     perLevel:

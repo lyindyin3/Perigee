@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 
 namespace Perigee
@@ -16,6 +17,7 @@ namespace Perigee
         public Visual telegraphArrow;
         public Visual telegraphWedge;
         public Visual telegraphLine;
+        public TMP_Text damageNumber;
         // по порядку CardId
         public Sprite[] cardIcons;
         // по порядку AbilityId

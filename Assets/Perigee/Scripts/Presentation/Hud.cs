@@ -18,11 +18,13 @@ namespace Perigee
         [SerializeField] CardSystem cards;
         [SerializeField] BossComet boss;
         [SerializeField] RectTransform safeArea;
-        [SerializeField] Image hpFill;
-        [SerializeField] Image xpFill;
-        // полоса HP Кометы: видна, пока Комета жива
-        [SerializeField] GameObject bossBar;
-        [SerializeField] Image bossFill;
+        [SerializeField] BarView hpBar;
+        [SerializeField] BarView xpBar;
+        [SerializeField] TMP_Text levelText;
+        // имя и полоса HP Кометы: видны, пока Комета жива
+        [SerializeField] GameObject bossPanel;
+        [SerializeField] BarView bossBar;
+        [SerializeField] TMP_Text bossName;
         [SerializeField] TMP_Text dustText;
         [SerializeField] TMP_Text timerText;
         // блоки, которые меняют место при повороте экрана, и их места в двух раскладках
@@ -42,6 +44,7 @@ namespace Perigee
         GameObject[] cardIcons;
         TMP_Text[] cardIconTexts;
         int[] shownStacks;
+        int shownLevel = -1;
         int shownDust = -1;
         int shownSeconds = -1;
         Rect shownSafe;
@@ -59,10 +62,22 @@ namespace Perigee
             Layout();
 
             RunState run = loop.Run;
-            hpFill.fillAmount = run.hp / loop.Stats.starMaxHp;
-            xpFill.fillAmount = (float)run.xp / cards.Need(run.level);
-            if (bossBar.activeSelf != boss.Alive) bossBar.SetActive(boss.Alive);
-            if (boss.Alive) bossFill.fillAmount = boss.HpFraction;
+            hpBar.Set(run.hp, loop.Stats.starMaxHp);
+            if (run.level != shownLevel)
+            {
+                // уровень вырос: полоска опыта доходит до конца и начинает с нуля; первый показ и сброс в начале забега не в счёт
+                if (shownLevel >= 0 && run.level > shownLevel) xpBar.Wrap();
+                shownLevel = run.level;
+                // уровни считаются с нуля, игрок видит их с первого
+                levelText.SetText("{0}", shownLevel + 1);
+            }
+            xpBar.Set(run.xp, cards.Need(run.level));
+            if (bossPanel.activeSelf != boss.Alive)
+            {
+                bossPanel.SetActive(boss.Alive);
+                bossName.text = Strings.BossTitle;
+            }
+            if (boss.Alive) bossBar.Set(boss.Hp, boss.MaxHp);
 
             if (run.dust != shownDust)
             {

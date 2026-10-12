@@ -20,6 +20,8 @@ namespace Perigee
         DOGetter<float> getFlash;
         DOSetter<float> setFlash;
 
+        public SpriteRenderer Body => body;
+
         void Awake()
         {
             baseColor = body.color;
