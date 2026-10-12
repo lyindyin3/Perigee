@@ -27,9 +27,11 @@ namespace Perigee
         [SerializeField] Fx fx;
         [SerializeField] AudioManager sfx;
         [SerializeField] Hud hud;
+        [SerializeField] TutorialHints hints;
         [SerializeField] PauseView pauseView;
         [SerializeField] AbilityPickView abilityPickView;
         [SerializeField] MenuView menuView;
+        [SerializeField] ReviveView reviveView;
         [SerializeField] ResultView resultView;
 
         public GameState State { get; private set; }
@@ -39,10 +41,21 @@ namespace Perigee
         public Blueprints Blueprints { get; private set; }
         public EraConfig Era => config.eras[eraIndex];
 
+        IAdService ads;
+        ILeaderboardService leaderboard;
+        IPlatformService platform;
         int eraIndex;
         bool daily;
         float accumulator;
         float victoryTimer;
+        // вкладка свёрнута или окно без фокуса
+        bool away;
+        // настоящее время последних показов рекламы
+        float lastInterstitial = float.NegativeInfinity;
+        float lastRewarded = float.NegativeInfinity;
+        Action<bool> rewardedDone;
+        Action<bool> onRewardedClosed;
+        Action<bool> onRevive;
         InputAction restartKey;
         InputAction pauseKey;
 
@@ -50,6 +63,11 @@ namespace Perigee
         {
             Save = new SaveService(config.blueprints.Length);
             Blueprints = new Blueprints(config, Save);
+            ads = new StubAdService();
+            leaderboard = new StubLeaderboardService();
+            platform = new StubPlatformService();
+            onRewardedClosed = RewardedClosed;
+            onRevive = Revived;
 
             restartKey = new InputAction(binding: "<Keyboard>/r");
             restartKey.Enable();
@@ -73,11 +91,13 @@ namespace Perigee
             RecomputeStats();
             Run.hp = Stats.starMaxHp;
             ToMenu();
+            platform.GameReady();
         }
 
         // из паузы и с экрана итогов
         public void ToMenu()
         {
+            if (State == GameState.Result) Interstitial();
             SetState(GameState.Menu);
         }
 
@@ -86,7 +106,14 @@ namespace Perigee
         {
             eraIndex = dailyRun ? 0 : era;
             daily = dailyRun;
-            StartRun();
+            ResetRun();
+            // обучение: слот A уже занят, экран выбора не нужен
+            if (Run.tutorial)
+            {
+                SetState(GameState.Playing);
+                return;
+            }
+
             SetState(GameState.AbilityPick);
             abilities.OfferAll();
             abilityPickView.Show();
@@ -95,8 +122,18 @@ namespace Perigee
         // Retry: экран выбора пропускается; слот A, эра и режим остаются прежними
         public void StartRun()
         {
+            if (State == GameState.Result) Interstitial();
+            ResetRun();
+            SetState(GameState.Playing);
+        }
+
+        void ResetRun()
+        {
             Run.Reset(config, daily ? Today() : UnityEngine.Random.Range(0, int.MaxValue));
+            // обучение = любой забег, пока ни один не доигран до итогов
+            Run.tutorial = !Save.Data.tutorialDone;
             abilities.ResetRun();
+            if (Run.tutorial) abilities.Assign(AbilitySystem.SlotA, AbilityId.Pulse);
             RecomputeStats();
             Run.hp = Stats.starMaxHp;
             satellites.ResetRun();
@@ -106,17 +143,24 @@ namespace Perigee
             director.ResetRun(Run.seed);
             cards.ResetRun(Run.seed + Rng.CardOffset);
             fx.ResetRun();
+            hints.ResetRun();
             accumulator = 0f;
-            SetState(GameState.Playing);
         }
 
         public void SetState(GameState next)
         {
-            if (State == GameState.Playing && next != GameState.Playing) input.Clear();
+            if (State == GameState.Playing && next != GameState.Playing)
+            {
+                input.Clear();
+                platform.GameplayStop();
+            }
+            if (State != GameState.Playing && next == GameState.Playing) platform.GameplayStart();
+
             State = next;
             hud.gameObject.SetActive(next != GameState.Menu);
             pauseView.gameObject.SetActive(next == GameState.Paused);
             menuView.gameObject.SetActive(next == GameState.Menu);
+            reviveView.gameObject.SetActive(next == GameState.Defeat);
             resultView.gameObject.SetActive(next == GameState.Result);
         }
 
@@ -140,12 +184,96 @@ namespace Perigee
             sfx.Play(SfxId.Win);
         }
 
-        // предложение возрождения появится в M8: пока поражение сразу ведёт к итогам
+        // звезда погасла: возрождение предлагается один раз за забег, во второй раз сразу итоги
         public void Lose()
         {
-            SetState(GameState.Defeat);
             sfx.Play(SfxId.Lose);
+            if (Run.revived) Finish(false);
+            else SetState(GameState.Defeat);
+        }
+
+        // из ReviveView: реклама за возрождение
+        public void Revive()
+        {
+            Rewarded(onRevive);
+        }
+
+        // из ReviveView: отказ от возрождения
+        public void GiveUp()
+        {
             Finish(false);
+        }
+
+        // реклама за награду: пока она открыта, звук молчит; done(true) = досмотрена
+        public void Rewarded(Action<bool> done)
+        {
+            rewardedDone = done;
+            AudioListener.pause = true;
+            ads.ShowRewarded(onRewardedClosed);
+        }
+
+        // «Пыль ×2» на итогах: пыль забега уже начислена, добавляется разница
+        public void DoubleDust()
+        {
+            int bonus = Run.earned * (config.adDustMul - 1);
+            Run.earned += bonus;
+            Save.Data.dust += bonus;
+            Save.Save();
+        }
+
+        void RewardedClosed(bool rewarded)
+        {
+            AudioListener.pause = away;
+            lastRewarded = Time.realtimeSinceStartup;
+            rewardedDone(rewarded);
+        }
+
+        void Revived(bool rewarded)
+        {
+            if (!rewarded)
+            {
+                Finish(false);
+                return;
+            }
+
+            Run.revived = true;
+            Run.hp = Stats.starMaxHp * config.reviveHpFraction;
+            Run.immuneUntil = Run.time + config.reviveImmuneTime;
+            enemies.Wipe(config.reviveKillRadius);
+            satellites.Cool();
+            SetState(GameState.Playing);
+        }
+
+        // реклама между забегами: при уходе с экрана итогов, не в первых забегах и не слишком часто
+        void Interstitial()
+        {
+            float now = Time.realtimeSinceStartup;
+            if (Save.Data.runs < config.interstitialMinRuns || Run.time < config.interstitialMinRunTime) return;
+            if (now - lastInterstitial < config.interstitialMinInterval || now - lastRewarded < config.interstitialAfterRewarded) return;
+
+            lastInterstitial = now;
+            // у ShowInterstitial нет ответа: реклама считается закрытой, когда вызов вернулся
+            AudioListener.pause = true;
+            ads.ShowInterstitial();
+            AudioListener.pause = away;
+        }
+
+        // окно потеряло фокус или вкладка свёрнута: пауза и тишина; после возврата звук идёт снова, пауза остаётся
+        void OnApplicationFocus(bool focused)
+        {
+            SetAway(!focused);
+        }
+
+        void OnApplicationPause(bool paused)
+        {
+            SetAway(paused);
+        }
+
+        void SetAway(bool value)
+        {
+            away = value;
+            if (away && State == GameState.Playing) SetState(GameState.Paused);
+            AudioListener.pause = away;
         }
 
         void Update()
@@ -192,6 +320,7 @@ namespace Perigee
             if (State == GameState.Playing) star.Tick();
             if (State == GameState.Playing) cards.Tick(dt);
             fx.Tick(dt);
+            if (Run.tutorial) hints.Tick(dt);
         }
 
         // итоги забега: пыль, рекорды и новая эра уходят в сохранение, потом открывается экран Result
@@ -214,6 +343,7 @@ namespace Perigee
 
             int score = Run.dust + Mathf.RoundToInt(config.scorePerSecond * Run.time) + (victory ? config.scoreVictory : 0);
             if (daily) data.bestDaily = Mathf.Max(data.bestDaily, score);
+            leaderboard.Submit(score);
 
             // победа в последней открытой эре открывает следующую
             Run.unlockedEra = 0;

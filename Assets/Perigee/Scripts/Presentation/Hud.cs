@@ -32,6 +32,9 @@ namespace Perigee
         [SerializeField] RectTransform dust;
         [SerializeField] RectTransform dustPortrait;
         [SerializeField] RectTransform dustLandscape;
+        [SerializeField] RectTransform hint;
+        [SerializeField] RectTransform hintPortrait;
+        [SerializeField] RectTransform hintLandscape;
         [SerializeField] RectTransform cardIconsRoot;
         [SerializeField] GameObject cardIconPrefab;
 
@@ -116,6 +119,7 @@ namespace Perigee
             bool landscape = screen.x > screen.y;
             bars.SetParent(landscape ? barsLandscape : barsPortrait, false);
             dust.SetParent(landscape ? dustLandscape : dustPortrait, false);
+            hint.SetParent(landscape ? hintLandscape : hintPortrait, false);
         }
     }
 }

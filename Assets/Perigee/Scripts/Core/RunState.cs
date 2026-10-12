@@ -12,6 +12,12 @@ namespace Perigee
         // стаки по индексу карточки в config.cards
         public int[] cardStacks;
         public Rng simRng;
+        // первый забег: вступление-обучение и подсказки; ставит GameLoop после Reset
+        public bool tutorial;
+        // возрождение за рекламу уже использовано
+        public bool revived;
+        // до этой секунды забега звезда не получает урон
+        public float immuneUntil;
 
         // итоги: GameLoop заполняет их перед экраном Result
         public bool victory;
@@ -30,6 +36,9 @@ namespace Perigee
             level = 0;
             cardStacks = new int[config.cards.Length];
             simRng = new Rng(runSeed + Rng.SimOffset);
+            tutorial = false;
+            revived = false;
+            immuneUntil = 0f;
         }
     }
 }

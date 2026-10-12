@@ -10,6 +10,17 @@ namespace Perigee
         [SerializeField] GameLoop loop;
         [SerializeField] SatelliteSystem satellites;
         [SerializeField] Visual visual;
+        // декор на кольце, в сцене выключен
+        [SerializeField] Behaviour tutorialPulse;
+
+        // обучение: кольцо мигает, пока на поле первый Бастион
+        public void SetPulse(bool on)
+        {
+            if (tutorialPulse.enabled == on) return;
+            tutorialPulse.enabled = on;
+            // декор менял прозрачность кольца: возвращаем цвет из инспектора
+            if (!on) visual.Untint();
+        }
 
         // вызывает GameLoop после каждого пересчёта Stats
         public void Refresh()

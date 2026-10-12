@@ -34,6 +34,9 @@ namespace Perigee
 
         public int OfferCount => offerCount;
 
+        // «Новые карточки» за рекламу уже использованы в этом забеге
+        public bool Rerolled { get; private set; }
+
         void Awake()
         {
             eligible = new int[config.cards.Length];
@@ -49,6 +52,14 @@ namespace Perigee
             offerCount = 0;
             screens = 0;
             beaconTimer = 0f;
+            Rerolled = false;
+        }
+
+        // другая тройка на открытом экране; первый экран забега остаётся первым
+        public void Reroll()
+        {
+            Rerolled = true;
+            Roll(screens == 1);
         }
 
         public int Need(int level)
@@ -107,7 +118,7 @@ namespace Perigee
                 return;
             }
 
-            Roll();
+            Roll(screens == 0);
             // все карточки набраны до предела: уровень растёт без экрана выбора
             if (offerCount == 0) return;
 
@@ -116,7 +127,7 @@ namespace Perigee
             view.Show();
         }
 
-        void Roll()
+        void Roll(bool first)
         {
             CardDef[] cards = config.cards;
             int n = 0;
@@ -125,7 +136,7 @@ namespace Perigee
             {
                 if (!Eligible(i)) continue;
                 // первый экран забега всегда предлагает ADD_SAT, пока спутников меньше максимума
-                if (screens == 0 && cards[i].id == CardId.AddSat && satellites.Count < config.maxSatellites) forced = i;
+                if (first && cards[i].id == CardId.AddSat && satellites.Count < config.maxSatellites) forced = i;
                 eligible[n++] = i;
             }
 

@@ -225,6 +225,32 @@ namespace Perigee
             }
         }
 
+        // возрождение: все враги рядом со звездой гибнут и роняют кристаллы
+        public void Wipe(float radius)
+        {
+            for (int i = count - 1; i >= 0; i--)
+                if (live[i].position.sqrMagnitude <= radius * radius) Kill(i);
+        }
+
+        public int Count => count;
+
+        public int CountOf(EnemyType type)
+        {
+            int n = 0;
+            for (int i = 0; i < count; i++)
+                if (live[i].def.id == type) n++;
+            return n;
+        }
+
+        // сколько врагов не дальше radius от звезды
+        public int Within(float radius)
+        {
+            int n = 0;
+            for (int i = 0; i < count; i++)
+                if (live[i].position.sqrMagnitude <= radius * radius) n++;
+            return n;
+        }
+
         // шаг к центру, но не ближе stopRadius; возвращает новое расстояние до центра
         float Advance(Enemy e, float stopRadius, float dt)
         {

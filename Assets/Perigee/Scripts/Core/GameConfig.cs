@@ -332,6 +332,25 @@ namespace Perigee
         public float ambientInterval = 3.5f;
         public float swarmRadiusJitter = 1f;
 
+        [Title("Обучение")]
+        // первый забег: вместо opening
+        public SpawnEvent[] tutorialOpening =
+        {
+            At(0.5f, new SpawnGroup { type = EnemyType.Swarmer, count = 3, spreadDeg = 40f, speedMul = 0.15f, radius = 5.4f }),
+            At(8f, new SpawnGroup { type = EnemyType.Swarmer, count = 6, speedMul = 0.6f }),
+            At(16f, Of(EnemyType.Bastion, 1)),
+        };
+        public float tutorialAmbientStart = 20f;
+        public float hintFade = 0.3f;
+        public float hintHoldTimeout = 12f;
+        public float hintReleaseRadius = 3f;
+        public float hintReleaseTime = 0.3f;
+        public float hintHeatShow = 0.7f;
+        public float hintHeatHide = 0.3f;
+        public int hintPulseEnemies = 4;
+        public float hintPulseRadius = 3f;
+        public float hintResonanceTime = 2f;
+
         [Title("Телеграф")]
         public float telegraphLeadSwarm = 1f;
         public float telegraphLeadArrow = 1.5f;
@@ -354,6 +373,16 @@ namespace Perigee
         public int dailyDustMul = 2;
         public float scorePerSecond = 2f;
         public int scoreVictory = 500;
+
+        [Title("Реклама")]
+        public float reviveHpFraction = 0.5f;
+        public float reviveKillRadius = 4f;
+        public float reviveImmuneTime = 1.5f;
+        public int adDustMul = 2;
+        public int interstitialMinRuns = 3;
+        public float interstitialMinRunTime = 30f;
+        public float interstitialMinInterval = 150f;
+        public float interstitialAfterRewarded = 60f;
 
         [Title("Чертежи")]
         [TableList]

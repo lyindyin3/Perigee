@@ -193,6 +193,13 @@ namespace Perigee
             loop.Save.Save();
         }
 
+        // обучение: слот занят без экрана выбора
+        public void Assign(int slot, AbilityId id)
+        {
+            slots[slot] = id;
+            filled[slot] = true;
+        }
+
         bool Owns(AbilityId id)
         {
             for (int i = 0; i < SlotCount; i++)

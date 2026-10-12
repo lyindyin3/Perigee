@@ -30,6 +30,24 @@ namespace Perigee
         public const string DustEarnedFormat = "Пыль +{0}";
         public const string EraUnlockedFormat = "Открыта эра: {0}";
 
+        // кнопка с рекламой называет награду и говорит, что это реклама
+        public const string ReviveTitle = "ЗВЕЗДА ГАСНЕТ";
+        public const string ReviveAd = "ВОЗРОДИТЬСЯ (РЕКЛАМА)";
+        public const string GiveUp = "СДАТЬСЯ";
+        public const string DoubleDustAd = "ПЫЛЬ ×2 (РЕКЛАМА)";
+        public const string NewCardsAd = "НОВЫЕ КАРТОЧКИ (РЕКЛАМА)";
+
+        // по порядку HintId
+        public static readonly string[] Hint =
+        {
+            "Держи — спутник уходит наружу",
+            "Отпусти — спутник падает к звезде",
+            "Перегрев! Держи, чтобы остыть",
+            "Броня: бей внутри серебряного кольца",
+            "Жми Q или кнопку: ИМПУЛЬС",
+            "Резонанс: урон ×2",
+        };
+
         // по порядку config.eras
         public static readonly string[] EraTitle = { "СОЛНЦЕ", "КРАСНЫЙ КАРЛИК", "ТЯЖЁЛАЯ ЗВЕЗДА" };
 

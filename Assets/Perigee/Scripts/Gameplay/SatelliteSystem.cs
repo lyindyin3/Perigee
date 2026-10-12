@@ -139,6 +139,29 @@ namespace Perigee
             return Mathf.Max(power, config.powerFloor);
         }
 
+        public bool Resonating => resonating;
+
+        // нагрев самого горячего спутника, 0..1
+        public float MaxHeat
+        {
+            get
+            {
+                float max = 0f;
+                for (int i = 0; i < count; i++) max = Mathf.Max(max, satellites[i].heat);
+                return max;
+            }
+        }
+
+        // возрождение: нагрев на нуле, оглушение снято
+        public void Cool()
+        {
+            for (int i = 0; i < count; i++)
+            {
+                satellites[i].heat = 0f;
+                satellites[i].stun = 0f;
+            }
+        }
+
         // ХОЛОД: вспышка всех спутников
         public void Flash(Color color, float sec)
         {

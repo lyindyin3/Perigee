@@ -13,6 +13,7 @@ namespace Perigee
         // удар по звезде: вспышка, тряска и hit-stop
         public void Damage(float amount)
         {
+            if (Immune) return;
             Drain(amount);
             visual.Flash(config.starHitFlashColor, config.starFlashTime);
             fx.Shake(config.starShakeAmp, config.starShakeTime);
@@ -23,8 +24,12 @@ namespace Perigee
         // Паразит пьёт понемногу каждый шаг: урон без эффектов удара
         public void Drain(float amount)
         {
+            if (Immune) return;
             loop.Run.hp = Mathf.Max(loop.Run.hp - amount, 0f);
         }
+
+        // после возрождения звезда недолго не получает урон
+        bool Immune => loop.Run.time < loop.Run.immuneUntil;
 
         public void Tick()
         {

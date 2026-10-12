@@ -20,6 +20,9 @@ namespace Perigee
         [SerializeField] TMP_Text[] titles;
         [SerializeField] TMP_Text[] plusLines;
         [SerializeField] TMP_Text[] minusLines;
+        // «Новые карточки (реклама)»: один раз за забег
+        [SerializeField] GameObject rerollButton;
+        [SerializeField] TMP_Text rerollLabel;
 
         float openTime;
         bool closing;
@@ -27,18 +30,8 @@ namespace Perigee
         public void Show()
         {
             header.text = Strings.CardPickTitle;
-            for (int i = 0; i < slots.Length; i++)
-            {
-                bool used = i < cards.OfferCount;
-                slots[i].SetActive(used);
-                if (!used) continue;
-
-                CardDef card = cards.Offer(i);
-                icons[i].sprite = art.cardIcons[(int)card.id];
-                titles[i].text = Strings.CardTitle[(int)card.id];
-                plusLines[i].text = Line(card.plus);
-                minusLines[i].text = Line(card.minus);
-            }
+            rerollLabel.text = Strings.NewCardsAd;
+            Fill();
 
             openTime = Time.unscaledTime;
             closing = false;
@@ -64,6 +57,39 @@ namespace Perigee
             closing = true;
             group.blocksRaycasts = false;
             group.DOFade(0f, config.pickFadeOut).SetLink(gameObject).OnComplete(Close);
+        }
+
+        // кнопка под карточками: реклама, потом другая тройка
+        public void Reroll()
+        {
+            if (closing) return;
+
+            loop.Rewarded(Rerolled);
+        }
+
+        void Rerolled(bool rewarded)
+        {
+            if (!rewarded) return;
+
+            cards.Reroll();
+            Fill();
+        }
+
+        void Fill()
+        {
+            for (int i = 0; i < slots.Length; i++)
+            {
+                bool used = i < cards.OfferCount;
+                slots[i].SetActive(used);
+                if (!used) continue;
+
+                CardDef card = cards.Offer(i);
+                icons[i].sprite = art.cardIcons[(int)card.id];
+                titles[i].text = Strings.CardTitle[(int)card.id];
+                plusLines[i].text = Line(card.plus);
+                minusLines[i].text = Line(card.minus);
+            }
+            rerollButton.SetActive(!cards.Rerolled);
         }
 
         void Close()

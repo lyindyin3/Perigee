@@ -37,8 +37,9 @@ namespace Perigee
             stopped = false;
 
             // углы групп выбираем сразу: телеграф показывает их раньше, чем группа появится
-            pending = new Pending[GroupCount(config.opening) + GroupCount(config.timeline)];
-            Fill(config.timeline, Fill(config.opening, 0));
+            SpawnEvent[] opening = loop.Run.tutorial ? config.tutorialOpening : config.opening;
+            pending = new Pending[GroupCount(opening) + GroupCount(config.timeline)];
+            Fill(config.timeline, Fill(opening, 0));
 
             // метки создаются заново из префабов: правка префаба видна со следующего забега
             for (int i = root.childCount - 1; i >= 0; i--) Destroy(root.GetChild(i).gameObject);
@@ -91,7 +92,9 @@ namespace Perigee
             Hide(arrowWedges, usedArrows);
             Hide(arrowLines, usedArrows);
 
-            if (t >= config.ambientStart && t <= config.ambientEnd)
+            // в обучении фоновый поток начинается позже
+            float ambientStart = loop.Run.tutorial ? config.tutorialAmbientStart : config.ambientStart;
+            if (t >= ambientStart && t <= config.ambientEnd)
             {
                 ambientTimer -= dt;
                 if (ambientTimer <= 0f)
