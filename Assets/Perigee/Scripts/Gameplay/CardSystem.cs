@@ -72,16 +72,24 @@ namespace Perigee
             return config.cards[offer[slot]];
         }
 
+        // сколько стаков предложенной карточки уже взято
+        public int Stacks(int slot)
+        {
+            return loop.Run.cardStacks[offer[slot]];
+        }
+
         public void Tick(float dt)
         {
             if (loop.Stats.beacons > 0)
             {
                 beaconTimer += dt;
-                if (beaconTimer >= config.beaconInterval)
+                // второй МАЯК укорачивает период
+                float interval = config.beaconInterval * Mathf.Pow(config.beaconStackMul, loop.Stats.beacons - 1);
+                if (beaconTimer >= interval)
                 {
-                    beaconTimer -= config.beaconInterval;
-                    enemies.Blast(config.beaconRadius, config.beaconDamage);
-                    boss.Blast(config.beaconRadius, config.beaconDamage);
+                    beaconTimer -= interval;
+                    enemies.Blast(Vector2.zero, config.beaconRadius, config.beaconDamage);
+                    boss.Blast(Vector2.zero, config.beaconRadius, config.beaconDamage);
                     BeaconFx();
                 }
             }
@@ -99,8 +107,9 @@ namespace Perigee
             CardDef card = config.cards[index];
             loop.Run.cardStacks[index]++;
             loop.RecomputeStats();
-            // STAR_PLATING лечит на столько же, на сколько поднимает максимум
-            if (card.plus.stat == StatId.StarMaxHp) loop.Run.hp = Mathf.Min(loop.Run.hp + card.plus.value, loop.Stats.starMaxHp);
+            // STAR_PLATING лечит на столько же, на сколько поднимает максимум; ЖАДНОСТЬ срезает HP сверх нового максимума
+            float heal = card.plus.stat == StatId.StarMaxHp ? card.plus.value : 0f;
+            loop.Run.hp = Mathf.Min(loop.Run.hp + heal, loop.Stats.starMaxHp);
         }
 
         void LevelUp()
@@ -140,7 +149,7 @@ namespace Perigee
             {
                 if (!Eligible(i)) continue;
                 // первый экран забега всегда предлагает ADD_SAT, пока спутников меньше максимума
-                if (first && cards[i].id == CardId.AddSat && satellites.Count < config.maxSatellites) forced = i;
+                if (first && cards[i].id == CardId.AddSat) forced = i;
                 eligible[n++] = i;
             }
 
@@ -148,8 +157,12 @@ namespace Perigee
             bool forcedMissing = forced >= 0;
             for (int k = 0; k < offerCount; k++)
             {
-                // частичная тасовка: на место k встаёт случайная из ещё не выбранных
-                int pick = cardRng.Range(k, n);
+                // выбор по весам без возврата: на место k встаёт одна из ещё не выбранных, чем больше вес, тем чаще
+                int total = 0;
+                for (int j = k; j < n; j++) total += Weight(cards[eligible[j]]);
+                int roll = cardRng.Range(0, total);
+                int pick = k;
+                while (roll >= Weight(cards[eligible[pick]])) roll -= Weight(cards[eligible[pick++]]);
                 int index = eligible[pick];
                 eligible[pick] = eligible[k];
                 eligible[k] = index;
@@ -159,11 +172,22 @@ namespace Perigee
             if (forcedMissing) offer[cardRng.Range(0, offerCount)] = forced;
         }
 
+        int Weight(CardDef card)
+        {
+            if (card.era != 0) return config.weightEra;
+            return card.rarity == CardRarity.Rare ? config.weightRare : config.weightCommon;
+        }
+
         bool Eligible(int i)
         {
             CardDef card = config.cards[i];
+            // у ADD_SAT предела стаков нет: карточка идёт, пока спутников меньше максимума
+            if (card.id == CardId.AddSat) return 1 + loop.Stats.extraSatellites < config.maxSatellites;
             if (loop.Run.cardStacks[i] >= card.maxStacks) return false;
-            if (card.id == CardId.Resonator && satellites.Count < ResonancePair) return false;
+            // карточка эры идёт только в своей эре
+            if (card.era != 0 && card.era != loop.EraNumber) return false;
+            // нити нужна пара спутников
+            if (card.id == CardId.SawThread && satellites.Count < ResonancePair) return false;
             // ABILITY_LONG нужна способность с длительностью
             if (card.id == CardId.AbilityLong && !abilities.HasTimed) return false;
             return true;

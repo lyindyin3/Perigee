@@ -24,5 +24,11 @@ namespace Perigee
         public Sprite[] cardIcons;
         // по порядку AbilityId
         public Sprite[] abilityIcons;
+        // рамки карточек по порядку CardColor
+        public Sprite[] cardFrames;
+        // золотая кайма редкой карточки
+        public Sprite cardRareRim;
+        // рамка способности на экране выбора
+        public Sprite abilityFrame;
     }
 }

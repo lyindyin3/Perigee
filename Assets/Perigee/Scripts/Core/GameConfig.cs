@@ -54,13 +54,26 @@ namespace Perigee
         public SpawnGroup[] groups;
     }
 
-    public enum CardId { Heavy, Swift, AddSat, Magnet, Coolant, StarPlating, Resonator, Apogee, BigSat, Beacon, AbilityHaste, AbilityLong }
+    // порядок таблицы GDD 6.2; по нему идут ArtSet.cardIcons и строки в Strings
+    public enum CardId
+    {
+        Heavy, FarStrike, Sharp, Pierce, Execute, SawThread, Burn, Chain, AddSat, Swift, Spin, BigSat, Magnet, Greed, Coolant,
+        StarPlating, Photosphere, Corona, Beacon, AbilityHaste, AbilityLong
+    }
 
-    // Параметры на Mul перемножаются, остальные складываются.
+    // цвет рамки: кремовая, красная, чёрная
+    public enum CardColor { Orbit, Strike, Star }
+
+    public enum CardRarity { Common, Rare }
+
+    // Параметры на Mul перемножаются, остальные складываются; флаг включён, когда набрано от 1.
     public enum StatId
     {
-        PowerMul, RadialSpeedMul, HeatMul, SpinMul, ResonanceAngleMul, SatRadiusMul, CrystalLifeMul, ArrowSpeedMul,
-        AbilityCooldownMul, AbilityDurationMul, MagnetRadius, PowerFarBonus, StarMaxHp, Satellites, Beacon
+        PowerMul, RadialSpeedMul, RadialOutMul, HeatMul, SpinMul, ResonanceAngleMul, ResonanceBonus, SatRadiusMul, CrystalLifeMul,
+        ArrowSpeedMul, AbilityCooldownMul, AbilityDurationMul, XpPerCrystalMul, XpNeedMul, StarDamageMul, DustMul, MagnetRadius,
+        PowerFarBonus, StarMaxHp, Regen, Satellites, AddSatBonus, Beacon, CritChance, ArmorPierce, Execute, SawThread, Burn, Chain,
+        Heatproof, SolarSail, Firebird, Slingshot, AnchorField, Crowbar, Horizon, DarkMatter, Accretion, SecondSun, FreeRerolls,
+        ExtraChoices
     }
 
     [Serializable]
@@ -80,6 +93,11 @@ namespace Perigee
     public class CardDef
     {
         public CardId id;
+        public CardColor color;
+        public CardRarity rarity;
+        // 0 = карточка любой эры, иначе номер эры с единицы
+        public int era;
+        // 0 = предела нет (ADD_SAT ограничен числом спутников)
         public int maxStacks;
         public StatMod plus;
         public StatMod minus;
@@ -190,25 +208,53 @@ namespace Perigee
         public int cardChoices = 3;
         public float pickInputDelay = 0.4f;
         public float pickFadeOut = 0.4f;
+        public int weightCommon = 3;
+        public int weightRare = 1;
+        public int weightEra = 4;
         [TableList]
         public CardDef[] cards =
         {
-            new CardDef { id = CardId.Heavy, maxStacks = 2, plus = new StatMod(StatId.PowerMul, 1.4f), minus = new StatMod(StatId.RadialSpeedMul, 0.7f) },
-            new CardDef { id = CardId.Swift, maxStacks = 2, plus = new StatMod(StatId.RadialSpeedMul, 1.5f), minus = new StatMod(StatId.HeatMul, 1.2f) },
-            new CardDef { id = CardId.AddSat, maxStacks = 2, plus = new StatMod(StatId.Satellites, 1f), minus = new StatMod(StatId.HeatMul, 1.25f) },
-            new CardDef { id = CardId.Magnet, maxStacks = 1, plus = new StatMod(StatId.MagnetRadius, 1.3f), minus = new StatMod(StatId.ArrowSpeedMul, 1.15f) },
-            new CardDef { id = CardId.Coolant, maxStacks = 2, plus = new StatMod(StatId.HeatMul, 0.6f), minus = new StatMod(StatId.PowerMul, 0.9f) },
-            new CardDef { id = CardId.StarPlating, maxStacks = 2, plus = new StatMod(StatId.StarMaxHp, 25f), minus = new StatMod(StatId.SpinMul, 0.9f) },
-            new CardDef { id = CardId.Resonator, maxStacks = 1, plus = new StatMod(StatId.ResonanceAngleMul, 1.5f), minus = new StatMod(StatId.PowerMul, 0.9f) },
-            new CardDef { id = CardId.Apogee, maxStacks = 2, plus = new StatMod(StatId.PowerFarBonus, 0.5f), minus = new StatMod(StatId.HeatMul, 1.15f) },
-            new CardDef { id = CardId.BigSat, maxStacks = 1, plus = new StatMod(StatId.SatRadiusMul, 1.5f), minus = new StatMod(StatId.HeatMul, 1.2f) },
-            new CardDef { id = CardId.Beacon, maxStacks = 1, plus = new StatMod(StatId.Beacon, 1f), minus = new StatMod(StatId.CrystalLifeMul, 0.6f) },
-            new CardDef { id = CardId.AbilityHaste, maxStacks = 2, plus = new StatMod(StatId.AbilityCooldownMul, 0.75f), minus = new StatMod(StatId.PowerMul, 0.9f) },
-            new CardDef { id = CardId.AbilityLong, maxStacks = 1, plus = new StatMod(StatId.AbilityDurationMul, 1.4f), minus = new StatMod(StatId.AbilityCooldownMul, 1.15f) },
+            Card(CardId.Heavy, CardColor.Strike, CardRarity.Common, 2, StatId.PowerMul, 1.35f, StatId.RadialSpeedMul, 0.75f),
+            Card(CardId.FarStrike, CardColor.Strike, CardRarity.Common, 2, StatId.PowerFarBonus, 0.5f, StatId.HeatMul, 1.15f),
+            Card(CardId.Sharp, CardColor.Strike, CardRarity.Common, 2, StatId.CritChance, 0.12f, StatId.PowerMul, 0.92f),
+            Card(CardId.Pierce, CardColor.Strike, CardRarity.Common, 1, StatId.ArmorPierce, 1f, StatId.SpinMul, 0.9f),
+            Card(CardId.Execute, CardColor.Strike, CardRarity.Rare, 1, StatId.Execute, 1f, StatId.CrystalLifeMul, 0.7f),
+            Card(CardId.SawThread, CardColor.Strike, CardRarity.Rare, 1, StatId.SawThread, 1f, StatId.PowerMul, 0.9f),
+            Card(CardId.Burn, CardColor.Strike, CardRarity.Common, 1, StatId.Burn, 1f, StatId.HeatMul, 1.15f),
+            Card(CardId.Chain, CardColor.Strike, CardRarity.Rare, 1, StatId.Chain, 1f, StatId.XpPerCrystalMul, 0.9f),
+            Card(CardId.AddSat, CardColor.Orbit, CardRarity.Common, 0, StatId.Satellites, 1f, StatId.HeatMul, 1.2f),
+            Card(CardId.Swift, CardColor.Orbit, CardRarity.Common, 2, StatId.RadialSpeedMul, 1.5f, StatId.HeatMul, 1.2f),
+            Card(CardId.Spin, CardColor.Orbit, CardRarity.Common, 2, StatId.SpinMul, 1.25f, StatId.HeatMul, 1.15f),
+            Card(CardId.BigSat, CardColor.Orbit, CardRarity.Common, 2, StatId.SatRadiusMul, 1.35f, StatId.SpinMul, 0.9f),
+            Card(CardId.Magnet, CardColor.Orbit, CardRarity.Common, 2, StatId.MagnetRadius, 1.3f, StatId.ArrowSpeedMul, 1.15f),
+            Card(CardId.Greed, CardColor.Orbit, CardRarity.Common, 2, StatId.XpPerCrystalMul, 1.3f, StatId.StarMaxHp, -15f),
+            Card(CardId.Coolant, CardColor.Orbit, CardRarity.Common, 2, StatId.HeatMul, 0.6f, StatId.PowerMul, 0.9f),
+            Card(CardId.StarPlating, CardColor.Star, CardRarity.Common, 2, StatId.StarMaxHp, 25f, StatId.SpinMul, 0.9f),
+            Card(CardId.Photosphere, CardColor.Star, CardRarity.Common, 2, StatId.Regen, 0.4f, StatId.XpPerCrystalMul, 0.85f),
+            Card(CardId.Corona, CardColor.Star, CardRarity.Common, 1, StatId.StarDamageMul, 0.7f, StatId.CrystalLifeMul, 0.8f),
+            Card(CardId.Beacon, CardColor.Star, CardRarity.Common, 2, StatId.Beacon, 1f, StatId.CrystalLifeMul, 0.6f),
+            Card(CardId.AbilityHaste, CardColor.Star, CardRarity.Common, 2, StatId.AbilityCooldownMul, 0.75f, StatId.PowerMul, 0.9f),
+            Card(CardId.AbilityLong, CardColor.Star, CardRarity.Common, 1, StatId.AbilityDurationMul, 1.4f, StatId.AbilityCooldownMul, 1.15f),
         };
+
+        [Title("Эффекты карточек")]
+        public float critMul = 2f;
+        public float executeFraction = 0.25f;
+        public float sawWidth = 0.08f;
+        public float sawDamage = 1f;
+        public float sawInterval = 0.25f;
+        public float burnHeatMin = 0.5f;
+        public float burnTime = 3f;
+        public float burnDps = 1f;
+        public float chainRadius = 1f;
+        public float chainDamage = 1f;
+        // ФОТОСФЕРА лечит порциями, чтобы на полоске был виден золотой «хвост»
+        public float regenStep = 1f;
 
         [Title("Маяк")]
         public float beaconInterval = 8f;
+        // каждый стак после первого умножает период на это число
+        public float beaconStackMul = 0.7f;
         public float beaconRadius = 2.5f;
         public float beaconDamage = 1f;
         public float beaconFxTime = 0.35f;
@@ -447,6 +493,11 @@ namespace Perigee
             new BlueprintDef { id = BlueprintId.CoolantBp, perLevel = new StatMod(StatId.HeatMul, 0.95f), costs = new[] { 50, 100, 200, 400, 800 } },
             new BlueprintDef { id = BlueprintId.Magnetism, perLevel = new StatMod(StatId.MagnetRadius, 0.35f), costs = new[] { 40, 80, 160 } },
         };
+
+        static CardDef Card(CardId id, CardColor color, CardRarity rarity, int maxStacks, StatId plus, float plusValue, StatId minus, float minusValue)
+        {
+            return new CardDef { id = id, color = color, rarity = rarity, maxStacks = maxStacks, plus = new StatMod(plus, plusValue), minus = new StatMod(minus, minusValue) };
+        }
 
         static SpawnEvent At(float time, params SpawnGroup[] groups)
         {

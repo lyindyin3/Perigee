@@ -39,6 +39,10 @@ namespace Perigee
         bool spawned;
         // урон уже был: кольцо HP в режиме «после удара» остаётся на виду
         bool hurt;
+        // секунды до следующего пореза НИТЬЮ-ПИЛОЙ
+        float sawCooldown;
+        // сколько секунд ещё горит (РАСКАЛЁННЫЙ)
+        float burn;
 
         public bool Alive { get; private set; }
 
@@ -74,8 +78,24 @@ namespace Perigee
             if (!Alive) return;
 
             // СТАЗИС замедляет полёт; перезарядка удара, линия орбиты и кольцо HP идут по обычному времени
-            age += dt * loop.EnemyTimeScale;
+            float enemyDt = dt * loop.EnemyTimeScale;
+            age += enemyDt;
             for (int k = 0; k < hitCooldown.Length; k++) hitCooldown[k] -= dt;
+            sawCooldown -= dt;
+
+            // горящая Комета теряет HP по времени врагов, без числа и вспышки
+            if (burn > 0f)
+            {
+                float burning = Mathf.Min(burn, enemyDt);
+                burn -= burning;
+                hp -= config.burnDps * burning;
+                hurt = true;
+                if (hp <= 0f)
+                {
+                    Die();
+                    return;
+                }
+            }
 
             lineTimer -= dt;
             if (lineTimer <= 0f) orbitLine.Hide();
@@ -98,6 +118,7 @@ namespace Perigee
             // пока Комета проявляется, урон по ней не проходит
             if (!Alive || age < config.bossFadeIn) return;
 
+            Stats stats = loop.Stats;
             float reach = satellites.HitterRadius + def.radius;
             int hitters = satellites.HitterCount;
             for (int k = 0; k < hitters; k++)
@@ -108,11 +129,25 @@ namespace Perigee
                 if ((hitter - position).sqrMagnitude > reach * reach) continue;
 
                 hitCooldown[k] = config.hitCooldown;
-                if (Hurt(satellites.HitterDamage(k), hitter)) return;
+                float damage = satellites.HitterDamage(k);
+                bool crit = loop.Run.simRng.Range(0f, 1f) < stats.critChance;
+                if (crit) damage *= config.critMul;
+                if (Hurt(damage, hitter, crit ? NumberKind.Crit : NumberKind.Normal)) return;
+                // РАСКАЛЁННЫЙ: горячий спутник поджигает, новый поджог начинает отсчёт заново
+                if (stats.Burn && satellites.HitterHeat(k) >= config.burnHeatMin) burn = config.burnTime;
                 fx.Shards(hitter, config.hitShards);
                 fx.HitStop(config.hitStopTime);
                 sfx.Play(SfxId.Hit);
             }
+
+            // НИТЬ-ПИЛА режет и Комету
+            Vector2 point;
+            if (!stats.SawThread || sawCooldown > 0f || !satellites.Sawn(position, def.radius, out point)) return;
+
+            sawCooldown = config.sawInterval;
+            if (Hurt(config.sawDamage, point, NumberKind.Normal)) return;
+            fx.Shards(point, config.hitShards);
+            sfx.Play(SfxId.Hit);
         }
 
         // РЕВЕРС: каждый хиттер может ударить снова, не дожидаясь перезарядки
@@ -121,21 +156,21 @@ namespace Perigee
             System.Array.Clear(hitCooldown, 0, hitCooldown.Length);
         }
 
-        // волна от звезды (ИМПУЛЬС, МАЯК): урон без толчка
-        public void Blast(float radius, float damage)
+        // волна из точки centre (ИМПУЛЬС, МАЯК, ЦЕПНАЯ РЕАКЦИЯ): урон без толчка
+        public void Blast(Vector2 centre, float radius, float damage)
         {
             if (!Alive || age < config.bossFadeIn) return;
-            if (position.sqrMagnitude > radius * radius) return;
+            if ((position - centre).sqrMagnitude > radius * radius) return;
 
-            Hurt(damage, Vector2.zero);
+            Hurt(damage, centre, NumberKind.Normal);
         }
 
         // урон прошёл: над Кометой число; пока жива, она белеет и вздрагивает прочь от точки from. true = Комета убита
-        bool Hurt(float damage, Vector2 from)
+        bool Hurt(float damage, Vector2 from, NumberKind kind)
         {
             hp -= damage;
             hurt = true;
-            fx.Number(position + Vector2.up * def.radius, damage, NumberKind.Normal);
+            fx.Number(position + Vector2.up * def.radius, damage, kind);
             if (hp <= 0f)
             {
                 Die();
@@ -161,6 +196,8 @@ namespace Perigee
             age = 0f;
             passes = 0;
             phi = loop.Run.simRng.Range(0f, 360f);
+            sawCooldown = 0f;
+            burn = 0f;
             System.Array.Clear(hitCooldown, 0, hitCooldown.Length);
 
             Place();

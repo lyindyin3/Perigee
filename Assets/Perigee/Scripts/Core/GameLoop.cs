@@ -40,6 +40,8 @@ namespace Perigee
         public ISaveService Save { get; private set; }
         public Blueprints Blueprints { get; private set; }
         public EraConfig Era => config.eras[eraIndex];
+        // номер эры с единицы: по нему отбираются карточки эр
+        public int EraNumber => eraIndex + 1;
         // СТАЗИС: враги, их таймеры и боссы живут в замедленном времени
         public float EnemyTimeScale => abilities.Active(AbilityId.Stasis) ? config.stasisSlow : 1f;
 
@@ -142,6 +144,7 @@ namespace Perigee
             enemies.ResetRun();
             boss.ResetRun();
             crystals.ResetRun();
+            star.ResetRun();
             director.ResetRun(Run.seed);
             cards.ResetRun(Run.seed + Rng.CardOffset);
             fx.ResetRun();
@@ -319,7 +322,7 @@ namespace Perigee
             crystals.Tick(dt);
             director.Tick(dt);
             // победа важнее поражения, поражение важнее экрана карточек
-            if (State == GameState.Playing) star.Tick();
+            if (State == GameState.Playing) star.Tick(dt);
             if (State == GameState.Playing) cards.Tick(dt);
             fx.Tick(dt);
             if (Run.tutorial) hints.Tick(dt);

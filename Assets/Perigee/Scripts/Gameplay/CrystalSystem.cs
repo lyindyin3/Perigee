@@ -115,7 +115,7 @@ namespace Perigee
                 if (nearestSq <= pickup * pickup)
                 {
                     loop.Run.dust++;
-                    loop.Run.xp++;
+                    loop.Run.xp += loop.Stats.xpPerCrystalMul;
                     c.picked = true;
                     c.age = 0f;
                     sfx.Play(SfxId.Crystal);

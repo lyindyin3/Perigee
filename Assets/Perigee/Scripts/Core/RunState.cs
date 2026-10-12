@@ -7,7 +7,8 @@ namespace Perigee
         public float hp;
         public float time;
         public int dust;
-        public int xp;
+        // дробный: карточки меняют опыт за кристалл
+        public float xp;
         public int level;
         // стаки по индексу карточки в config.cards
         public int[] cardStacks;
@@ -32,7 +33,7 @@ namespace Perigee
             seed = runSeed;
             time = 0f;
             dust = 0;
-            xp = 0;
+            xp = 0f;
             level = 0;
             cardStacks = new int[config.cards.Length];
             simRng = new Rng(runSeed + Rng.SimOffset);

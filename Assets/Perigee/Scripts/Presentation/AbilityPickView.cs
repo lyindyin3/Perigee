@@ -17,6 +17,7 @@ namespace Perigee
         [SerializeField] TMP_Text header;
         [SerializeField] GameObject[] slots;
         [SerializeField] Button[] buttons;
+        [SerializeField] Image[] frames;
         [SerializeField] Image[] icons;
         [SerializeField] TMP_Text[] titles;
         [SerializeField] TMP_Text[] effectLines;
@@ -39,6 +40,7 @@ namespace Perigee
                 if (!used) continue;
 
                 AbilityDef def = abilities.Offer(i);
+                frames[i].sprite = art.abilityFrame;
                 icons[i].sprite = art.abilityIcons[(int)def.id];
                 titles[i].text = Strings.AbilityTitle[(int)def.id];
                 effectLines[i].text = Strings.AbilityText[(int)def.id];

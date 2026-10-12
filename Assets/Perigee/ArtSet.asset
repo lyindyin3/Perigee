@@ -44,6 +44,15 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
   - {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
   - {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
+  - {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
+  - {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
+  - {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
+  - {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
+  - {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
+  - {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
+  - {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
+  - {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
+  - {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
   abilityIcons:
   - {fileID: 21300000, guid: 6ffd6324143cea845b2c38c49ec4bd7c, type: 3}
   - {fileID: 21300000, guid: 8072a9baaafb16640a2cbb587c47a5d9, type: 3}
@@ -52,3 +61,9 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 5de27a91169434c408c9b56d5aa0a20f, type: 3}
   - {fileID: 21300000, guid: 0d9d98192501d844ea9b27ff8a8c871b, type: 3}
   - {fileID: 21300000, guid: ef612b3a6c775a947ad4f52b376eeed4, type: 3}
+  cardFrames:
+  - {fileID: 21300000, guid: 7690293ba0af8df47bee9502f9ca8b82, type: 3}
+  - {fileID: 21300000, guid: bcba24fa1f12e3c44a8265293f6448e0, type: 3}
+  - {fileID: 21300000, guid: 12645dbc2920384428d09ec61bc9db00, type: 3}
+  cardRareRim: {fileID: 21300000, guid: 3d56380f32621d44586725710d74c5a8, type: 3}
+  abilityFrame: {fileID: 21300000, guid: 7803b0f7e18511b4ab938226db6b8433, type: 3}

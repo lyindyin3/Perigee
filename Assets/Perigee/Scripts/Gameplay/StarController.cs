@@ -11,6 +11,9 @@ namespace Perigee
         [SerializeField] Fx fx;
         [SerializeField] AudioManager sfx;
 
+        // накопленное лечение ФОТОСФЕРЫ, HP
+        float regenBank;
+
         // удар по звезде: вспышка, тряска и hit-stop
         public void Damage(float amount)
         {
@@ -26,15 +29,34 @@ namespace Perigee
         public void Drain(float amount)
         {
             if (Immune) return;
-            loop.Run.hp = Mathf.Max(loop.Run.hp - amount, 0f);
+            // КОРОНА ослабляет любой урон по звезде
+            loop.Run.hp = Mathf.Max(loop.Run.hp - amount * loop.Stats.starDamageMul, 0f);
         }
 
         // после возрождения и под КУПОЛОМ звезда не получает урон ни от чего
         bool Immune => loop.Run.time < loop.Run.immuneUntil || abilities.Active(AbilityId.Dome);
 
-        public void Tick()
+        public void ResetRun()
         {
-            if (loop.Run.hp <= 0f) loop.Lose();
+            regenBank = 0f;
+        }
+
+        public void Tick(float dt)
+        {
+            RunState run = loop.Run;
+            if (run.hp <= 0f)
+            {
+                loop.Lose();
+                return;
+            }
+
+            // лечение копится и приходит порциями по regenStep: так на полоске виден золотой «хвост»
+            float max = loop.Stats.starMaxHp;
+            regenBank = run.hp < max ? regenBank + loop.Stats.regen * dt : 0f;
+            if (regenBank < config.regenStep) return;
+
+            regenBank -= config.regenStep;
+            run.hp = Mathf.Min(run.hp + config.regenStep, max);
         }
 
         void Update()

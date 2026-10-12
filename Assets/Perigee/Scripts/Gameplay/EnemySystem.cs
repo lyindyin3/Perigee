@@ -25,6 +25,10 @@ namespace Perigee
             public float speedMul;
             public float age;
             public float[] hitCooldown;
+            // секунды до следующего пореза НИТЬЮ-ПИЛОЙ
+            public float sawCooldown;
+            // сколько секунд ещё горит (РАСКАЛЁННЫЙ)
+            public float burn;
             // Паразит: присосался к звезде. Стрелок: встал на позицию.
             public bool engaged;
             // Паразит: секунды на звезде. Стрелок: секунды до выстрела.
@@ -35,6 +39,7 @@ namespace Perigee
         [SerializeField] ArtSet art;
         [SerializeField] GameLoop loop;
         [SerializeField] SatelliteSystem satellites;
+        [SerializeField] BossComet boss;
         [SerializeField] StarController star;
         [SerializeField] CrystalSystem crystals;
         [SerializeField] AbilitySystem abilities;
@@ -48,10 +53,14 @@ namespace Perigee
         // запас выключенных врагов, свой на каждый тип: free[тип][0, freeCount[тип])
         Enemy[][] free;
         int[] freeCount;
+        // очередь взрывов ЦЕПНОЙ РЕАКЦИИ: точки гибели, [0, blastCount)
+        Vector2[] blasts;
+        int blastCount;
 
         void Awake()
         {
             live = new Enemy[config.maxEnemies];
+            blasts = new Vector2[config.maxEnemies];
             free = new Enemy[config.enemies.Length][];
             freeCount = new int[free.Length];
             for (int t = 0; t < free.Length; t++) free[t] = new Enemy[config.maxEnemies];
@@ -62,6 +71,7 @@ namespace Perigee
             // пулы собираются заново из префабов: правка префаба видна со следующего забега
             for (int i = root.childCount - 1; i >= 0; i--) Destroy(root.GetChild(i).gameObject);
             count = 0;
+            blastCount = 0;
 
             EnemyDef[] defs = config.enemies;
             for (int i = 0; i < defs.Length; i++)
@@ -91,6 +101,8 @@ namespace Perigee
             e.age = 0f;
             e.engaged = false;
             e.timer = 0f;
+            e.sawCooldown = 0f;
+            e.burn = 0f;
             System.Array.Clear(e.hitCooldown, 0, e.hitCooldown.Length);
             Place(e);
             Gauge(e, 0f);
@@ -110,6 +122,21 @@ namespace Perigee
                 Enemy e = live[i];
                 e.age += enemyDt;
                 for (int k = 0; k < e.hitCooldown.Length; k++) e.hitCooldown[k] -= dt;
+                e.sawCooldown -= dt;
+
+                // горящий враг теряет HP по времени врагов, без числа и вспышки
+                if (e.burn > 0f)
+                {
+                    float burning = Mathf.Min(e.burn, enemyDt);
+                    e.burn -= burning;
+                    e.hp -= config.burnDps * burning;
+                    e.hurt = true;
+                    if (e.hp <= 0f)
+                    {
+                        Kill(i);
+                        continue;
+                    }
+                }
 
                 if (pull)
                 {
@@ -195,6 +222,9 @@ namespace Perigee
 
         public void Collide()
         {
+            Stats stats = loop.Stats;
+            // взрывы, поставленные до этого шага; убийства этого шага взорвутся в следующем
+            int due = blastCount;
             int hitters = satellites.HitterCount;
             for (int i = count - 1; i >= 0; i--)
             {
@@ -211,8 +241,10 @@ namespace Perigee
 
                     e.hitCooldown[k] = config.hitCooldown;
                     float damage = satellites.HitterDamage(k);
-                    // броня: удар слабее брони урона не наносит
-                    if (damage < e.def.armor)
+                    bool crit = loop.Run.simRng.Range(0f, 1f) < stats.critChance;
+                    if (crit) damage *= config.critMul;
+                    // броня: удар слабее брони урона не наносит; БРОНЕБОЙ её срезает
+                    if (damage < Mathf.Max(e.def.armor - stats.armorPierce, 0f))
                     {
                         fx.Sparks(hitter, config.clinkSparks);
                         if (e.maxHp >= config.numberMinHp) fx.Number(Above(e), 0f, NumberKind.Blocked);
@@ -221,23 +253,59 @@ namespace Perigee
                         continue;
                     }
 
-                    if (Hurt(i, damage, hitter)) break;
+                    if (Hurt(i, damage, hitter, crit ? NumberKind.Crit : NumberKind.Normal)) break;
+                    // РАСКАЛЁННЫЙ: горячий спутник поджигает, новый поджог начинает отсчёт заново
+                    if (stats.Burn && satellites.HitterHeat(k) >= config.burnHeatMin) e.burn = config.burnTime;
+                    // РАСКОЛ: недобитый враг гибнет от любого удара
+                    if (stats.Execute && e.hp <= e.maxHp * config.executeFraction)
+                    {
+                        Kill(i);
+                        break;
+                    }
                     fx.Shards(hitter, config.hitShards);
                     sfx.Play(SfxId.Hit);
                 }
             }
+
+            if (stats.SawThread) Saw();
+
+            for (int b = 0; b < due; b++)
+            {
+                Blast(blasts[b], config.chainRadius, config.chainDamage);
+                boss.Blast(blasts[b], config.chainRadius, config.chainDamage);
+            }
+            // взрывы, поставленные за этот шаг, сдвигаются в начало очереди
+            blastCount -= due;
+            System.Array.Copy(blasts, due, blasts, 0, blastCount);
         }
 
-        // волна от звезды: Рой гибнет сразу, остальные получают урон
-        public void Blast(float radius, float damage)
+        // НИТЬ-ПИЛА: нить резонанса режет каждого, кого задевает; броня не спасает
+        void Saw()
         {
             for (int i = count - 1; i >= 0; i--)
             {
                 Enemy e = live[i];
-                if (e.position.sqrMagnitude > radius * radius) continue;
+                if (e.age < config.spawnFadeIn || e.sawCooldown > 0f) continue;
+                Vector2 point;
+                if (!satellites.Sawn(e.position, e.def.radius, out point)) continue;
+
+                e.sawCooldown = config.sawInterval;
+                if (Hurt(i, config.sawDamage, point, NumberKind.Normal)) continue;
+                fx.Shards(point, config.hitShards);
+                sfx.Play(SfxId.Hit);
+            }
+        }
+
+        // волна из точки centre (МАЯК, ЦЕПНАЯ РЕАКЦИЯ): Рой гибнет сразу, остальные получают урон
+        public void Blast(Vector2 centre, float radius, float damage)
+        {
+            for (int i = count - 1; i >= 0; i--)
+            {
+                Enemy e = live[i];
+                if ((e.position - centre).sqrMagnitude > radius * radius) continue;
 
                 if (e.def.id == EnemyType.Swarmer) Kill(i);
-                else Hurt(i, damage, Vector2.zero);
+                else Hurt(i, damage, centre, NumberKind.Normal);
             }
         }
 
@@ -255,7 +323,7 @@ namespace Perigee
                     Kill(i);
                     continue;
                 }
-                if (Hurt(i, damage, Vector2.zero)) continue;
+                if (Hurt(i, damage, Vector2.zero, NumberKind.Normal)) continue;
 
                 e.position *= (r + push) / r;
                 // Паразит отцепляется и летит обратно, Стрелок заново идёт на позицию
@@ -326,12 +394,12 @@ namespace Perigee
         }
 
         // урон прошёл: над врагом число; выживший белеет и вздрагивает прочь от точки from. true = враг убит
-        bool Hurt(int i, float damage, Vector2 from)
+        bool Hurt(int i, float damage, Vector2 from, NumberKind kind)
         {
             Enemy e = live[i];
             e.hp -= damage;
             e.hurt = true;
-            if (e.maxHp >= config.numberMinHp) fx.Number(Above(e), damage, NumberKind.Normal);
+            if (e.maxHp >= config.numberMinHp) fx.Number(Above(e), damage, kind);
             if (e.hp <= 0f)
             {
                 Kill(i);
@@ -360,6 +428,8 @@ namespace Perigee
             // мелочь гибнет без остановки, иначе стая Роя превращается в слайд-шоу
             if (e.def.hp >= config.hitStopMinBaseHp) fx.HitStop(config.hitStopTime);
             sfx.Play(SfxId.Kill);
+            // ЦЕПНАЯ РЕАКЦИЯ: на месте гибели будет взрыв
+            if (loop.Stats.Chain && blastCount < blasts.Length) blasts[blastCount++] = e.position;
             Remove(i);
         }
 

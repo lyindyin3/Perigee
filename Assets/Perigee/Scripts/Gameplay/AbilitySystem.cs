@@ -253,7 +253,7 @@ namespace Perigee
         void Pulse()
         {
             enemies.Pulse(config.pulseRadius, config.pulseDamage, config.pulsePush);
-            boss.Blast(config.pulseRadius, config.pulseDamage);
+            boss.Blast(Vector2.zero, config.pulseRadius, config.pulseDamage);
             fx.Shake(config.pulseShakeAmp, config.pulseShakeTime);
 
             // кольцо только рисунок: урон уже нанесён

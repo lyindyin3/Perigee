@@ -1,25 +1,19 @@
-using System.Globalization;
 using DG.Tweening;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Perigee
 {
     public class CardPickView : MonoBehaviour
     {
         [SerializeField] GameConfig config;
-        [SerializeField] ArtSet art;
         [SerializeField] GameLoop loop;
         [SerializeField] CardSystem cards;
         [SerializeField] AudioManager sfx;
         [SerializeField] CanvasGroup group;
         [SerializeField] TMP_Text header;
-        [SerializeField] GameObject[] slots;
-        [SerializeField] Image[] icons;
-        [SerializeField] TMP_Text[] titles;
-        [SerializeField] TMP_Text[] plusLines;
-        [SerializeField] TMP_Text[] minusLines;
+        // карточки в ряду: экземпляры префаба CardView
+        [SerializeField] CardView[] views;
         // «Новые карточки (реклама)»: один раз за забег
         [SerializeField] GameObject rerollButton;
         [SerializeField] TMP_Text rerollLabel;
@@ -77,17 +71,12 @@ namespace Perigee
 
         void Fill()
         {
-            for (int i = 0; i < slots.Length; i++)
+            for (int i = 0; i < views.Length; i++)
             {
                 bool used = i < cards.OfferCount;
-                slots[i].SetActive(used);
-                if (!used) continue;
-
-                CardDef card = cards.Offer(i);
-                icons[i].sprite = art.cardIcons[(int)card.id];
-                titles[i].text = Strings.CardTitle[(int)card.id];
-                plusLines[i].text = Line(card.plus);
-                minusLines[i].text = Line(card.minus);
+                views[i].gameObject.SetActive(used);
+                // точки показывают стаки после выбора
+                if (used) views[i].Show(cards.Offer(i), cards.Stacks(i) + 1);
             }
             rerollButton.SetActive(!cards.Rerolled);
         }
@@ -96,13 +85,6 @@ namespace Perigee
         {
             gameObject.SetActive(false);
             loop.SetState(GameState.Playing);
-        }
-
-        string Line(StatMod mod)
-        {
-            // у МАЯКА в строке стоит период волны, а не число стаков
-            float value = mod.stat == StatId.Beacon ? config.beaconInterval : mod.value;
-            return string.Format(CultureInfo.InvariantCulture, Strings.StatFormat[(int)mod.stat], value);
         }
     }
 }

@@ -38,6 +38,10 @@ namespace Perigee
 
         // по одной нити на каждую пару спутников в резонансе
         readonly List<ResonanceThread> threads = new List<ResonanceThread>();
+        // концы показанных нитей: по ним режет НИТЬ-ПИЛА
+        Vector2[] threadStart;
+        Vector2[] threadEnd;
+        int threadCount;
         Satellite[] satellites;
         int count;
         int orbitDir;
@@ -51,6 +55,11 @@ namespace Perigee
         {
             satellites = new Satellite[config.maxSatellites];
             for (int i = 0; i < satellites.Length; i++) satellites[i] = new Satellite();
+
+            // нитей не больше, чем пар спутников
+            int pairs = satellites.Length * (satellites.Length - 1) / 2;
+            threadStart = new Vector2[pairs];
+            threadEnd = new Vector2[pairs];
         }
 
         public void ResetRun()
@@ -76,6 +85,7 @@ namespace Perigee
             baseR = config.rMin;
             orbitDir = Clockwise;
             threadTimer = 0f;
+            threadCount = 0;
             resonating = false;
             echoing = false;
             count = 0;
@@ -171,6 +181,21 @@ namespace Perigee
         }
 
         public bool Resonating => resonating;
+
+        // НИТЬ-ПИЛА: круг задевает прямой отрезок одной из показанных нитей; point = ближайшая точка нити
+        public bool Sawn(Vector2 centre, float radius, out Vector2 point)
+        {
+            float reach = radius + config.sawWidth;
+            for (int i = 0; i < threadCount; i++)
+            {
+                Vector2 along = threadEnd[i] - threadStart[i];
+                float t = Mathf.Clamp01(Vector2.Dot(centre - threadStart[i], along) / along.sqrMagnitude);
+                point = threadStart[i] + along * t;
+                if ((centre - point).sqrMagnitude <= reach * reach) return true;
+            }
+            point = centre;
+            return false;
+        }
 
         // нагрев самого горячего спутника, 0..1
         public float MaxHeat
@@ -277,10 +302,13 @@ namespace Perigee
                     // множитель не складывается: спутник в двух парах всё равно бьёт ×resonanceMul
                     a.resonant = true;
                     b.resonant = true;
+                    threadStart[used] = a.position;
+                    threadEnd[used] = b.position;
                     Thread(used++).Draw(a.position, b.position, reroll);
                 }
             }
             for (int i = used; i < threads.Count; i++) threads[i].gameObject.SetActive(false);
+            threadCount = used;
 
             // звук только в момент, когда резонанс возник
             if (used > 0 && !resonating) sfx.Play(SfxId.Resonance);
