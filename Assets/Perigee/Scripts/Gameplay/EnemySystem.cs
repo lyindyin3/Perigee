@@ -6,6 +6,12 @@ namespace Perigee
     {
         // обязательная часть префаба Паразита: кольцо, пока он сидит на звезде
         const string AttachMarkerName = "AttachMarker";
+        // обязательная часть префаба Щитника: дуга щита, её середина смотрит по оси +Y
+        const string ShieldName = "Shield";
+        // стороны щита: против часовой стрелки от врага и по часовой
+        const int Ccw = 1;
+        const int Cw = -1;
+        const int Sides = 2;
 
         class Enemy
         {
@@ -16,8 +22,11 @@ namespace Perigee
             public HpRing hpRing;
             public DamageStages cracks;
             public GameObject attachMarker;
+            public Transform shield;
             public EnemyDef def;
             public Vector2 position;
+            // радиус столкновений: у Пожирателя растёт
+            public float radius;
             public float hp;
             public float maxHp;
             // урон уже был: кольцо HP в режиме «после удара» остаётся на виду
@@ -29,10 +38,17 @@ namespace Perigee
             public float sawCooldown;
             // сколько секунд ещё горит (РАСКАЛЁННЫЙ)
             public float burn;
-            // Паразит: присосался к звезде. Стрелок: встал на позицию.
+            // Паразит: присосался к звезде. Стрелок: встал на позицию. Кружащий: вышел на орбиту.
             public bool engaged;
             // Паразит: секунды на звезде. Стрелок: секунды до выстрела.
             public float timer;
+            // Щитник: сколько ударов ещё держит щит и с какой он стороны
+            public int shieldHits;
+            public int shieldSide;
+            // Призрак: место в цикле «плотный, потом прозрачный», секунды
+            public float phase;
+            // Пожиратель: сколько кристаллов съел
+            public int eaten;
         }
 
         [SerializeField] GameConfig config;
@@ -43,6 +59,8 @@ namespace Perigee
         [SerializeField] StarController star;
         [SerializeField] CrystalSystem crystals;
         [SerializeField] AbilitySystem abilities;
+        [SerializeField] Director director;
+        [SerializeField] BannerView banner;
         [SerializeField] Fx fx;
         [SerializeField] AudioManager sfx;
         [SerializeField] Transform root;
@@ -92,6 +110,8 @@ namespace Perigee
             live[count++] = e;
             e.def = def;
             e.position = position;
+            e.radius = def.radius;
+            e.visual.SetSizeMul(1f);
             // эра усиливает только врагов с базовым hp от eraHpMinBaseHp
             e.maxHp = def.hp >= config.eraHpMinBaseHp ? def.hp * loop.Era.hpMul : def.hp;
             e.hp = e.maxHp;
@@ -103,10 +123,22 @@ namespace Perigee
             e.timer = 0f;
             e.sawCooldown = 0f;
             e.burn = 0f;
+            e.eaten = 0;
+            e.shieldHits = def.shieldHits;
+            if (def.shieldHits > 0)
+            {
+                // сторону щита выбирает зерно появления: в дневном забеге она у всех одна.
+                // Ось +X врага, повёрнутого к звезде, идёт против часовой стрелки: туда и смотрит дуга щита Ccw.
+                e.shieldSide = director.SpawnRng.Range(0, Sides) == 0 ? Ccw : Cw;
+                e.shield.localRotation = Quaternion.Euler(0f, 0f, -90f * e.shieldSide);
+            }
+            // Призрак начинает со случайного места цикла
+            e.phase = def.phaseOn > 0f ? loop.Run.simRng.Range(0f, def.phaseOn + def.phaseOff) : 0f;
             System.Array.Clear(e.hitCooldown, 0, e.hitCooldown.Length);
             Place(e);
             Gauge(e, 0f);
             e.visual.gameObject.SetActive(true);
+            Meet(type);
         }
 
         public void Tick(float dt)
@@ -121,6 +153,7 @@ namespace Perigee
             {
                 Enemy e = live[i];
                 e.age += enemyDt;
+                if (e.def.phaseOn > 0f) e.phase = Mathf.Repeat(e.phase + enemyDt, e.def.phaseOn + e.def.phaseOff);
                 for (int k = 0; k < e.hitCooldown.Length; k++) e.hitCooldown[k] -= dt;
                 e.sawCooldown -= dt;
 
@@ -154,21 +187,15 @@ namespace Perigee
                 switch (e.def.behavior)
                 {
                     case EnemyBehavior.Straight:
-                        if (Advance(e, 0f, enemyDt) <= config.starRadius + e.def.radius)
+                        if (Advance(e, 0f, enemyDt) <= config.starRadius + e.radius)
                         {
-                            if (dome)
-                            {
-                                Shatter(i);
-                                continue;
-                            }
-                            star.Damage(e.def.starDamage);
-                            Remove(i);
+                            Strike(i, dome);
                             continue;
                         }
                         break;
 
                     case EnemyBehavior.Attach:
-                        if (!e.engaged && Advance(e, 0f, enemyDt) > config.starRadius + e.def.radius) break;
+                        if (!e.engaged && Advance(e, 0f, enemyDt) > config.starRadius + e.radius) break;
 
                         // КУПОЛ: Паразит у звезды разбивается, сидел он на ней или только долетел
                         if (dome)
@@ -214,6 +241,24 @@ namespace Perigee
                             continue;
                         }
                         break;
+
+                    case EnemyBehavior.Orbit:
+                        // идёт прямо до своей орбиты, дальше кружит, пока не коснётся звезды
+                        if (!e.engaged) e.engaged = Advance(e, e.def.orbitRadius, enemyDt) <= e.def.orbitRadius;
+                        else if (Circle(e, enemyDt) <= config.starRadius + e.radius)
+                        {
+                            Strike(i, dome);
+                            continue;
+                        }
+                        break;
+
+                    case EnemyBehavior.Seek:
+                        if (Seek(e, enemyDt) <= config.starRadius + e.radius)
+                        {
+                            Strike(i, dome);
+                            continue;
+                        }
+                        break;
                 }
                 Place(e);
                 Gauge(e, dt);
@@ -229,9 +274,10 @@ namespace Perigee
             for (int i = count - 1; i >= 0; i--)
             {
                 Enemy e = live[i];
-                if (e.age < config.spawnFadeIn) continue;
+                // сквозь прозрачного Призрака хиттеры проходят: ни удара, ни перезарядки
+                if (e.age < config.spawnFadeIn || Phased(e)) continue;
 
-                float reach = satellites.HitterRadius + e.def.radius;
+                float reach = satellites.HitterRadius + e.radius;
                 for (int k = 0; k < hitters; k++)
                 {
                     if (!satellites.HitterActive(k)) continue;
@@ -243,16 +289,24 @@ namespace Perigee
                     float damage = satellites.HitterDamage(k);
                     bool crit = loop.Run.simRng.Range(0f, 1f) < stats.critChance;
                     if (crit) damage *= config.critMul;
+                    // щит: хиттер, идущий по часовой стрелке, приходит к врагу с его стороны «против часовой».
+                    // Щит с этой стороны держит удар и теряет прочность; на нуле ломается.
+                    if (e.shieldHits > 0 && e.shieldSide == -satellites.OrbitDir)
+                    {
+                        e.shieldHits--;
+                        if (e.shieldHits == 0) fx.Sparks(e.position, config.shieldBreakSparks);
+                        Clink(e, hitter);
+                        continue;
+                    }
                     // броня: удар слабее брони урона не наносит; БРОНЕБОЙ её срезает
                     if (damage < Mathf.Max(e.def.armor - stats.armorPierce, 0f))
                     {
-                        fx.Sparks(hitter, config.clinkSparks);
-                        if (e.maxHp >= config.numberMinHp) fx.Number(Above(e), 0f, NumberKind.Blocked);
-                        fx.HitStop(config.clinkHitStop);
-                        sfx.Play(SfxId.Clink);
+                        Clink(e, hitter);
                         continue;
                     }
 
+                    // Факел греет спутник каждым ударом, который по нему прошёл
+                    if (e.def.heatOnHit > 0f) satellites.Warm(k, e.def.heatOnHit * stats.heatMul);
                     if (Hurt(i, damage, hitter, crit ? NumberKind.Crit : NumberKind.Normal)) break;
                     // РАСКАЛЁННЫЙ: горячий спутник поджигает, новый поджог начинает отсчёт заново
                     if (stats.Burn && satellites.HitterHeat(k) >= config.burnHeatMin) e.burn = config.burnTime;
@@ -279,7 +333,7 @@ namespace Perigee
             System.Array.Copy(blasts, due, blasts, 0, blastCount);
         }
 
-        // НИТЬ-ПИЛА: нить резонанса режет каждого, кого задевает; броня не спасает
+        // НИТЬ-ПИЛА: нить резонанса режет каждого, кого задевает; броня и щит не спасают
         void Saw()
         {
             for (int i = count - 1; i >= 0; i--)
@@ -287,7 +341,7 @@ namespace Perigee
                 Enemy e = live[i];
                 if (e.age < config.spawnFadeIn || e.sawCooldown > 0f) continue;
                 Vector2 point;
-                if (!satellites.Sawn(e.position, e.def.radius, out point)) continue;
+                if (!satellites.Sawn(e.position, e.radius, out point)) continue;
 
                 e.sawCooldown = config.sawInterval;
                 if (Hurt(i, config.sawDamage, point, NumberKind.Normal)) continue;
@@ -377,20 +431,90 @@ namespace Perigee
             return next;
         }
 
+        // Кружащий: поворот вокруг звезды против часовой стрелки и понемногу вниз; возвращает новое расстояние до центра
+        float Circle(Enemy e, float dt)
+        {
+            float r = e.position.magnitude;
+            float next = r - e.def.orbitInSpeed * dt;
+            float turn = e.def.orbitDeg * dt * Mathf.Deg2Rad;
+            float cos = Mathf.Cos(turn);
+            float sin = Mathf.Sin(turn);
+            Vector2 p = e.position * (next / r);
+            e.position = new Vector2(p.x * cos - p.y * sin, p.x * sin + p.y * cos);
+            return next;
+        }
+
+        // Пожиратель: к ближайшему кристаллу рядом, иначе к звезде; возвращает новое расстояние до центра
+        float Seek(Enemy e, float dt)
+        {
+            // сытый кристаллы больше не ищет
+            int c = e.eaten < config.devourMax ? crystals.Nearest(e.position, e.def.seekRadius) : CrystalSystem.None;
+            if (c == CrystalSystem.None) return Advance(e, 0f, dt);
+
+            Vector2 target = crystals.Position(c);
+            e.position = Vector2.MoveTowards(e.position, target, e.def.speed * e.speedMul * dt);
+            float reach = e.radius + config.crystalRadius;
+            if ((target - e.position).sqrMagnitude <= reach * reach)
+            {
+                // съел: стал крепче и крупнее, после гибели вернёт кристалл
+                crystals.Eat(c);
+                e.eaten++;
+                e.hp += config.devourHp;
+                e.maxHp += config.devourHp;
+                e.radius += config.devourGrow;
+                e.visual.SetSizeMul(e.radius / e.def.radius);
+            }
+            return e.position.magnitude;
+        }
+
+        // враг дошёл до звезды: бьёт её и исчезает, о КУПОЛ разбивается
+        void Strike(int i, bool dome)
+        {
+            if (dome)
+            {
+                Shatter(i);
+                return;
+            }
+            star.Damage(live[i].def.starDamage);
+            Remove(i);
+        }
+
         // Улей лопается у звезды: кристаллов нет, вместо них Рой
         void Burst(int i)
         {
             Vector2 centre = live[i].position;
             Remove(i);
+            Scatter(centre, config.hiveSwarmers, config.hiveBurstSpread, 1f);
+        }
 
+        // Рой россыпью вокруг точки centre, без телеграфа
+        void Scatter(Vector2 centre, int amount, float spread, float speedMul)
+        {
             Rng rng = loop.Run.simRng;
-            for (int k = 0; k < config.hiveSwarmers; k++)
+            for (int k = 0; k < amount; k++)
             {
                 // корень из случайного числа даёт равномерный разброс по площади круга
-                float r = config.hiveBurstSpread * Mathf.Sqrt(rng.Range(0f, 1f));
+                float r = spread * Mathf.Sqrt(rng.Range(0f, 1f));
                 float rad = rng.Range(0f, 360f) * Mathf.Deg2Rad;
-                Spawn(EnemyType.Swarmer, centre + new Vector2(Mathf.Cos(rad) * r, Mathf.Sin(rad) * r), 1f);
+                Spawn(EnemyType.Swarmer, centre + new Vector2(Mathf.Cos(rad) * r, Mathf.Sin(rad) * r), speedMul);
             }
+        }
+
+        // первая встреча с типом врага (не в обучении): подсказка сверху. Рой и Снаряд в ней не нуждаются.
+        void Meet(EnemyType type)
+        {
+            if (loop.Run.tutorial || type == EnemyType.Swarmer || type == EnemyType.Bolt) return;
+
+            SaveData data = loop.Save.Data;
+            int bit = 1 << (int)type;
+            if ((data.seenEnemies & bit) != 0) return;
+
+            data.seenEnemies |= bit;
+            loop.Save.Save();
+            // пустая запись в enemyIcons: на баннере картинка и цвет Body из префаба врага
+            Sprite icon = art.enemyIcons[(int)type];
+            SpriteRenderer look = art.enemies[(int)type].Body;
+            banner.Show(Strings.EnemyTip[(int)type], icon != null ? icon : look.sprite, icon != null ? Color.white : look.color, config.bannerEnemyHold);
         }
 
         // урон прошёл: над врагом число; выживший белеет и вздрагивает прочь от точки from. true = враг убит
@@ -411,23 +535,41 @@ namespace Perigee
             return false;
         }
 
+        // удар не прошёл (броня или щит): искры от хиттера и серебряный «0»
+        void Clink(Enemy e, Vector2 hitter)
+        {
+            fx.Sparks(hitter, config.clinkSparks);
+            if (e.maxHp >= config.numberMinHp) fx.Number(Above(e), 0f, NumberKind.Blocked);
+            fx.HitStop(config.clinkHitStop);
+            sfx.Play(SfxId.Clink);
+        }
+
         // точка над врагом: отсюда всплывает число урона
         static Vector2 Above(Enemy e)
         {
-            return e.position + Vector2.up * e.def.radius;
+            return e.position + Vector2.up * e.radius;
+        }
+
+        // Призрак сейчас прозрачный
+        static bool Phased(Enemy e)
+        {
+            return e.def.phaseOn > 0f && e.phase >= e.def.phaseOn;
         }
 
         void Kill(int i)
         {
             Enemy e = live[i];
-            crystals.Spawn(e.position, e.def.crystals);
+            // Пожиратель отдаёт и съеденные кристаллы
+            crystals.Spawn(e.position, e.def.crystals + e.eaten);
             // большой враг: осколков больше и экран вздрагивает
-            bool big = e.def.radius >= config.bigRadius;
+            bool big = e.radius >= config.bigRadius;
             fx.Shards(e.position, big ? config.killShards * config.bigKillShardMul : config.killShards);
             if (big) fx.Shake(config.bigKillShake, config.bigKillShakeTime);
             // мелочь гибнет без остановки, иначе стая Роя превращается в слайд-шоу
             if (e.def.hp >= config.hitStopMinBaseHp) fx.HitStop(config.hitStopTime);
             sfx.Play(SfxId.Kill);
+            // Дробитель распадается на быстрый Рой
+            if (e.def.splitCount > 0) Scatter(e.position, e.def.splitCount, config.splitSpread, config.splitSpeedMul);
             // ЦЕПНАЯ РЕАКЦИЯ: на месте гибели будет взрыв
             if (loop.Stats.Chain && blastCount < blasts.Length) blasts[blastCount++] = e.position;
             Remove(i);
@@ -465,22 +607,31 @@ namespace Perigee
             e.hpRing = visual.GetComponentInChildren<HpRing>(true);
             e.cracks = visual.GetComponentInChildren<DamageStages>(true);
             if (def.behavior == EnemyBehavior.Attach) e.attachMarker = e.transform.Find(AttachMarkerName).gameObject;
+            if (def.shieldHits > 0) e.shield = e.transform.Find(ShieldName);
             return e;
         }
 
         void Place(Enemy e)
         {
             e.transform.localPosition = e.position;
-            // ось +Y картинки смотрит на звезду
-            if (e.def.faceStar) e.transform.localRotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(-e.position.y, -e.position.x) * Mathf.Rad2Deg - 90f);
+            if (e.def.faceStar)
+            {
+                // ось +Y картинки смотрит на звезду, а у Кружащего на орбите по ходу движения
+                Vector2 forward = -e.position;
+                if (e.def.behavior == EnemyBehavior.Orbit && e.engaged) forward = new Vector2(-e.position.y, e.position.x) * (e.def.orbitDeg * Mathf.Deg2Rad) + forward.normalized * e.def.orbitInSpeed;
+                e.transform.localRotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(forward.y, forward.x) * Mathf.Rad2Deg - 90f);
+            }
             // СТАЗИС: враг наполовину серебряный
             e.visual.Tint(config.stasisTint, abilities.Active(AbilityId.Stasis) ? config.stasisTintAmount : 0f);
-            e.visual.SetAlpha(Mathf.Clamp01(e.age / config.spawnFadeIn));
+            e.visual.SetAlpha(Mathf.Clamp01(e.age / config.spawnFadeIn) * (Phased(e) ? config.phantomAlpha : 1f));
 
             if (e.def.behavior == EnemyBehavior.Attach && e.attachMarker.activeSelf != e.engaged) e.attachMarker.SetActive(e.engaged);
+            // сломанный щит пропадает
+            if (e.def.shieldHits > 0 && e.shield.gameObject.activeSelf != e.shieldHits > 0) e.shield.gameObject.SetActive(e.shieldHits > 0);
         }
 
-        // кольцо HP и трещины; кольцо есть только у врагов с большим запасом HP и зависит от настройки
+        // кольцо HP и трещины; кольцо есть только у врагов с большим запасом HP и зависит от настройки.
+        // Радиус кольца идёт от базового радиуса: Пожиратель растёт масштабом корня, и кольцо вместе с ним.
         void Gauge(Enemy e, float dt)
         {
             float fraction = e.hp / e.maxHp;
@@ -503,7 +654,7 @@ namespace Perigee
         void OnDrawGizmos()
         {
             if (!Application.isPlaying) return;
-            for (int i = 0; i < count; i++) Gizmos.DrawWireSphere(live[i].position, live[i].def.radius);
+            for (int i = 0; i < count; i++) Gizmos.DrawWireSphere(live[i].position, live[i].radius);
         }
     }
 }

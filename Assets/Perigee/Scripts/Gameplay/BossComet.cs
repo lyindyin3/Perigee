@@ -189,7 +189,8 @@ namespace Perigee
             director.Stop();
 
             def = enemies.Def(EnemyType.Boss);
-            maxHp = def.hp * loop.Era.hpMul;
+            // эра боссов не усиливает
+            maxHp = def.hp;
             hp = maxHp;
             hurt = false;
             hpRing.Fill();

@@ -13,6 +13,8 @@ namespace Perigee
         public Visual crystal;
         // по порядку EnemyType
         public Visual[] enemies;
+        // картинки врагов для баннера, по порядку EnemyType; пустая запись = спрайт и цвет Body из префаба врага
+        public Sprite[] enemyIcons;
         public Visual shard;
         public Visual spark;
         public ResonanceThread resonanceThread;

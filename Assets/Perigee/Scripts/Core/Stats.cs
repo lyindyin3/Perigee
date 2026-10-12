@@ -41,7 +41,7 @@ namespace Perigee
         public bool Chain => chain >= FlagOn;
 
         // база × карточки × чертежи × активные способности: множители перемножаются, бонусы складываются
-        public void Recompute(GameConfig config, EraConfig era, int[] cardStacks, int[] blueprintLevels, AbilitySystem abilities)
+        public void Recompute(GameConfig config, EraDef era, int[] cardStacks, int[] blueprintLevels, AbilitySystem abilities)
         {
             radialSpeedMul = 1f;
             spinMul = era.spinMul;

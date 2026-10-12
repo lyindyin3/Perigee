@@ -55,10 +55,10 @@ namespace Perigee
             loop.StartFromMenu(era, true);
         }
 
-        // по кругу среди открытых эр
+        // по кругу среди открытых эр; с debugUnlockAll открыты все
         public void NextEra()
         {
-            era = (era + 1) % loop.Save.Data.erasUnlocked;
+            era = (era + 1) % (config.debugUnlockAll ? config.eras.Length : loop.Save.Data.erasUnlocked);
             eraLabel.text = string.Format(Strings.EraFormat, Strings.EraTitle[era]);
         }
 

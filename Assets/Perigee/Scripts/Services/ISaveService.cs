@@ -32,6 +32,8 @@ namespace Perigee
         // бит на каждый AbilityId; ноль = сохранение старше M10, SaveService ставит стартовый набор
         public int abilitiesOwned;
         public int lastAbilityA;
+        // бит на каждый EnemyType: подсказка о первой встрече уже была
+        public int seenEnemies;
         // дата UTC (yyyyMMdd) дневного забега, который уже получил двойную пыль
         public int dailyBonusDate;
         public SettingsData settings = new SettingsData();

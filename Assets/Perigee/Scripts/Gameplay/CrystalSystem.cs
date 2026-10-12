@@ -125,6 +125,36 @@ namespace Perigee
             }
         }
 
+        // ответ Nearest, когда кристаллов рядом нет
+        public const int None = -1;
+
+        // номер ближайшего лежащего кристалла не дальше radius от точки; годен, пока ни один кристалл не убран
+        public int Nearest(Vector2 from, float radius)
+        {
+            int nearest = None;
+            float nearestSq = radius * radius;
+            for (int i = 0; i < count; i++)
+            {
+                if (pool[i].picked) continue;
+                float sq = (pool[i].position - from).sqrMagnitude;
+                if (sq > nearestSq) continue;
+                nearestSq = sq;
+                nearest = i;
+            }
+            return nearest;
+        }
+
+        public Vector2 Position(int i)
+        {
+            return pool[i].position;
+        }
+
+        // Пожиратель съел кристалл: ни пыли, ни опыта
+        public void Eat(int i)
+        {
+            Remove(i);
+        }
+
         void Create()
         {
             Visual visual = Instantiate(art.crystal, root);

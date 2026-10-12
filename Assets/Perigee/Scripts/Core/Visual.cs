@@ -12,6 +12,8 @@ namespace Perigee
 
         Color baseColor;
         Vector3 baseScale;
+        // множитель поверх цвета из инспектора: цвет эры у звезды
+        Color mul = Color.white;
         Color tint;
         Color flashColor;
         float alpha = 1f;
@@ -41,16 +43,24 @@ namespace Perigee
             Apply();
         }
 
+        // свой цвет умножается на color, пока не придёт другой множитель
+        public void Multiply(Color color)
+        {
+            mul = color;
+            tint = baseColor * mul;
+            Apply();
+        }
+
         // amount: 0 = свой цвет, 1 = color
         public void Tint(Color color, float amount = 1f)
         {
-            tint = Color.Lerp(baseColor, color, amount);
+            tint = Color.Lerp(baseColor * mul, color, amount);
             Apply();
         }
 
         public void Untint()
         {
-            tint = baseColor;
+            tint = baseColor * mul;
             alpha = 1f;
             Apply();
         }

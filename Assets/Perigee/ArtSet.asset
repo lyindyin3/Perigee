@@ -24,6 +24,33 @@ MonoBehaviour:
   - {fileID: 155569817592322869, guid: 39c948787b7105441bd5702e34eaaa23, type: 3}
   - {fileID: 7893501898878097509, guid: 730b18f08f01b67468c456e9e4522307, type: 3}
   - {fileID: 6827269638911580012, guid: e575a4bdfacf44b489d8413370b46196, type: 3}
+  - {fileID: 8501432395940728078, guid: 9bd6363c574895842acc270e3365ac17, type: 3}
+  - {fileID: 7505490603984565362, guid: 474102f085618ec49a62594627b9abad, type: 3}
+  - {fileID: 1652203423176536291, guid: 6a5669d5e93bcc74b9e6d79fab7bde53, type: 3}
+  - {fileID: 907850552786034821, guid: bfc8067d8a48abc468702b4e6dbdf0fe, type: 3}
+  - {fileID: 4521808921943041099, guid: 33ecbe27ee0587743afd3f71d7cb22a1, type: 3}
+  - {fileID: 7712901859884792730, guid: 14b90b20b0f7f544398a0e28a8d61f35, type: 3}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  enemyIcons:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   shard: {fileID: 4447092194057351455, guid: 15e77b4ea224eb64491ef68e79a771a3, type: 3}
   spark: {fileID: 3603967468732144573, guid: ad0546211bf8f1148904391c0948c333, type: 3}
   resonanceThread: {fileID: 1654234894692130570, guid: 59b7b556ebf8896458be467ad18ccce6, type: 3}

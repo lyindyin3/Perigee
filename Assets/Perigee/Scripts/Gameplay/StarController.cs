@@ -8,11 +8,19 @@ namespace Perigee
         [SerializeField] GameLoop loop;
         [SerializeField] AbilitySystem abilities;
         [SerializeField] Visual visual;
+        [SerializeField] SpriteRenderer rays;
         [SerializeField] Fx fx;
         [SerializeField] AudioManager sfx;
 
+        // цвет лучей из инспектора: эра его умножает
+        Color raysColor;
         // накопленное лечение ФОТОСФЕРЫ, HP
         float regenBank;
+
+        void Awake()
+        {
+            raysColor = rays.color;
+        }
 
         // удар по звезде: вспышка, тряска и hit-stop
         public void Damage(float amount)
@@ -39,6 +47,9 @@ namespace Perigee
         public void ResetRun()
         {
             regenBank = 0f;
+            // звезда и лучи в цвете эры
+            visual.Multiply(loop.Era.starTint);
+            rays.color = raysColor * loop.Era.raysTint;
         }
 
         public void Tick(float dt)

@@ -173,6 +173,14 @@ namespace Perigee
             return k < count ? satellites[k].heat : 0f;
         }
 
+        // нагрев извне (удар по Факелу): спутник k греется на amount, тень нет
+        public void Warm(int k, float amount)
+        {
+            if (k >= count) return;
+            satellites[k].heat += amount;
+            Overheat(satellites[k]);
+        }
+
         public float Power(float r)
         {
             float far = config.powerFar + loop.Stats.powerFarBonus;
@@ -271,13 +279,17 @@ namespace Perigee
 
             if (s.r <= config.heatZoneMax) s.heat += config.heatRate * loop.Stats.heatMul * dt;
             else if (s.r >= config.coolZoneMin) s.heat -= config.coolRate * dt;
-            s.heat = Mathf.Clamp01(s.heat);
+            Overheat(s);
+        }
 
-            if (s.heat >= 1f)
-            {
-                s.stun = config.stunTime;
-                sfx.Play(SfxId.Stun);
-            }
+        // нагрев дошёл до 1: спутник оглушён
+        void Overheat(Satellite s)
+        {
+            s.heat = Mathf.Clamp01(s.heat);
+            if (s.heat < 1f) return;
+
+            s.stun = config.stunTime;
+            sfx.Play(SfxId.Stun);
         }
 
         void Resonate(float dt)

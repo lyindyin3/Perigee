@@ -36,10 +36,12 @@ namespace Perigee
             lastCentre = 0f;
             stopped = false;
 
-            // углы групп выбираем сразу: телеграф показывает их раньше, чем группа появится
-            SpawnEvent[] opening = loop.Run.tutorial ? config.tutorialOpening : config.opening;
-            pending = new Pending[GroupCount(opening) + GroupCount(config.timeline)];
-            Fill(config.timeline, Fill(opening, 0));
+            // углы групп выбираем сразу: телеграф показывает их раньше, чем группа появится.
+            // Расписание своё у каждой эры; обучение меняет только вступление.
+            EraDef era = loop.Era;
+            SpawnEvent[] opening = loop.Run.tutorial ? config.tutorialOpening : era.opening;
+            pending = new Pending[GroupCount(opening) + GroupCount(era.timeline)];
+            Fill(era.timeline, Fill(opening, 0));
 
             // метки создаются заново из префабов: правка префаба видна со следующего забега
             for (int i = root.childCount - 1; i >= 0; i--) Destroy(root.GetChild(i).gameObject);
@@ -47,6 +49,9 @@ namespace Perigee
             Prewarm(arrowWedges, art.telegraphWedge);
             Prewarm(arrowLines, art.telegraphLine);
         }
+
+        // зерно появления: из него же Щитник берёт сторону щита
+        public Rng SpawnRng => spawnRng;
 
         // Комета появилась: новые враги больше не приходят
         public void Stop()
@@ -99,7 +104,7 @@ namespace Perigee
                 ambientTimer -= dt;
                 if (ambientTimer <= 0f)
                 {
-                    ambientTimer += config.ambientInterval;
+                    ambientTimer += loop.Era.ambientInterval;
                     enemies.Spawn(EnemyType.Swarmer, Polar(spawnRng.Range(0f, 360f), config.spawnRadius), 1f);
                 }
             }
@@ -167,8 +172,10 @@ namespace Perigee
             {
                 case AngleMode.Spread90: return centre + k * 90f;
                 case AngleMode.Even: return centre + k * 360f / n;
-                case AngleMode.OppositePair: return centre + k * 180f;
-                default: return centre;
+                // пара напротив друг друга; лишние от множителя эры встают рядом через spreadDeg, а не в ту же точку
+                case AngleMode.OppositePair: return centre + (k % 2) * 180f + (k / 2) * group.spreadDeg;
+                // Random и Opposite: группа стоит веером по дуге spreadDeg; стаю Роя разбрасывает Spawn
+                default: return n > 1 && group.type != EnemyType.Swarmer ? centre + ((float)k / (n - 1) - 0.5f) * group.spreadDeg : centre;
             }
         }
 

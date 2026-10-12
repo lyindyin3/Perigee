@@ -28,6 +28,7 @@ namespace Perigee
         [SerializeField] AudioManager sfx;
         [SerializeField] Hud hud;
         [SerializeField] TutorialHints hints;
+        [SerializeField] BannerView banner;
         [SerializeField] PauseView pauseView;
         [SerializeField] AbilityPickView abilityPickView;
         [SerializeField] MenuView menuView;
@@ -39,7 +40,7 @@ namespace Perigee
         public RunState Run { get; } = new RunState();
         public ISaveService Save { get; private set; }
         public Blueprints Blueprints { get; private set; }
-        public EraConfig Era => config.eras[eraIndex];
+        public EraDef Era => config.eras[eraIndex];
         // номер эры с единицы: по нему отбираются карточки эр
         public int EraNumber => eraIndex + 1;
         // СТАЗИС: враги, их таймеры и боссы живут в замедленном времени
@@ -105,10 +106,10 @@ namespace Perigee
             SetState(GameState.Menu);
         }
 
-        // забег из меню: сначала выбор способности слота A. Дневной забег всегда идёт в первой эре.
+        // забег из меню: сначала выбор способности слота A. Дневной забег и обучение всегда идут в первой эре.
         public void StartFromMenu(int era, bool dailyRun)
         {
-            eraIndex = dailyRun ? 0 : era;
+            eraIndex = dailyRun || !Save.Data.tutorialDone ? 0 : era;
             daily = dailyRun;
             ResetRun();
             // обучение: слот A уже занят, экран выбора не нужен
@@ -149,6 +150,9 @@ namespace Perigee
             cards.ResetRun(Run.seed + Rng.CardOffset);
             fx.ResetRun();
             hints.ResetRun();
+            banner.ResetRun();
+            // фон в цвете эры
+            cam.backgroundColor = Era.background;
             accumulator = 0f;
         }
 
@@ -334,8 +338,8 @@ namespace Perigee
             SaveData data = Save.Data;
             Run.victory = victory;
 
-            // пыль: собранные кристаллы и премия за победу; первый за дату дневной забег её удваивает
-            Run.earned = Run.dust + (victory ? config.victoryDust : 0);
+            // пыль: собранные кристаллы × множитель эры и премия эры за победу; первый за дату дневной забег её удваивает
+            Run.earned = Mathf.RoundToInt(Run.dust * Era.dustMul) + (victory ? Era.victoryDust : 0);
             if (daily && data.dailyBonusDate != Run.seed)
             {
                 Run.earned *= config.dailyDustMul;

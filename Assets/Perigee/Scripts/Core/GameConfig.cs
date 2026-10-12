@@ -4,18 +4,14 @@ using UnityEngine;
 
 namespace Perigee
 {
-    [Serializable]
-    public class EraConfig
+    // новые типы дописываются в конец: по номеру идут ArtSet.enemies и бит в SaveData.seenEnemies
+    public enum EnemyType
     {
-        public float kExp;
-        public float spinMul;
-        public float hpMul;
-        public float countMul;
+        Swarmer, Arrow, Bolt, Bastion, Parasite, Shooter, Hive, Boss, Splitter, Torch, Orbiter, Shielder, Devourer, Phantom,
+        Twin, Colossus, Pulsar
     }
 
-    public enum EnemyType { Swarmer, Arrow, Bolt, Bastion, Parasite, Shooter, Hive, Boss }
-
-    public enum EnemyBehavior { Straight, Attach, Stopper, Burster, Ellipse }
+    public enum EnemyBehavior { Straight, Attach, Stopper, Burster, Ellipse, Orbit, Seek }
 
     public enum AngleMode { Random, Opposite, Spread90, Even, OppositePair }
 
@@ -34,6 +30,23 @@ namespace Perigee
         public bool faceStar;
         // сколько объектов создаётся заранее в начале забега
         public int prewarm;
+
+        // Дальше особенности типа, 0 = нет.
+        // Дробитель: сколько Роя выпускает при гибели
+        public int splitCount;
+        // Факел: нагрев спутника за каждый удар по нему
+        public float heatOnHit;
+        // Щитник: сколько ударов держит щит
+        public int shieldHits;
+        // Призрак: секунды плотным и секунды прозрачным
+        public float phaseOn;
+        public float phaseOff;
+        // Пожиратель: как далеко чует кристаллы
+        public float seekRadius;
+        // Кружащий: радиус выхода на орбиту, градусы в секунду и снижение в секунду
+        public float orbitRadius;
+        public float orbitDeg;
+        public float orbitInSpeed;
     }
 
     [Serializable]
@@ -52,6 +65,33 @@ namespace Perigee
     {
         public float time;
         public SpawnGroup[] groups;
+    }
+
+    public enum EraRule { None, Flares, Heavy, Vortex }
+
+    [Serializable]
+    public class EraDef
+    {
+        public float kExp;
+        public float spinMul;
+        public float hpMul;
+        public float countMul;
+        // секунды между врагами фонового потока
+        public float ambientInterval;
+        public float dustMul;
+        public float riseMul;
+        public float fallMul;
+        public EraRule rule;
+        public EnemyType boss;
+        public SpawnEvent[] opening;
+        public SpawnEvent[] timeline;
+        public int victoryDust;
+        public int firstWinDust;
+        // цвет фона камеры
+        public Color background;
+        // множители цвета Body и Rays звезды
+        public Color starTint;
+        public Color raysTint;
     }
 
     // порядок таблицы GDD 6.2; по нему идут ArtSet.cardIcons и строки в Strings
@@ -306,6 +346,12 @@ namespace Perigee
             new EnemyDef { id = EnemyType.Shooter, radius = 0.3f, hp = 2f, speed = 1f, armor = 0f, starDamage = 0f, crystals = 4, behavior = EnemyBehavior.Stopper, faceStar = true, prewarm = 8 },
             new EnemyDef { id = EnemyType.Hive, radius = 0.6f, hp = 4f, speed = 0.7f, armor = 0f, starDamage = 0f, crystals = 8, behavior = EnemyBehavior.Burster, faceStar = false, prewarm = 8 },
             new EnemyDef { id = EnemyType.Boss, radius = 0.9f, hp = 80f, speed = 0f, armor = 0f, starDamage = 8f, crystals = 30, behavior = EnemyBehavior.Ellipse, faceStar = false, prewarm = 0 },
+            new EnemyDef { id = EnemyType.Splitter, radius = 0.32f, hp = 2f, speed = 0.8f, armor = 0f, starDamage = 8f, crystals = 2, behavior = EnemyBehavior.Straight, faceStar = true, prewarm = 8, splitCount = 3 },
+            new EnemyDef { id = EnemyType.Torch, radius = 0.28f, hp = 3f, speed = 0.9f, armor = 0f, starDamage = 10f, crystals = 3, behavior = EnemyBehavior.Straight, faceStar = true, prewarm = 8, heatOnHit = 0.25f },
+            new EnemyDef { id = EnemyType.Orbiter, radius = 0.25f, hp = 3f, speed = 1f, armor = 0f, starDamage = 8f, crystals = 3, behavior = EnemyBehavior.Orbit, faceStar = true, prewarm = 8, orbitRadius = 4.2f, orbitDeg = 50f, orbitInSpeed = 0.2f },
+            new EnemyDef { id = EnemyType.Shielder, radius = 0.35f, hp = 3f, speed = 0.6f, armor = 0f, starDamage = 12f, crystals = 4, behavior = EnemyBehavior.Straight, faceStar = true, prewarm = 8, shieldHits = 3 },
+            new EnemyDef { id = EnemyType.Devourer, radius = 0.4f, hp = 4f, speed = 0.6f, armor = 0f, starDamage = 15f, crystals = 3, behavior = EnemyBehavior.Seek, faceStar = true, prewarm = 8, seekRadius = 2.5f },
+            new EnemyDef { id = EnemyType.Phantom, radius = 0.22f, hp = 1.5f, speed = 1.3f, armor = 0f, starDamage = 6f, crystals = 2, behavior = EnemyBehavior.Straight, faceStar = true, prewarm = 8, phaseOn = 1.5f, phaseOff = 1f },
         };
 
         [Title("Поведение врагов")]
@@ -319,6 +365,13 @@ namespace Perigee
         public float hiveBurstRadius = 3f;
         public int hiveSwarmers = 8;
         public float hiveBurstSpread = 0.5f;
+        public float splitSpread = 0.3f;
+        public float splitSpeedMul = 1.3f;
+        public int shieldBreakSparks = 8;
+        public int devourMax = 6;
+        public float devourHp = 1f;
+        public float devourGrow = 0.04f;
+        public float phantomAlpha = 0.25f;
 
         [Title("Комета")]
         public float bossTime = 180f;
@@ -400,40 +453,13 @@ namespace Perigee
         public float dronePitchMax = 1.5f;
 
         [Title("Расписание")]
-        public SpawnEvent[] opening =
-        {
-            At(2f, Of(EnemyType.Swarmer, 4)),
-            At(8f, Of(EnemyType.Swarmer, 6)),
-            At(14f, Of(EnemyType.Bastion, 1)),
-        };
-        public SpawnEvent[] timeline =
-        {
-            At(20f, Of(EnemyType.Swarmer, 8)),
-            At(30f, Of(EnemyType.Swarmer, 8)),
-            At(36f, Of(EnemyType.Bastion, 1)),
-            At(46f, Of(EnemyType.Arrow, 2, AngleMode.Spread90)),
-            At(56f, Of(EnemyType.Swarmer, 10)),
-            At(62f, Of(EnemyType.Arrow, 2, AngleMode.Spread90)),
-            At(70f, Of(EnemyType.Parasite, 1)),
-            At(80f, Of(EnemyType.Bastion, 1), Of(EnemyType.Swarmer, 8, AngleMode.Opposite)),
-            At(88f, Of(EnemyType.Parasite, 2, AngleMode.Spread90)),
-            At(98f, Of(EnemyType.Shooter, 1)),
-            At(108f, Of(EnemyType.Arrow, 3, AngleMode.Even)),
-            At(116f, Of(EnemyType.Hive, 1)),
-            At(126f, Of(EnemyType.Swarmer, 11), Of(EnemyType.Shooter, 1, AngleMode.Opposite)),
-            At(136f, Of(EnemyType.Bastion, 2, AngleMode.OppositePair)),
-            At(146f, Of(EnemyType.Hive, 1), Of(EnemyType.Arrow, 2, AngleMode.Spread90)),
-            At(156f, Of(EnemyType.Parasite, 2, AngleMode.Spread90), Of(EnemyType.Swarmer, 10)),
-            At(164f, Of(EnemyType.Shooter, 2, AngleMode.OppositePair), Of(EnemyType.Bastion, 1)),
-            At(172f, Of(EnemyType.Arrow, 4, AngleMode.Even), Of(EnemyType.Swarmer, 11)),
-        };
+        // сами расписания лежат в эрах: eras[].opening и eras[].timeline
         public float ambientStart = 6f;
         public float ambientEnd = 175f;
-        public float ambientInterval = 3.5f;
         public float swarmRadiusJitter = 1f;
 
         [Title("Обучение")]
-        // первый забег: вместо opening
+        // первый забег: вместо opening первой эры
         public SpawnEvent[] tutorialOpening =
         {
             At(0.5f, new SpawnGroup { type = EnemyType.Swarmer, count = 3, spreadDeg = 40f, speedMul = 0.15f, radius = 5.4f }),
@@ -458,18 +484,155 @@ namespace Perigee
         public float telegraphInset = 0.5f;
         public int markerPrewarm = 8;
 
+        [Title("Баннер")]
+        public float bannerFadeIn = 0.2f;
+        public float bannerFadeOut = 0.3f;
+        public float bannerEnemyHold = 3f;
+
         [Title("Эры")]
-        [TableList]
-        public EraConfig[] eras =
+        // СОЛНЦЕ, КРАСНЫЙ КАРЛИК, ТЯЖЁЛАЯ ЗВЕЗДА, ЧЁРНАЯ ДЫРА
+        public EraDef[] eras =
         {
-            new EraConfig { kExp = 0.9f, spinMul = 1f, hpMul = 1f, countMul = 1f },
-            new EraConfig { kExp = 0.9f, spinMul = 1.3f, hpMul = 1.3f, countMul = 1.2f },
-            new EraConfig { kExp = 1.2f, spinMul = 1f, hpMul = 1.6f, countMul = 1.4f },
+            new EraDef
+            {
+                kExp = 0.9f, spinMul = 1f, hpMul = 1f, countMul = 1f, ambientInterval = 3.5f, dustMul = 1f, riseMul = 1f, fallMul = 1f,
+                rule = EraRule.None, boss = EnemyType.Boss, victoryDust = 100, firstWinDust = 200,
+                background = new Color32(0x0E, 0x0E, 0x0E, 0xFF), starTint = Color.white, raysTint = Color.white,
+                opening = new[]
+                {
+                    At(2f, Of(EnemyType.Swarmer, 4)),
+                    At(8f, Of(EnemyType.Swarmer, 6)),
+                    At(14f, Of(EnemyType.Bastion, 1)),
+                },
+                timeline = new[]
+                {
+                    At(20f, Of(EnemyType.Swarmer, 8)),
+                    At(30f, Of(EnemyType.Swarmer, 8)),
+                    At(36f, Of(EnemyType.Bastion, 1)),
+                    At(46f, Of(EnemyType.Arrow, 2, AngleMode.Spread90)),
+                    At(56f, Of(EnemyType.Swarmer, 10)),
+                    At(62f, Of(EnemyType.Arrow, 2, AngleMode.Spread90)),
+                    At(70f, Of(EnemyType.Parasite, 1)),
+                    At(80f, Of(EnemyType.Bastion, 1), Of(EnemyType.Swarmer, 8, AngleMode.Opposite)),
+                    At(88f, Of(EnemyType.Parasite, 2, AngleMode.Spread90)),
+                    At(98f, Of(EnemyType.Shooter, 1)),
+                    At(108f, Of(EnemyType.Arrow, 3, AngleMode.Even)),
+                    At(116f, Of(EnemyType.Hive, 1)),
+                    At(126f, Of(EnemyType.Swarmer, 11), Of(EnemyType.Shooter, 1, AngleMode.Opposite)),
+                    At(136f, Of(EnemyType.Bastion, 2, AngleMode.OppositePair)),
+                    At(146f, Of(EnemyType.Hive, 1), Of(EnemyType.Arrow, 2, AngleMode.Spread90)),
+                    At(156f, Of(EnemyType.Parasite, 2, AngleMode.Spread90), Of(EnemyType.Swarmer, 10)),
+                    At(164f, Of(EnemyType.Shooter, 2, AngleMode.OppositePair), Of(EnemyType.Bastion, 1)),
+                    At(172f, Of(EnemyType.Arrow, 4, AngleMode.Even), Of(EnemyType.Swarmer, 11)),
+                },
+            },
+            new EraDef
+            {
+                kExp = 0.9f, spinMul = 1.15f, hpMul = 1.4f, countMul = 1.2f, ambientInterval = 3.3f, dustMul = 1.25f, riseMul = 1f, fallMul = 1f,
+                rule = EraRule.Flares, boss = EnemyType.Twin, victoryDust = 150, firstWinDust = 400,
+                background = new Color32(0x16, 0x0B, 0x0A, 0xFF), starTint = new Color32(0xFF, 0x9A, 0x80, 0xFF), raysTint = new Color32(0xFF, 0x9A, 0x80, 0xFF),
+                opening = new[]
+                {
+                    At(2f, Of(EnemyType.Swarmer, 4)),
+                    At(8f, Of(EnemyType.Splitter, 2)),
+                    At(14f, Of(EnemyType.Torch, 1)),
+                },
+                timeline = new[]
+                {
+                    At(20f, Of(EnemyType.Swarmer, 8)),
+                    At(30f, Of(EnemyType.Splitter, 3)),
+                    At(36f, Of(EnemyType.Bastion, 1)),
+                    At(46f, Of(EnemyType.Arrow, 2, AngleMode.Spread90)),
+                    At(50f, Of(EnemyType.Torch, 1)),
+                    At(56f, Of(EnemyType.Swarmer, 10)),
+                    At(62f, Of(EnemyType.Arrow, 2, AngleMode.Spread90)),
+                    At(70f, Of(EnemyType.Parasite, 1), Of(EnemyType.Splitter, 2, AngleMode.Opposite)),
+                    At(80f, Of(EnemyType.Bastion, 1), Of(EnemyType.Swarmer, 8, AngleMode.Opposite)),
+                    At(88f, Of(EnemyType.Parasite, 2, AngleMode.Spread90)),
+                    At(96f, Of(EnemyType.Torch, 2, AngleMode.OppositePair), Of(EnemyType.Shooter, 1)),
+                    At(108f, Of(EnemyType.Arrow, 3, AngleMode.Even)),
+                    At(116f, Of(EnemyType.Hive, 1), Of(EnemyType.Splitter, 2, AngleMode.Opposite)),
+                    At(126f, Of(EnemyType.Swarmer, 11), Of(EnemyType.Shooter, 1, AngleMode.Opposite)),
+                    At(136f, Of(EnemyType.Bastion, 2, AngleMode.OppositePair)),
+                    At(140f, Of(EnemyType.Torch, 2, AngleMode.Spread90)),
+                    At(146f, Of(EnemyType.Hive, 1), Of(EnemyType.Arrow, 2, AngleMode.Spread90)),
+                    At(156f, Of(EnemyType.Parasite, 2, AngleMode.Spread90), Of(EnemyType.Splitter, 3)),
+                    At(164f, Of(EnemyType.Shooter, 2, AngleMode.OppositePair), Of(EnemyType.Bastion, 1)),
+                    At(172f, Of(EnemyType.Arrow, 4, AngleMode.Even), Of(EnemyType.Splitter, 3), Of(EnemyType.Swarmer, 8)),
+                },
+            },
+            new EraDef
+            {
+                kExp = 1.2f, spinMul = 1f, hpMul = 1.8f, countMul = 1.35f, ambientInterval = 3.1f, dustMul = 1.5f, riseMul = 0.8f, fallMul = 1.3f,
+                rule = EraRule.Heavy, boss = EnemyType.Colossus, victoryDust = 200, firstWinDust = 600,
+                background = new Color32(0x0B, 0x0E, 0x14, 0xFF), starTint = new Color32(0xC9, 0xD8, 0xFF, 0xFF), raysTint = new Color32(0xC9, 0xD8, 0xFF, 0xFF),
+                opening = new[]
+                {
+                    At(2f, Of(EnemyType.Swarmer, 4)),
+                    At(8f, Of(EnemyType.Orbiter, 1)),
+                    At(14f, Of(EnemyType.Bastion, 1)),
+                },
+                timeline = new[]
+                {
+                    At(20f, Of(EnemyType.Swarmer, 8)),
+                    At(28f, Of(EnemyType.Shielder, 1)),
+                    At(36f, Of(EnemyType.Bastion, 1), Of(EnemyType.Orbiter, 1, AngleMode.Opposite)),
+                    At(46f, Of(EnemyType.Arrow, 2, AngleMode.Spread90)),
+                    At(52f, Of(EnemyType.Orbiter, 2, AngleMode.OppositePair)),
+                    At(56f, Of(EnemyType.Swarmer, 10)),
+                    At(62f, Of(EnemyType.Arrow, 2, AngleMode.Spread90), Of(EnemyType.Shielder, 1, AngleMode.Opposite)),
+                    At(70f, Of(EnemyType.Parasite, 1), Of(EnemyType.Splitter, 2)),
+                    At(80f, Of(EnemyType.Bastion, 1), Of(EnemyType.Swarmer, 8, AngleMode.Opposite)),
+                    At(88f, Of(EnemyType.Orbiter, 3, AngleMode.Even)),
+                    At(98f, Of(EnemyType.Shooter, 1), Of(EnemyType.Shielder, 1, AngleMode.Opposite)),
+                    At(108f, Of(EnemyType.Arrow, 3, AngleMode.Even)),
+                    At(116f, Of(EnemyType.Hive, 1), Of(EnemyType.Torch, 1, AngleMode.Opposite)),
+                    At(126f, Of(EnemyType.Swarmer, 11), Of(EnemyType.Shielder, 2, AngleMode.OppositePair)),
+                    At(136f, Of(EnemyType.Bastion, 2, AngleMode.OppositePair), Of(EnemyType.Orbiter, 2, AngleMode.OppositePair)),
+                    At(146f, Of(EnemyType.Hive, 1), Of(EnemyType.Arrow, 2, AngleMode.Spread90)),
+                    At(152f, Of(EnemyType.Orbiter, 4, AngleMode.Even)),
+                    At(156f, Of(EnemyType.Parasite, 2, AngleMode.Spread90), Of(EnemyType.Swarmer, 10)),
+                    At(164f, Of(EnemyType.Shooter, 2, AngleMode.OppositePair), Of(EnemyType.Shielder, 2, AngleMode.Spread90)),
+                    At(172f, Of(EnemyType.Arrow, 4, AngleMode.Even), Of(EnemyType.Orbiter, 3, AngleMode.Even), Of(EnemyType.Swarmer, 8)),
+                },
+            },
+            new EraDef
+            {
+                kExp = 1f, spinMul = 1.1f, hpMul = 2.3f, countMul = 1.5f, ambientInterval = 3f, dustMul = 1.8f, riseMul = 1f, fallMul = 1f,
+                rule = EraRule.Vortex, boss = EnemyType.Pulsar, victoryDust = 250, firstWinDust = 800,
+                background = new Color32(0x05, 0x05, 0x05, 0xFF), starTint = new Color32(0x26, 0x26, 0x26, 0xFF), raysTint = Color.white,
+                opening = new[]
+                {
+                    At(2f, Of(EnemyType.Swarmer, 4)),
+                    At(8f, Of(EnemyType.Phantom, 2, AngleMode.OppositePair)),
+                    At(14f, Of(EnemyType.Devourer, 1)),
+                },
+                timeline = new[]
+                {
+                    At(20f, Of(EnemyType.Swarmer, 8)),
+                    At(28f, Of(EnemyType.Phantom, 3, AngleMode.Even)),
+                    At(36f, Of(EnemyType.Bastion, 1), Of(EnemyType.Devourer, 1, AngleMode.Opposite)),
+                    At(46f, Of(EnemyType.Arrow, 2, AngleMode.Spread90), Of(EnemyType.Phantom, 2, AngleMode.OppositePair)),
+                    At(56f, Of(EnemyType.Swarmer, 10), Of(EnemyType.Orbiter, 2, AngleMode.OppositePair)),
+                    At(62f, Of(EnemyType.Arrow, 2, AngleMode.Spread90), Of(EnemyType.Shielder, 1)),
+                    At(70f, Of(EnemyType.Parasite, 1), Of(EnemyType.Devourer, 1, AngleMode.Opposite)),
+                    At(80f, Of(EnemyType.Bastion, 1), Of(EnemyType.Swarmer, 8, AngleMode.Opposite)),
+                    At(88f, Of(EnemyType.Phantom, 4, AngleMode.Even)),
+                    At(98f, Of(EnemyType.Shooter, 1), Of(EnemyType.Torch, 1, AngleMode.Opposite)),
+                    At(108f, Of(EnemyType.Arrow, 3, AngleMode.Even), Of(EnemyType.Splitter, 2)),
+                    At(116f, Of(EnemyType.Hive, 1), Of(EnemyType.Devourer, 1, AngleMode.Opposite)),
+                    At(126f, Of(EnemyType.Swarmer, 11), Of(EnemyType.Phantom, 3, AngleMode.Even)),
+                    At(136f, Of(EnemyType.Bastion, 2, AngleMode.OppositePair), Of(EnemyType.Shielder, 2, AngleMode.OppositePair)),
+                    At(146f, Of(EnemyType.Hive, 1), Of(EnemyType.Arrow, 2, AngleMode.Spread90), Of(EnemyType.Devourer, 1)),
+                    At(156f, Of(EnemyType.Parasite, 2, AngleMode.Spread90), Of(EnemyType.Phantom, 4, AngleMode.Even)),
+                    At(164f, Of(EnemyType.Shooter, 2, AngleMode.OppositePair), Of(EnemyType.Bastion, 1), Of(EnemyType.Orbiter, 2, AngleMode.OppositePair)),
+                    At(172f, Of(EnemyType.Arrow, 4, AngleMode.Even), Of(EnemyType.Phantom, 6, AngleMode.Even), Of(EnemyType.Swarmer, 8)),
+                },
+            },
         };
 
         [Title("Итоги")]
         public float victoryTime = 1.5f;
-        public int victoryDust = 50;
         public int dailyDustMul = 2;
         public float scorePerSecond = 2f;
         public int scoreVictory = 500;
