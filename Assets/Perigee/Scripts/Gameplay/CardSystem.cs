@@ -13,7 +13,7 @@ namespace Perigee
         [SerializeField] GameLoop loop;
         [SerializeField] SatelliteSystem satellites;
         [SerializeField] EnemySystem enemies;
-        [SerializeField] BossComet boss;
+        [SerializeField] BossSystem boss;
         [SerializeField] AbilitySystem abilities;
         [SerializeField] CardPickView view;
         [SerializeField] AbilityPickView abilityView;
@@ -40,7 +40,8 @@ namespace Perigee
         void Awake()
         {
             eligible = new int[config.cards.Length];
-            offer = new int[config.cardChoices];
+            // карточек на экране бывает больше cardChoices (чертёж ВЫБОР), но не больше, чем есть всего
+            offer = new int[config.cards.Length];
             getWave = () => wave;
             setWave = SetWave;
             hideWave = HideWave;
@@ -55,16 +56,26 @@ namespace Perigee
             Rerolled = false;
         }
 
-        // другая тройка на открытом экране; первый экран забега остаётся первым
+        // сколько бесплатных замен (чертёж ВЫБОР) осталось в этом забеге
+        public int FreeRerolls => loop.Stats.freeRerolls - loop.Run.freeRerollsUsed;
+
+        // другие карточки на открытом экране за рекламу; первый экран забега остаётся первым
         public void Reroll()
         {
             Rerolled = true;
             Roll(screens == 1);
         }
 
-        public int Need(int level)
+        // то же бесплатно
+        public void FreeReroll()
         {
-            return config.xpBase + config.xpPerLevel * level;
+            loop.Run.freeRerollsUsed++;
+            Roll(screens == 1);
+        }
+
+        public float Need(int level)
+        {
+            return (config.xpBase + config.xpPerLevel * level) * loop.Stats.xpNeedMul;
         }
 
         public CardDef Offer(int slot)
@@ -93,7 +104,7 @@ namespace Perigee
                     BeaconFx();
                 }
             }
-            // волна МАЯКА добила Комету: победа важнее экрана карточек
+            // волна МАЯКА добила босса: победа важнее экрана карточек
             if (loop.State != GameState.Playing) return;
 
             // за шаг открывается один экран: остаток опыта переносится, следующий экран откроется после выбора
@@ -153,7 +164,7 @@ namespace Perigee
                 eligible[n++] = i;
             }
 
-            offerCount = Mathf.Min(offer.Length, n);
+            offerCount = Mathf.Min(config.cardChoices + loop.Stats.extraChoices, n);
             bool forcedMissing = forced >= 0;
             for (int k = 0; k < offerCount; k++)
             {
@@ -182,7 +193,7 @@ namespace Perigee
         {
             CardDef card = config.cards[i];
             // у ADD_SAT предела стаков нет: карточка идёт, пока спутников меньше максимума
-            if (card.id == CardId.AddSat) return 1 + loop.Stats.extraSatellites < config.maxSatellites;
+            if (card.id == CardId.AddSat) return 1 + loop.Stats.extraSatellites < satellites.Cap;
             if (loop.Run.cardStacks[i] >= card.maxStacks) return false;
             // карточка эры идёт только в своей эре
             if (card.era != 0 && card.era != loop.EraNumber) return false;

@@ -5,6 +5,7 @@ namespace Perigee
     public class StarController : MonoBehaviour
     {
         [SerializeField] GameConfig config;
+        [SerializeField] ArtSet art;
         [SerializeField] GameLoop loop;
         [SerializeField] AbilitySystem abilities;
         [SerializeField] Visual visual;
@@ -41,12 +42,23 @@ namespace Perigee
             loop.Run.hp = Mathf.Max(loop.Run.hp - amount * loop.Stats.starDamageMul, 0f);
         }
 
+        // АККРЕЦИЯ: лечение сразу, не выше максимума
+        public void Heal(float amount)
+        {
+            loop.Run.hp = Mathf.Min(loop.Run.hp + amount, loop.Stats.starMaxHp);
+        }
+
         // после возрождения и под КУПОЛОМ звезда не получает урон ни от чего
         bool Immune => loop.Run.time < loop.Run.immuneUntil || abilities.Active(AbilityId.Dome);
 
         public void ResetRun()
         {
             regenBank = 0f;
+            // облик звезды: картинки тела и лучей, выбранные в Мастерской; своя картинка эры важнее тела облика
+            StarSkin skin = art.starSkins[loop.Shop.StarSkin];
+            Sprite eraSprite = art.eraStarSprites[loop.EraNumber - 1];
+            visual.Body.sprite = eraSprite != null ? eraSprite : skin.body;
+            rays.sprite = skin.rays;
             // звезда и лучи в цвете эры
             visual.Multiply(loop.Era.starTint);
             rays.color = raysColor * loop.Era.raysTint;
@@ -57,8 +69,17 @@ namespace Perigee
             RunState run = loop.Run;
             if (run.hp <= 0f)
             {
-                loop.Lose();
-                return;
+                if (!loop.Stats.SecondSun || run.secondSunUsed)
+                {
+                    loop.Lose();
+                    return;
+                }
+
+                // ВТОРОЕ СОЛНЦЕ: раз за забег звезда вспыхивает вместо гибели, раньше экрана поражения и возрождения за рекламу
+                run.secondSunUsed = true;
+                run.hp = loop.Stats.starMaxHp * config.secondSunHp;
+                run.immuneUntil = run.time + config.reviveImmuneTime;
+                abilities.PulseWave();
             }
 
             // лечение копится и приходит порциями по regenStep: так на полоске виден золотой «хвост»

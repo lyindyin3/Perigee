@@ -14,7 +14,7 @@ namespace Perigee
         [SerializeField] GameConfig config;
         [SerializeField] GameLoop loop;
         [SerializeField] EnemySystem enemies;
-        [SerializeField] BossComet boss;
+        [SerializeField] BossSystem boss;
         [SerializeField] SatelliteSystem satellites;
         [SerializeField] Fx fx;
         [SerializeField] Visual pulseRing;
@@ -109,7 +109,7 @@ namespace Perigee
             elapsed[a] = 0f;
             duration[a] = def.duration * loop.Stats.abilityDurationMul;
             cooldown[a] = def.cooldown * loop.Stats.abilityCooldownMul;
-            if (id == AbilityId.Pulse) Pulse();
+            if (id == AbilityId.Pulse) PulseWave();
             if (id == AbilityId.Reverse) Reverse();
         }
 
@@ -169,10 +169,10 @@ namespace Perigee
             }
         }
 
-        // способность куплена (или есть с начала игры); debugUnlockAll открывает все без записи в сохранение
+        // способность куплена в Мастерской или есть с начала игры
         public bool Owned(AbilityId id)
         {
-            return config.debugUnlockAll || (loop.Save.Data.abilitiesOwned & 1 << (int)id) != 0;
+            return loop.Shop.Owned(id);
         }
 
         public AbilityDef Offer(int i)
@@ -250,7 +250,8 @@ namespace Perigee
             if (pull) pullFx.SetSizeMul(satellites.OuterRadius);
         }
 
-        void Pulse()
+        // волна ИМПУЛЬСА без перезарядки: её же даром пускает ВТОРОЕ СОЛНЦЕ
+        public void PulseWave()
         {
             enemies.Pulse(config.pulseRadius, config.pulseDamage, config.pulsePush);
             boss.Blast(Vector2.zero, config.pulseRadius, config.pulseDamage);

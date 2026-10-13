@@ -14,6 +14,9 @@ namespace Perigee
         [SerializeField] TMP_Text header;
         // карточки в ряду: экземпляры префаба CardView
         [SerializeField] CardView[] views;
+        // «Заменить (N)»: бесплатная замена чертежа ВЫБОР, видна, пока замены остались
+        [SerializeField] GameObject freeRerollButton;
+        [SerializeField] TMP_Text freeRerollLabel;
         // «Новые карточки (реклама)»: один раз за забег
         [SerializeField] GameObject rerollButton;
         [SerializeField] TMP_Text rerollLabel;
@@ -53,7 +56,16 @@ namespace Perigee
             group.DOFade(0f, config.pickFadeOut).SetLink(gameObject).OnComplete(Close);
         }
 
-        // кнопка под карточками: реклама, потом другая тройка
+        // кнопка под карточками: другие карточки бесплатно
+        public void FreeReroll()
+        {
+            if (closing) return;
+
+            cards.FreeReroll();
+            Fill();
+        }
+
+        // кнопка под карточками: реклама, потом другие карточки
         public void Reroll()
         {
             if (closing) return;
@@ -78,6 +90,8 @@ namespace Perigee
                 // точки показывают стаки после выбора
                 if (used) views[i].Show(cards.Offer(i), cards.Stacks(i) + 1);
             }
+            freeRerollButton.SetActive(cards.FreeRerolls > 0);
+            freeRerollLabel.text = string.Format(Strings.FreeRerollFormat, cards.FreeRerolls);
             rerollButton.SetActive(!cards.Rerolled);
         }
 

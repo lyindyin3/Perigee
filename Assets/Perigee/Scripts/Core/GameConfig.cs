@@ -11,7 +11,8 @@ namespace Perigee
         Twin, Colossus, Pulsar
     }
 
-    public enum EnemyBehavior { Straight, Attach, Stopper, Burster, Ellipse, Orbit, Seek }
+    // Ellipse = тело кометы (Комета и Близнецы); Ellipse, Colossus и Pulsar ведёт BossSystem
+    public enum EnemyBehavior { Straight, Attach, Stopper, Burster, Ellipse, Orbit, Seek, Colossus, Pulsar }
 
     public enum AngleMode { Random, Opposite, Spread90, Even, OppositePair }
 
@@ -94,11 +95,12 @@ namespace Perigee
         public Color raysTint;
     }
 
-    // порядок таблицы GDD 6.2; по нему идут ArtSet.cardIcons и строки в Strings
+    // порядок таблиц GDD 6.2 и 6.3 (карточки эр в конце); по нему идут ArtSet.cardIcons и строки в Strings
     public enum CardId
     {
         Heavy, FarStrike, Sharp, Pierce, Execute, SawThread, Burn, Chain, AddSat, Swift, Spin, BigSat, Magnet, Greed, Coolant,
-        StarPlating, Photosphere, Corona, Beacon, AbilityHaste, AbilityLong
+        StarPlating, Photosphere, Corona, Beacon, AbilityHaste, AbilityLong,
+        Heatproof, SolarSail, Firebird, Slingshot, AnchorField, Crowbar, EventHorizon, DarkMatter, Accretion
     }
 
     // цвет рамки: кремовая, красная, чёрная
@@ -155,16 +157,63 @@ namespace Perigee
         public int price;
     }
 
-    public enum BlueprintId { Hull, Capacitor, CoolantBp, Magnetism }
+    // порядок таблицы GDD 8.3: ветка за веткой, внутри ветки по ярусам; по нему идут ArtSet.blueprintIcons и строки в Strings
+    public enum BlueprintId
+    {
+        Hull, Core, Reflector, SecondSun, Forge, TuningFork, Edge, Twin, Thrust, Radiator, Capacitor, Quadriga, Magnetism, Insight,
+        Alchemy, Choice
+    }
+
+    // ветки дерева: чёрная, красная, кремовая, золотая
+    public enum BlueprintBranch { Star, Strike, Orbit, Crystal }
+
+    [Serializable]
+    public struct BlueprintLevel
+    {
+        public int cost;
+        public StatMod mod;
+
+        public BlueprintLevel(int cost, StatMod mod)
+        {
+            this.cost = cost;
+            this.mod = mod;
+        }
+    }
 
     [Serializable]
     public class BlueprintDef
     {
         public BlueprintId id;
-        // эффект одного уровня
-        public StatMod perLevel;
-        // цена каждого уровня: уровней столько, сколько цен
+        public BlueprintBranch branch;
+        // ярус в ветке с единицы: узел открыт, когда у узла ярусом ниже куплен хотя бы один уровень
+        public int tier;
+        // эффект узла = эффекты всех купленных уровней
+        public BlueprintLevel[] levels;
+    }
+
+    // цены уровней одного чертежа R2.1: по ним перенос старого сохранения возвращает пыль
+    [Serializable]
+    public class LegacyBlueprint
+    {
         public int[] costs;
+    }
+
+    // сначала облики спутника, потом звезды: по этому порядку идут ArtSet.satelliteSkins, ArtSet.starSkins и бит в SaveData.skinsOwned
+    public enum SkinId { Romb, Sputnik, Gear, Moon, RedStar, Eye, Sun, Oko, Sunflower, Motor }
+
+    public enum SkinKind { Satellite, Star }
+
+    [Serializable]
+    public class SkinDef
+    {
+        public SkinId id;
+        public SkinKind kind;
+        // задано не больше одного из трёх; все три 0 = облик есть с начала игры
+        public int price;
+        // номер эры с единицы: облик даётся за первую победу в ней
+        public int eraWin;
+        // номер испытания с единицы: облик даётся за его прохождение
+        public int challenge;
     }
 
     [CreateAssetMenu(fileName = "GameConfig", menuName = "Perigee/GameConfig")]
@@ -178,6 +227,8 @@ namespace Perigee
         public float starRadius = 1f;
         public float starMaxHp = 120f;
         public float starLowHpFraction = 0.3f;
+        // ВТОРОЕ СОЛНЦЕ: доля HP, с которой звезда вспыхивает вместо гибели
+        public float secondSunHp = 0.25f;
         public Color starHitFlashColor = new Color32(0xD6, 0x28, 0x1F, 0xFF);
         public float H = 6.2f;
         public float spawnRadius = 7f;
@@ -196,7 +247,10 @@ namespace Perigee
         public float satMaxRadius = 6.2f;
         public float ringGap = 0.8f;
         public float satRadius = 0.2f;
-        public int maxSatellites = 3;
+        // больше спутников не бывает (с чертежом КВАДРИГА): размер массивов
+        public int maxSatellites = 4;
+        // предел без КВАДРИГИ
+        public int satelliteCap = 3;
         public float radialSpeed = 8f;
         public float tMin = 1f;
         public float satStartAngle = 90f;
@@ -275,6 +329,16 @@ namespace Perigee
             Card(CardId.Beacon, CardColor.Star, CardRarity.Common, 2, StatId.Beacon, 1f, StatId.CrystalLifeMul, 0.6f),
             Card(CardId.AbilityHaste, CardColor.Star, CardRarity.Common, 2, StatId.AbilityCooldownMul, 0.75f, StatId.PowerMul, 0.9f),
             Card(CardId.AbilityLong, CardColor.Star, CardRarity.Common, 1, StatId.AbilityDurationMul, 1.4f, StatId.AbilityCooldownMul, 1.15f),
+            // карточки эр: идут только в своей эре
+            Card(CardId.Heatproof, CardColor.Orbit, CardRarity.Common, 1, StatId.Heatproof, 1f, StatId.SpinMul, 0.95f, 2),
+            Card(CardId.SolarSail, CardColor.Strike, CardRarity.Common, 1, StatId.SolarSail, 1f, StatId.HeatMul, 1.1f, 2),
+            Card(CardId.Firebird, CardColor.Strike, CardRarity.Rare, 1, StatId.Firebird, 1f, StatId.HeatMul, 1.2f, 2),
+            Card(CardId.Slingshot, CardColor.Strike, CardRarity.Common, 1, StatId.Slingshot, 1f, StatId.RadialOutMul, 0.9f, 3),
+            Card(CardId.AnchorField, CardColor.Orbit, CardRarity.Common, 1, StatId.AnchorField, 1f, StatId.PowerMul, 0.95f, 3),
+            Card(CardId.Crowbar, CardColor.Strike, CardRarity.Rare, 1, StatId.Crowbar, 1f, StatId.SpinMul, 0.9f, 3),
+            Card(CardId.EventHorizon, CardColor.Star, CardRarity.Common, 1, StatId.Horizon, 1f, StatId.StarMaxHp, -10f, 4),
+            Card(CardId.DarkMatter, CardColor.Strike, CardRarity.Common, 1, StatId.DarkMatter, 1f, StatId.PowerMul, 0.95f, 4),
+            Card(CardId.Accretion, CardColor.Star, CardRarity.Rare, 1, StatId.Accretion, 1f, StatId.CrystalLifeMul, 0.8f, 4),
         };
 
         [Title("Эффекты карточек")]
@@ -290,6 +354,19 @@ namespace Perigee
         public float chainDamage = 1f;
         // ФОТОСФЕРА лечит порциями, чтобы на полоске был виден золотой «хвост»
         public float regenStep = 1f;
+        // СОЛНЕЧНЫЙ ПАРУС: окно идёт всю вспышку и ещё столько секунд после неё
+        public float solarSailAfter = 3f;
+        public float solarSailMul = 2f;
+        public float firebirdHeat = 0.7f;
+        public float firebirdMul = 1.5f;
+        public float slingshotTime = 1f;
+        public float slingshotMul = 1.5f;
+        // ЛОМ: во сколько раз больнее удар по Кружащему
+        public float crowbarOrbiterMul = 2f;
+        public float horizonRadius = 1.8f;
+        public float horizonDps = 2f;
+        public float accretionRadius = 3f;
+        public float accretionHeal = 1f;
 
         [Title("Маяк")]
         public float beaconInterval = 8f;
@@ -352,6 +429,10 @@ namespace Perigee
             new EnemyDef { id = EnemyType.Shielder, radius = 0.35f, hp = 3f, speed = 0.6f, armor = 0f, starDamage = 12f, crystals = 4, behavior = EnemyBehavior.Straight, faceStar = true, prewarm = 8, shieldHits = 3 },
             new EnemyDef { id = EnemyType.Devourer, radius = 0.4f, hp = 4f, speed = 0.6f, armor = 0f, starDamage = 15f, crystals = 3, behavior = EnemyBehavior.Seek, faceStar = true, prewarm = 8, seekRadius = 2.5f },
             new EnemyDef { id = EnemyType.Phantom, radius = 0.22f, hp = 1.5f, speed = 1.3f, armor = 0f, starDamage = 6f, crystals = 2, behavior = EnemyBehavior.Straight, faceStar = true, prewarm = 8, phaseOn = 1.5f, phaseOff = 1f },
+            // боссы эр 2–4; у Близнецов hp и кристаллы на каждое из двух тел
+            new EnemyDef { id = EnemyType.Twin, radius = 0.75f, hp = 70f, speed = 0f, armor = 0f, starDamage = 6f, crystals = 15, behavior = EnemyBehavior.Ellipse, faceStar = false, prewarm = 0 },
+            new EnemyDef { id = EnemyType.Colossus, radius = 1.1f, hp = 220f, speed = 0.25f, armor = 2.5f, starDamage = 25f, crystals = 40, behavior = EnemyBehavior.Colossus, faceStar = true, prewarm = 0 },
+            new EnemyDef { id = EnemyType.Pulsar, radius = 1f, hp = 160f, speed = 1f, armor = 0f, starDamage = 0f, crystals = 40, behavior = EnemyBehavior.Pulsar, faceStar = false, prewarm = 0 },
         };
 
         [Title("Поведение врагов")]
@@ -373,16 +454,63 @@ namespace Perigee
         public float devourGrow = 0.04f;
         public float phantomAlpha = 0.25f;
 
-        [Title("Комета")]
+        [Title("Правила эр")]
+        // вспышки Красного карлика
+        public float flareFirst = 25f;
+        public float flareInterval = 25f;
+        public float flareMinGap = 60f;
+        public float flareArc = 90f;
+        public float flareWarn = 1.5f;
+        public float flareTime = 1f;
+        public float flareDamage = 2f;
+        public float flareHeatRate = 0.8f;
+        public float flareShakeAmp = 0.05f;
+        public float flareShakeTime = 0.1f;
+        // пока идёт предупреждение, сектор мигает от нуля до этой прозрачности
+        public float flareWarnAlpha = 0.4f;
+        public float flareWarnHz = 3f;
+        // Тяжёлая звезда: скорость, с которой кристаллы тонут в ней
+        public float crystalSink = 0.35f;
+        // Чёрная дыра: градусы в секунду, на которые закручивается путь врагов
+        public float vortexDeg = 14f;
+
+        [Title("Боссы")]
         public float bossTime = 180f;
+        public float bossFadeIn = 0.5f;
+        // Комета и Близнецы: общий эллипс
         public float bossPeriapsis = 1.8f;
         public float bossApoapsis = 5.5f;
         public float bossPeriod = 6f;
-        public float bossFadeIn = 0.5f;
         public float bossPhiStep = 40f;
         public int bossNewtonSteps = 4;
         public float bossOrbitLineTime = 1.5f;
         public int bossOrbitLinePoints = 64;
+        public float twinPeriod = 6.5f;
+        // период оставшегося из Близнецов
+        public float twinEnragedPeriod = 4.5f;
+        public float colossusBounceRadius = 5.5f;
+        public float colossusBounceDeg = 60f;
+        // доли HP, на которых Колосс выпускает Рой и теряет часть брони
+        public float[] colossusPhaseHp = { 0.75f, 0.5f, 0.25f };
+        public int colossusShed = 6;
+        public float colossusShedOffset = 0.3f;
+        public float colossusArmorStep = 0.5f;
+        public float pulsarDeg = 22f;
+        public float pulsarMid = 4f;
+        public float pulsarAmp = 1f;
+        public float pulsarSwing = 16f;
+        public float pulsarFireInterval = 3.5f;
+        public int pulsarBolts = 3;
+        public float pulsarFan = 12f;
+        public float pulsarWaveFirst = 6f;
+        public float pulsarWaveInterval = 12f;
+        public float pulsarWaveWarn = 1f;
+        public float pulsarWaveRadius = 3.2f;
+        public float pulsarWaveTime = 1.2f;
+        // запас к радиусу спутника, в котором кольцо волны его задевает
+        public float pulsarWaveBand = 0.1f;
+        public Color pulsarWarnTint = new Color32(0xEF, 0xE4, 0xC8, 0xFF);
+        public float pulsarWarnHz = 4f;
 
         [Title("Эффекты")]
         public float hitStopTime = 0.04f;
@@ -488,6 +616,8 @@ namespace Perigee
         public float bannerFadeIn = 0.2f;
         public float bannerFadeOut = 0.3f;
         public float bannerEnemyHold = 3f;
+        public float bannerBossHold = 2f;
+        public float bannerRuleHold = 3f;
 
         [Title("Эры")]
         // СОЛНЦЕ, КРАСНЫЙ КАРЛИК, ТЯЖЁЛАЯ ЗВЕЗДА, ЧЁРНАЯ ДЫРА
@@ -648,18 +778,70 @@ namespace Perigee
         public float interstitialAfterRewarded = 60f;
 
         [Title("Чертежи")]
-        [TableList]
         public BlueprintDef[] blueprints =
         {
-            new BlueprintDef { id = BlueprintId.Hull, perLevel = new StatMod(StatId.StarMaxHp, 10f), costs = new[] { 50, 100, 200, 400, 800 } },
-            new BlueprintDef { id = BlueprintId.Capacitor, perLevel = new StatMod(StatId.AbilityCooldownMul, 0.95f), costs = new[] { 50, 100, 200, 400, 800 } },
-            new BlueprintDef { id = BlueprintId.CoolantBp, perLevel = new StatMod(StatId.HeatMul, 0.95f), costs = new[] { 50, 100, 200, 400, 800 } },
-            new BlueprintDef { id = BlueprintId.Magnetism, perLevel = new StatMod(StatId.MagnetRadius, 0.35f), costs = new[] { 40, 80, 160 } },
+            Node(BlueprintId.Hull, BlueprintBranch.Star, 1, StatId.StarMaxHp, 8f, 40, 70, 110, 160, 220),
+            Node(BlueprintId.Core, BlueprintBranch.Star, 2, StatId.Regen, 0.07f, 120, 200, 300),
+            Node(BlueprintId.Reflector, BlueprintBranch.Star, 3, StatId.StarDamageMul, 0.95f, 200, 320, 480),
+            Node(BlueprintId.SecondSun, BlueprintBranch.Star, 4, StatId.SecondSun, 1f, 1200),
+            Node(BlueprintId.Forge, BlueprintBranch.Strike, 1, StatId.PowerMul, 1.03f, 40, 70, 100, 140, 190),
+            Node(BlueprintId.TuningFork, BlueprintBranch.Strike, 2, StatId.ResonanceBonus, 0.1f, 120, 200, 300),
+            Node(BlueprintId.Edge, BlueprintBranch.Strike, 3, StatId.CritChance, 0.03f, 200, 320, 480),
+            Node(BlueprintId.Twin, BlueprintBranch.Strike, 4, StatId.Satellites, 1f, 1200),
+            Node(BlueprintId.Thrust, BlueprintBranch.Orbit, 1, StatId.RadialSpeedMul, 1.05f, 30, 60, 90, 130),
+            Node(BlueprintId.Radiator, BlueprintBranch.Orbit, 2, StatId.HeatMul, 0.94f, 80, 130, 190, 270),
+            Node(BlueprintId.Capacitor, BlueprintBranch.Orbit, 3, StatId.AbilityCooldownMul, 0.95f, 160, 240, 340, 450),
+            Node(BlueprintId.Quadriga, BlueprintBranch.Orbit, 4, StatId.AddSatBonus, 1f, 1400),
+            Node(BlueprintId.Magnetism, BlueprintBranch.Crystal, 1, StatId.MagnetRadius, 0.3f, 30, 50, 80, 120),
+            Node(BlueprintId.Insight, BlueprintBranch.Crystal, 2, StatId.XpNeedMul, 0.95f, 120, 200, 300),
+            Node(BlueprintId.Alchemy, BlueprintBranch.Crystal, 3, StatId.DustMul, 1.08f, 240, 400, 600),
+            // ВЫБОР: у двух уровней разные эффекты
+            new BlueprintDef
+            {
+                id = BlueprintId.Choice, branch = BlueprintBranch.Crystal, tier = 4,
+                levels = new[]
+                {
+                    new BlueprintLevel(700, new StatMod(StatId.FreeRerolls, 1f)),
+                    new BlueprintLevel(1100, new StatMod(StatId.ExtraChoices, 1f)),
+                },
+            },
+        };
+        // чертежи R2.1 в старом порядке: КОРПУС, КОНДЕНСАТОР, ОХЛАДИТЕЛЬ, МАГНЕТИЗМ
+        public LegacyBlueprint[] legacyBlueprintCosts =
+        {
+            new LegacyBlueprint { costs = new[] { 50, 100, 200, 400, 800 } },
+            new LegacyBlueprint { costs = new[] { 50, 100, 200, 400, 800 } },
+            new LegacyBlueprint { costs = new[] { 50, 100, 200, 400, 800 } },
+            new LegacyBlueprint { costs = new[] { 40, 80, 160 } },
         };
 
-        static CardDef Card(CardId id, CardColor color, CardRarity rarity, int maxStacks, StatId plus, float plusValue, StatId minus, float minusValue)
+        [Title("Облик")]
+        [TableList]
+        public SkinDef[] skins =
         {
-            return new CardDef { id = id, color = color, rarity = rarity, maxStacks = maxStacks, plus = new StatMod(plus, plusValue), minus = new StatMod(minus, minusValue) };
+            new SkinDef { id = SkinId.Romb, kind = SkinKind.Satellite },
+            new SkinDef { id = SkinId.Sputnik, kind = SkinKind.Satellite, price = 300 },
+            new SkinDef { id = SkinId.Gear, kind = SkinKind.Satellite, price = 400 },
+            new SkinDef { id = SkinId.Moon, kind = SkinKind.Satellite, eraWin = 2 },
+            new SkinDef { id = SkinId.RedStar, kind = SkinKind.Satellite, challenge = 6 },
+            new SkinDef { id = SkinId.Eye, kind = SkinKind.Satellite, eraWin = 4 },
+            new SkinDef { id = SkinId.Sun, kind = SkinKind.Star },
+            new SkinDef { id = SkinId.Oko, kind = SkinKind.Star, price = 400 },
+            new SkinDef { id = SkinId.Sunflower, kind = SkinKind.Star, challenge = 2 },
+            new SkinDef { id = SkinId.Motor, kind = SkinKind.Star, eraWin = 3 },
+        };
+
+        // узел дерева, у которого все уровни дают одно и то же
+        static BlueprintDef Node(BlueprintId id, BlueprintBranch branch, int tier, StatId stat, float value, params int[] costs)
+        {
+            var levels = new BlueprintLevel[costs.Length];
+            for (int i = 0; i < costs.Length; i++) levels[i] = new BlueprintLevel(costs[i], new StatMod(stat, value));
+            return new BlueprintDef { id = id, branch = branch, tier = tier, levels = levels };
+        }
+
+        static CardDef Card(CardId id, CardColor color, CardRarity rarity, int maxStacks, StatId plus, float plusValue, StatId minus, float minusValue, int era = 0)
+        {
+            return new CardDef { id = id, color = color, rarity = rarity, era = era, maxStacks = maxStacks, plus = new StatMod(plus, plusValue), minus = new StatMod(minus, minusValue) };
         }
 
         static SpawnEvent At(float time, params SpawnGroup[] groups)

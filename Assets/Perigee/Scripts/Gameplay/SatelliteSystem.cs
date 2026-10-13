@@ -9,6 +9,8 @@ namespace Perigee
         const int Clockwise = -1;
         // хиттеров вдвое больше спутников: у каждого спутника своя тень ЭХА
         const int HittersPerSatellite = 2;
+        // второй спутник чертежа ПАРА стартует напротив первого
+        const float Opposite = 180f;
 
         class Satellite
         {
@@ -50,6 +52,8 @@ namespace Perigee
         bool resonating;
         // ЭХО действует: тени расставлены в этом шаге
         bool echoing;
+        // секунды с момента, когда удержание отпущено; 0 = игрок держит
+        float sinceRelease;
 
         void Awake()
         {
@@ -67,15 +71,19 @@ namespace Perigee
             // спутники, тени и нити создаются заново из префабов: правка префаба видна со следующего забега
             for (int i = root.childCount - 1; i >= 0; i--) Destroy(root.GetChild(i).gameObject);
 
+            // облик спутника: префаб, выбранный в Мастерской
+            Visual skin = art.satelliteSkins[loop.Shop.SatelliteSkin];
             for (int i = 0; i < satellites.Length; i++)
             {
                 Satellite s = satellites[i];
-                s.visual = Instantiate(art.satellite, root);
+                s.visual = Instantiate(skin, root);
                 s.transform = s.visual.transform;
                 s.heatArc = s.visual.GetComponentInChildren<HeatArc>();
                 s.visual.gameObject.SetActive(false);
                 s.echo = Instantiate(art.echo, root);
                 s.echoTransform = s.echo.transform;
+                // тень показывает картинку своего спутника
+                s.echo.Body.sprite = s.visual.Body.sprite;
                 s.echo.gameObject.SetActive(false);
             }
 
@@ -88,17 +96,27 @@ namespace Perigee
             threadCount = 0;
             resonating = false;
             echoing = false;
+            // до первого удержания окна ПРАЩИ нет
+            sinceRelease = float.PositiveInfinity;
             count = 0;
             Launch(config.satStartAngle, 0f);
+            // чертёж ПАРА: забег начинается с двумя спутниками
+            if (loop.Stats.extraSatellites > 0) Launch(config.satStartAngle + Opposite, 0f);
         }
 
         public void Tick(float dt)
         {
-            while (count < Mathf.Min(1 + loop.Stats.extraSatellites, satellites.Length)) Add();
+            while (count < Mathf.Min(1 + loop.Stats.extraSatellites, Cap)) Add();
+
+            bool holding = input.IsHolding;
+            sinceRelease = holding ? 0f : sinceRelease + dt;
 
             // при удержании внешний спутник всегда доходит до внешнего кольца
-            float target = input.IsHolding ? config.ringMax - (count - 1) * config.ringGap : config.rMin;
-            baseR = Mathf.MoveTowards(baseR, target, config.radialSpeed * loop.Stats.radialSpeedMul * dt);
+            float target = holding ? config.ringMax - (count - 1) * config.ringGap : config.rMin;
+            // эра и карточки по-разному меняют выход наружу и падение (Тяжёлая звезда, минус ПРАЩИ)
+            EraDef era = loop.Era;
+            float k = target > baseR ? era.riseMul * loop.Stats.radialOutMul : era.fallMul;
+            baseR = Mathf.MoveTowards(baseR, target, config.radialSpeed * loop.Stats.radialSpeedMul * k * dt);
 
             echoing = abilities.Active(AbilityId.Echo);
             for (int i = 0; i < count; i++)
@@ -121,6 +139,9 @@ namespace Perigee
 
         public int Count => count;
 
+        // больше спутников не станет: четвёртый даёт только чертёж КВАДРИГА
+        public int Cap => config.satelliteCap + loop.Stats.addSatBonus;
+
         // -1 = по часовой стрелке, 1 = против
         public int OrbitDir => orbitDir;
 
@@ -130,9 +151,18 @@ namespace Perigee
             orbitDir = -orbitDir;
         }
 
+        // ПРАЩА: окно slingshotTime после того, как отпущен последний палец
+        public bool Slinging => sinceRelease > 0f && sinceRelease <= config.slingshotTime;
+
         public float OrbitRadius(int i)
         {
             return satellites[i].r;
+        }
+
+        // угол спутника i на орбите, градусы 0..360
+        public float Angle(int i)
+        {
+            return satellites[i].angle;
         }
 
         // радиус орбиты внешнего спутника
@@ -164,7 +194,9 @@ namespace Perigee
 
             Satellite s = satellites[k];
             float damage = Power(s.r) * loop.Stats.hitMul;
-            return s.resonant ? damage * config.resonanceMul : damage;
+            // ЖАР-ПТИЦА: горячий спутник бьёт сильнее; тень холодная, ей множитель не достаётся
+            if (loop.Stats.Firebird && s.heat >= config.firebirdHeat) damage *= config.firebirdMul;
+            return s.resonant ? damage * loop.Stats.resonanceMul : damage;
         }
 
         // тень не греется
@@ -173,12 +205,23 @@ namespace Perigee
             return k < count ? satellites[k].heat : 0f;
         }
 
-        // нагрев извне (удар по Факелу): спутник k греется на amount, тень нет
+        // нагрев извне (удар по Факелу, вспышка): спутник k греется на amount, тень нет; оглушённый уже на пределе
         public void Warm(int k, float amount)
         {
-            if (k >= count) return;
+            if (k >= count || satellites[k].stun > 0f) return;
             satellites[k].heat += amount;
             Overheat(satellites[k]);
+        }
+
+        // волна Пульсара: спутник i оглушён сразу, сколько бы нагрева у него ни было
+        public void Stun(int i)
+        {
+            Satellite s = satellites[i];
+            if (s.stun > 0f) return;
+
+            s.heat = 1f;
+            s.stun = config.stunTime;
+            sfx.Play(SfxId.Stun);
         }
 
         public float Power(float r)
@@ -330,7 +373,11 @@ namespace Perigee
         // нить номер i из пула; если запаса не хватило, создаётся новая
         ResonanceThread Thread(int i)
         {
-            if (i == threads.Count) threads.Add(Instantiate(art.resonanceThread, root));
+            if (i == threads.Count)
+            {
+                threads.Add(Instantiate(art.resonanceThread, root));
+                threads[i].SetMultiplier(loop.Stats.resonanceMul);
+            }
             return threads[i];
         }
 

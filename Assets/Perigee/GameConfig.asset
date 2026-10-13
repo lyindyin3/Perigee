@@ -12,10 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 02cdd2e74b496334d8baed45d6a88bd7, type: 3}
   m_Name: GameConfig
   m_EditorClassIdentifier: Assembly-CSharp::Perigee.GameConfig
-  debugUnlockAll: 1
+  debugUnlockAll: 0
   starRadius: 1
   starMaxHp: 120
   starLowHpFraction: 0.3
+  secondSunHp: 0.25
   starHitFlashColor: {r: 0.8392157, g: 0.15686275, b: 0.12156863, a: 1}
   H: 6.2
   spawnRadius: 7
@@ -30,7 +31,8 @@ MonoBehaviour:
   satMaxRadius: 6.2
   ringGap: 0.8
   satRadius: 0.2
-  maxSatellites: 3
+  maxSatellites: 4
+  satelliteCap: 3
   radialSpeed: 8
   tMin: 1
   satStartAngle: 90
@@ -307,6 +309,105 @@ MonoBehaviour:
     minus:
       stat: 10
       value: 1.15
+  - id: 21
+    color: 0
+    rarity: 0
+    era: 2
+    maxStacks: 1
+    plus:
+      stat: 29
+      value: 1
+    minus:
+      stat: 4
+      value: 0.95
+  - id: 22
+    color: 1
+    rarity: 0
+    era: 2
+    maxStacks: 1
+    plus:
+      stat: 30
+      value: 1
+    minus:
+      stat: 3
+      value: 1.1
+  - id: 23
+    color: 1
+    rarity: 1
+    era: 2
+    maxStacks: 1
+    plus:
+      stat: 31
+      value: 1
+    minus:
+      stat: 3
+      value: 1.2
+  - id: 24
+    color: 1
+    rarity: 0
+    era: 3
+    maxStacks: 1
+    plus:
+      stat: 32
+      value: 1
+    minus:
+      stat: 2
+      value: 0.9
+  - id: 25
+    color: 0
+    rarity: 0
+    era: 3
+    maxStacks: 1
+    plus:
+      stat: 33
+      value: 1
+    minus:
+      stat: 0
+      value: 0.95
+  - id: 26
+    color: 1
+    rarity: 1
+    era: 3
+    maxStacks: 1
+    plus:
+      stat: 34
+      value: 1
+    minus:
+      stat: 4
+      value: 0.9
+  - id: 27
+    color: 2
+    rarity: 0
+    era: 4
+    maxStacks: 1
+    plus:
+      stat: 35
+      value: 1
+    minus:
+      stat: 18
+      value: -10
+  - id: 28
+    color: 1
+    rarity: 0
+    era: 4
+    maxStacks: 1
+    plus:
+      stat: 36
+      value: 1
+    minus:
+      stat: 0
+      value: 0.95
+  - id: 29
+    color: 2
+    rarity: 1
+    era: 4
+    maxStacks: 1
+    plus:
+      stat: 37
+      value: 1
+    minus:
+      stat: 8
+      value: 0.8
   critMul: 2
   executeFraction: 0.25
   sawWidth: 0.08
@@ -318,6 +419,17 @@ MonoBehaviour:
   chainRadius: 1
   chainDamage: 1
   regenStep: 1
+  solarSailAfter: 3
+  solarSailMul: 2
+  firebirdHeat: 0.7
+  firebirdMul: 1.5
+  slingshotTime: 1
+  slingshotMul: 1.5
+  crowbarOrbiterMul: 2
+  horizonRadius: 1.8
+  horizonDps: 2
+  accretionRadius: 3
+  accretionHeal: 1
   beaconInterval: 8
   beaconStackMul: 0.7
   beaconRadius: 2.5
@@ -641,6 +753,63 @@ MonoBehaviour:
     orbitRadius: 0
     orbitDeg: 0
     orbitInSpeed: 0
+  - id: 14
+    radius: 0.75
+    hp: 70
+    speed: 0
+    armor: 0
+    starDamage: 6
+    crystals: 15
+    behavior: 4
+    faceStar: 0
+    prewarm: 0
+    splitCount: 0
+    heatOnHit: 0
+    shieldHits: 0
+    phaseOn: 0
+    phaseOff: 0
+    seekRadius: 0
+    orbitRadius: 0
+    orbitDeg: 0
+    orbitInSpeed: 0
+  - id: 15
+    radius: 1.1
+    hp: 220
+    speed: 0.25
+    armor: 2.5
+    starDamage: 25
+    crystals: 40
+    behavior: 7
+    faceStar: 1
+    prewarm: 0
+    splitCount: 0
+    heatOnHit: 0
+    shieldHits: 0
+    phaseOn: 0
+    phaseOff: 0
+    seekRadius: 0
+    orbitRadius: 0
+    orbitDeg: 0
+    orbitInSpeed: 0
+  - id: 16
+    radius: 1
+    hp: 160
+    speed: 1
+    armor: 0
+    starDamage: 0
+    crystals: 40
+    behavior: 8
+    faceStar: 0
+    prewarm: 0
+    splitCount: 0
+    heatOnHit: 0
+    shieldHits: 0
+    phaseOn: 0
+    phaseOff: 0
+    seekRadius: 0
+    orbitRadius: 0
+    orbitDeg: 0
+    orbitInSpeed: 0
   parasiteAttachOffset: 0.15
   parasiteDrainBase: 1.5
   parasiteDrainGrowth: 0.4
@@ -658,15 +827,55 @@ MonoBehaviour:
   devourHp: 1
   devourGrow: 0.04
   phantomAlpha: 0.25
+  flareFirst: 25
+  flareInterval: 25
+  flareMinGap: 60
+  flareArc: 90
+  flareWarn: 1.5
+  flareTime: 1
+  flareDamage: 2
+  flareHeatRate: 0.8
+  flareShakeAmp: 0.05
+  flareShakeTime: 0.1
+  flareWarnAlpha: 0.4
+  flareWarnHz: 3
+  crystalSink: 0.35
+  vortexDeg: 14
   bossTime: 180
+  bossFadeIn: 0.5
   bossPeriapsis: 1.8
   bossApoapsis: 5.5
   bossPeriod: 6
-  bossFadeIn: 0.5
   bossPhiStep: 40
   bossNewtonSteps: 4
   bossOrbitLineTime: 1.5
   bossOrbitLinePoints: 64
+  twinPeriod: 6.5
+  twinEnragedPeriod: 4.5
+  colossusBounceRadius: 5.5
+  colossusBounceDeg: 60
+  colossusPhaseHp:
+  - 0.75
+  - 0.5
+  - 0.25
+  colossusShed: 6
+  colossusShedOffset: 0.3
+  colossusArmorStep: 0.5
+  pulsarDeg: 22
+  pulsarMid: 4
+  pulsarAmp: 1
+  pulsarSwing: 16
+  pulsarFireInterval: 3.5
+  pulsarBolts: 3
+  pulsarFan: 12
+  pulsarWaveFirst: 6
+  pulsarWaveInterval: 12
+  pulsarWaveWarn: 1
+  pulsarWaveRadius: 3.2
+  pulsarWaveTime: 1.2
+  pulsarWaveBand: 0.1
+  pulsarWarnTint: {r: 0.9372549, g: 0.89411765, b: 0.78431374, a: 1}
+  pulsarWarnHz: 4
   hitStopTime: 0.04
   clinkHitStop: 0.02
   hitStopMinInterval: 0.25
@@ -773,6 +982,8 @@ MonoBehaviour:
   bannerFadeIn: 0.2
   bannerFadeOut: 0.3
   bannerEnemyHold: 3
+  bannerBossHold: 2
+  bannerRuleHold: 3
   eras:
   - kExp: 0.9
     spinMul: 1
@@ -1842,22 +2053,318 @@ MonoBehaviour:
   interstitialAfterRewarded: 60
   blueprints:
   - id: 0
-    perLevel:
-      stat: 18
-      value: 10
-    costs: 3200000064000000c80000009001000020030000
+    branch: 0
+    tier: 1
+    levels:
+    - cost: 40
+      mod:
+        stat: 18
+        value: 8
+    - cost: 70
+      mod:
+        stat: 18
+        value: 8
+    - cost: 110
+      mod:
+        stat: 18
+        value: 8
+    - cost: 160
+      mod:
+        stat: 18
+        value: 8
+    - cost: 220
+      mod:
+        stat: 18
+        value: 8
   - id: 1
-    perLevel:
-      stat: 10
-      value: 0.95
-    costs: 3200000064000000c80000009001000020030000
+    branch: 0
+    tier: 2
+    levels:
+    - cost: 120
+      mod:
+        stat: 19
+        value: 0.07
+    - cost: 200
+      mod:
+        stat: 19
+        value: 0.07
+    - cost: 300
+      mod:
+        stat: 19
+        value: 0.07
   - id: 2
-    perLevel:
-      stat: 3
-      value: 0.95
-    costs: 3200000064000000c80000009001000020030000
+    branch: 0
+    tier: 3
+    levels:
+    - cost: 200
+      mod:
+        stat: 14
+        value: 0.95
+    - cost: 320
+      mod:
+        stat: 14
+        value: 0.95
+    - cost: 480
+      mod:
+        stat: 14
+        value: 0.95
   - id: 3
-    perLevel:
-      stat: 16
-      value: 0.35
-    costs: 2800000050000000a0000000
+    branch: 0
+    tier: 4
+    levels:
+    - cost: 1200
+      mod:
+        stat: 38
+        value: 1
+  - id: 4
+    branch: 1
+    tier: 1
+    levels:
+    - cost: 40
+      mod:
+        stat: 0
+        value: 1.03
+    - cost: 70
+      mod:
+        stat: 0
+        value: 1.03
+    - cost: 100
+      mod:
+        stat: 0
+        value: 1.03
+    - cost: 140
+      mod:
+        stat: 0
+        value: 1.03
+    - cost: 190
+      mod:
+        stat: 0
+        value: 1.03
+  - id: 5
+    branch: 1
+    tier: 2
+    levels:
+    - cost: 120
+      mod:
+        stat: 6
+        value: 0.1
+    - cost: 200
+      mod:
+        stat: 6
+        value: 0.1
+    - cost: 300
+      mod:
+        stat: 6
+        value: 0.1
+  - id: 6
+    branch: 1
+    tier: 3
+    levels:
+    - cost: 200
+      mod:
+        stat: 23
+        value: 0.03
+    - cost: 320
+      mod:
+        stat: 23
+        value: 0.03
+    - cost: 480
+      mod:
+        stat: 23
+        value: 0.03
+  - id: 7
+    branch: 1
+    tier: 4
+    levels:
+    - cost: 1200
+      mod:
+        stat: 20
+        value: 1
+  - id: 8
+    branch: 2
+    tier: 1
+    levels:
+    - cost: 30
+      mod:
+        stat: 1
+        value: 1.05
+    - cost: 60
+      mod:
+        stat: 1
+        value: 1.05
+    - cost: 90
+      mod:
+        stat: 1
+        value: 1.05
+    - cost: 130
+      mod:
+        stat: 1
+        value: 1.05
+  - id: 9
+    branch: 2
+    tier: 2
+    levels:
+    - cost: 80
+      mod:
+        stat: 3
+        value: 0.94
+    - cost: 130
+      mod:
+        stat: 3
+        value: 0.94
+    - cost: 190
+      mod:
+        stat: 3
+        value: 0.94
+    - cost: 270
+      mod:
+        stat: 3
+        value: 0.94
+  - id: 10
+    branch: 2
+    tier: 3
+    levels:
+    - cost: 160
+      mod:
+        stat: 10
+        value: 0.95
+    - cost: 240
+      mod:
+        stat: 10
+        value: 0.95
+    - cost: 340
+      mod:
+        stat: 10
+        value: 0.95
+    - cost: 450
+      mod:
+        stat: 10
+        value: 0.95
+  - id: 11
+    branch: 2
+    tier: 4
+    levels:
+    - cost: 1400
+      mod:
+        stat: 21
+        value: 1
+  - id: 12
+    branch: 3
+    tier: 1
+    levels:
+    - cost: 30
+      mod:
+        stat: 16
+        value: 0.3
+    - cost: 50
+      mod:
+        stat: 16
+        value: 0.3
+    - cost: 80
+      mod:
+        stat: 16
+        value: 0.3
+    - cost: 120
+      mod:
+        stat: 16
+        value: 0.3
+  - id: 13
+    branch: 3
+    tier: 2
+    levels:
+    - cost: 120
+      mod:
+        stat: 13
+        value: 0.95
+    - cost: 200
+      mod:
+        stat: 13
+        value: 0.95
+    - cost: 300
+      mod:
+        stat: 13
+        value: 0.95
+  - id: 14
+    branch: 3
+    tier: 3
+    levels:
+    - cost: 240
+      mod:
+        stat: 15
+        value: 1.08
+    - cost: 400
+      mod:
+        stat: 15
+        value: 1.08
+    - cost: 600
+      mod:
+        stat: 15
+        value: 1.08
+  - id: 15
+    branch: 3
+    tier: 4
+    levels:
+    - cost: 700
+      mod:
+        stat: 39
+        value: 1
+    - cost: 1100
+      mod:
+        stat: 40
+        value: 1
+  legacyBlueprintCosts:
+  - costs: 3200000064000000c80000009001000020030000
+  - costs: 3200000064000000c80000009001000020030000
+  - costs: 3200000064000000c80000009001000020030000
+  - costs: 2800000050000000a0000000
+  skins:
+  - id: 0
+    kind: 0
+    price: 0
+    eraWin: 0
+    challenge: 0
+  - id: 1
+    kind: 0
+    price: 300
+    eraWin: 0
+    challenge: 0
+  - id: 2
+    kind: 0
+    price: 400
+    eraWin: 0
+    challenge: 0
+  - id: 3
+    kind: 0
+    price: 0
+    eraWin: 2
+    challenge: 0
+  - id: 4
+    kind: 0
+    price: 0
+    eraWin: 0
+    challenge: 6
+  - id: 5
+    kind: 0
+    price: 0
+    eraWin: 4
+    challenge: 0
+  - id: 6
+    kind: 1
+    price: 0
+    eraWin: 0
+    challenge: 0
+  - id: 7
+    kind: 1
+    price: 400
+    eraWin: 0
+    challenge: 0
+  - id: 8
+    kind: 1
+    price: 0
+    eraWin: 0
+    challenge: 2
+  - id: 9
+    kind: 1
+    price: 0
+    eraWin: 3
+    challenge: 0

@@ -12,7 +12,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 699fd213cd97a8b46beeca13e369905d, type: 3}
   m_Name: ArtSet
   m_EditorClassIdentifier: Assembly-CSharp::Perigee.ArtSet
-  satellite: {fileID: 7693875930388308927, guid: d931483c55b6cdb4ab8b5c2fcdad3acb, type: 3}
+  satelliteSkins:
+  - {fileID: 7693875930388308927, guid: d931483c55b6cdb4ab8b5c2fcdad3acb, type: 3}
+  - {fileID: 1473102173552815758, guid: 63f4725faf8c5654ca12977def90d724, type: 3}
+  - {fileID: 4262974993261115305, guid: 8ce310cd9fe46e84cafb1dac9df5c26a, type: 3}
+  - {fileID: 1208995423131997677, guid: 4c47dcf890637fb408fba6fcc6e34ea1, type: 3}
+  - {fileID: 2617730862700958963, guid: 1514f0d16bbb15240a88870fb62c2518, type: 3}
+  - {fileID: 1517822749181867722, guid: 1b6efae2b111fed45a5bcddfd71835b0, type: 3}
+  starSkins:
+  - body: {fileID: 21300000, guid: ed470b70804955348a84cc116cd7ecfe, type: 3}
+    rays: {fileID: 21300000, guid: e83b9d87cdc95554296f8b32252bcef9, type: 3}
+  - body: {fileID: 21300000, guid: c9d30c5c81e548f479407d552704b26b, type: 3}
+    rays: {fileID: 21300000, guid: a2bd664199ec1df4ea413d9258cf51ce, type: 3}
+  - body: {fileID: 21300000, guid: 54ec53525e98fb9468c54cc5dfb5a7d7, type: 3}
+    rays: {fileID: 21300000, guid: 6a4ea0724ba4ce54daf5379434269c73, type: 3}
+  - body: {fileID: 21300000, guid: 86509bcdb5471d347804e1258040784d, type: 3}
+    rays: {fileID: 21300000, guid: 988840d63c8e7b94e96decd541cd1c46, type: 3}
   echo: {fileID: 5187077046948144319, guid: 39724e1bcfa1b8941b28a2520dc1bf60, type: 3}
   crystal: {fileID: 4764373594962635259, guid: 875babf7df9991845a0a695afce1554e, type: 3}
   enemies:
@@ -30,9 +45,9 @@ MonoBehaviour:
   - {fileID: 907850552786034821, guid: bfc8067d8a48abc468702b4e6dbdf0fe, type: 3}
   - {fileID: 4521808921943041099, guid: 33ecbe27ee0587743afd3f71d7cb22a1, type: 3}
   - {fileID: 7712901859884792730, guid: 14b90b20b0f7f544398a0e28a8d61f35, type: 3}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 6827269638911580012, guid: 05e6fa43688f02345a4236ecd151f3a5, type: 3}
+  - {fileID: 4258727596427704342, guid: 1f23453ea2726c644b7f48c119879102, type: 3}
+  - {fileID: 6827269638911580012, guid: 11ced125dd532754a8ff56feb8fff1bc, type: 3}
   enemyIcons:
   - {fileID: 0}
   - {fileID: 0}
@@ -58,7 +73,27 @@ MonoBehaviour:
   telegraphWedge: {fileID: 145698744518151677, guid: da94eab66f516084e97610bc903bdf31, type: 3}
   telegraphLine: {fileID: 8820235256590244160, guid: 074fdb2097c1dd847bffedcacd20ad0e, type: 3}
   damageNumber: {fileID: 6650806078587790051, guid: 637790c99951ebe4190a5a243aa28993, type: 3}
+  pulsarWave: {fileID: 5187077046948144319, guid: 27a7f1d42ef577045a0bde6603449383, type: 3}
+  eraIcons:
+  - {fileID: 21300000, guid: e1ec8a52b79b31b439a6f2fcff121b76, type: 3}
+  - {fileID: 21300000, guid: 3d35837a67087d84f986e5abbe1e1dfd, type: 3}
+  - {fileID: 21300000, guid: bb3da0662f6f0ce449f75ad068e3cae3, type: 3}
+  - {fileID: 21300000, guid: b7b5d316e3a3c7b4293366911db8a4a7, type: 3}
+  eraStarSprites:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   cardIcons:
+  - {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
+  - {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
+  - {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
+  - {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
+  - {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
+  - {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
+  - {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
+  - {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
+  - {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
   - {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
   - {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
   - {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
@@ -88,6 +123,23 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 5de27a91169434c408c9b56d5aa0a20f, type: 3}
   - {fileID: 21300000, guid: 0d9d98192501d844ea9b27ff8a8c871b, type: 3}
   - {fileID: 21300000, guid: ef612b3a6c775a947ad4f52b376eeed4, type: 3}
+  blueprintIcons:
+  - {fileID: 21300000, guid: 2b9ed6036ae877d499d298b04aab4c33, type: 3}
+  - {fileID: 21300000, guid: 2b9ed6036ae877d499d298b04aab4c33, type: 3}
+  - {fileID: 21300000, guid: 2b9ed6036ae877d499d298b04aab4c33, type: 3}
+  - {fileID: 21300000, guid: 2b9ed6036ae877d499d298b04aab4c33, type: 3}
+  - {fileID: 21300000, guid: 2b9ed6036ae877d499d298b04aab4c33, type: 3}
+  - {fileID: 21300000, guid: 2b9ed6036ae877d499d298b04aab4c33, type: 3}
+  - {fileID: 21300000, guid: 2b9ed6036ae877d499d298b04aab4c33, type: 3}
+  - {fileID: 21300000, guid: 2b9ed6036ae877d499d298b04aab4c33, type: 3}
+  - {fileID: 21300000, guid: 2b9ed6036ae877d499d298b04aab4c33, type: 3}
+  - {fileID: 21300000, guid: 2b9ed6036ae877d499d298b04aab4c33, type: 3}
+  - {fileID: 21300000, guid: 2b9ed6036ae877d499d298b04aab4c33, type: 3}
+  - {fileID: 21300000, guid: 2b9ed6036ae877d499d298b04aab4c33, type: 3}
+  - {fileID: 21300000, guid: 2b9ed6036ae877d499d298b04aab4c33, type: 3}
+  - {fileID: 21300000, guid: 2b9ed6036ae877d499d298b04aab4c33, type: 3}
+  - {fileID: 21300000, guid: 2b9ed6036ae877d499d298b04aab4c33, type: 3}
+  - {fileID: 21300000, guid: 2b9ed6036ae877d499d298b04aab4c33, type: 3}
   cardFrames:
   - {fileID: 21300000, guid: 7690293ba0af8df47bee9502f9ca8b82, type: 3}
   - {fileID: 21300000, guid: bcba24fa1f12e3c44a8265293f6448e0, type: 3}

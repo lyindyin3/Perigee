@@ -1,13 +1,25 @@
+using System;
 using TMPro;
 using UnityEngine;
 
 namespace Perigee
 {
+    // облик звезды: картинки её тела и лучей
+    [Serializable]
+    public class StarSkin
+    {
+        public Sprite body;
+        public Sprite rays;
+    }
+
     // Картинки, которые код создаёт или назначает сам. Чисел здесь нет: они в GameConfig.
     [CreateAssetMenu(fileName = "ArtSet", menuName = "Perigee/ArtSet")]
     public class ArtSet : ScriptableObject
     {
-        public Visual satellite;
+        // облики спутника: целые префабы, по порядку спутниковых SkinId; запись 0 = обычный ромб
+        public Visual[] satelliteSkins;
+        // облики звезды, по порядку звёздных SkinId
+        public StarSkin[] starSkins;
         // тень спутника, пока действует ЭХО
         public Visual echo;
         public Visual crystal;
@@ -22,10 +34,18 @@ namespace Perigee
         public Visual telegraphWedge;
         public Visual telegraphLine;
         public TMP_Text damageNumber;
+        // кольцо волны Пульсара
+        public Visual pulsarWave;
+        // картинки эр, по порядку config.eras: значок на карточке эры
+        public Sprite[] eraIcons;
+        // картинка звезды в эре, по порядку config.eras; пустая запись = обычная картинка звезды
+        public Sprite[] eraStarSprites;
         // по порядку CardId
         public Sprite[] cardIcons;
         // по порядку AbilityId
         public Sprite[] abilityIcons;
+        // по порядку BlueprintId
+        public Sprite[] blueprintIcons;
         // рамки карточек по порядку CardColor
         public Sprite[] cardFrames;
         // золотая кайма редкой карточки

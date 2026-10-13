@@ -20,23 +20,42 @@ namespace Perigee
     [Serializable]
     public class SaveData
     {
+        // меньше SaveService.Version = сохранение R2.1: при загрузке оно переносится
+        public int version;
         public int dust;
         // уровни по индексу чертежа в config.blueprints
         public int[] blueprints;
-        public float bestTime;
-        public int bestDaily;
-        public bool tutorialDone;
-        public int erasUnlocked = 1;
-        public int runs;
-        public int defeats;
-        // бит на каждый AbilityId; ноль = сохранение старше M10, SaveService ставит стартовый набор
+        // бит на каждый AbilityId
         public int abilitiesOwned;
-        public int lastAbilityA;
-        // бит на каждый EnemyType: подсказка о первой встрече уже была
-        public int seenEnemies;
+        // бит на каждый SkinId
+        public int skinsOwned;
+        // выбранные облики: номера SkinId
+        public int satelliteSkin;
+        public int starSkin;
+        public int erasUnlocked = 1;
+        // бит на каждую эру по индексу в config.eras: в ней уже побеждали в режиме Забег
+        public int erasWon;
+        // лучшее время по эрам: режим Забег и Бесконечный
+        public float[] bestTimes;
+        public float[] bestEndless;
+        public int bestDaily;
         // дата UTC (yyyyMMdd) дневного забега, который уже получил двойную пыль
         public int dailyBonusDate;
+        // бит на каждое испытание
+        public int challengesDone;
+        // бит на каждый EnemyType: подсказка о первой встрече уже была
+        public int seenEnemies;
+        public bool tutorialDone;
+        public int runs;
+        public int defeats;
+        public int totalKills;
+        public int lastAbilityA;
+        public int lastEra;
+        // номер RunMode
+        public int lastMode;
         public SettingsData settings = new SettingsData();
+        // поле R2.1: его читает только перенос
+        public float bestTime;
     }
 
     public interface ISaveService

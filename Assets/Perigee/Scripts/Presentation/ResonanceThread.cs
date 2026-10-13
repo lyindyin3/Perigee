@@ -1,3 +1,4 @@
+using System.Globalization;
 using TMPro;
 using UnityEngine;
 
@@ -19,7 +20,12 @@ namespace Perigee
             points = new Vector3[config.threadSegments + 1];
             offsets = new float[points.Length];
             line.positionCount = points.Length;
-            label.text = string.Format(Strings.MulFormat, config.resonanceMul);
+        }
+
+        // множитель на подписи: SatelliteSystem ставит его, когда создаёт нить
+        public void SetMultiplier(float mul)
+        {
+            label.text = string.Format(CultureInfo.InvariantCulture, Strings.MulFormat, mul);
         }
 
         public void Draw(Vector2 a, Vector2 b, bool reroll)

@@ -17,7 +17,8 @@ namespace Perigee
         [SerializeField] InputHold input;
         [SerializeField] SatelliteSystem satellites;
         [SerializeField] EnemySystem enemies;
-        [SerializeField] BossComet boss;
+        [SerializeField] BossSystem boss;
+        [SerializeField] EraRuleSystem eraRule;
         [SerializeField] CrystalSystem crystals;
         [SerializeField] Director director;
         [SerializeField] StarController star;
@@ -40,6 +41,8 @@ namespace Perigee
         public RunState Run { get; } = new RunState();
         public ISaveService Save { get; private set; }
         public Blueprints Blueprints { get; private set; }
+        public Shop Shop { get; private set; }
+        public Progress Progress { get; private set; }
         public EraDef Era => config.eras[eraIndex];
         // номер эры с единицы: по нему отбираются карточки эр
         public int EraNumber => eraIndex + 1;
@@ -50,7 +53,7 @@ namespace Perigee
         ILeaderboardService leaderboard;
         IPlatformService platform;
         int eraIndex;
-        bool daily;
+        RunMode mode;
         float accumulator;
         float victoryTimer;
         // вкладка свёрнута или окно без фокуса
@@ -66,8 +69,10 @@ namespace Perigee
 
         void Awake()
         {
-            Save = new SaveService(config.blueprints.Length);
+            Save = new SaveService(config);
             Blueprints = new Blueprints(config, Save);
+            Shop = new Shop(config, Save);
+            Progress = new Progress(config, Save, Shop);
             ads = new StubAdService();
             leaderboard = new StubLeaderboardService();
             platform = new StubPlatformService();
@@ -107,10 +112,10 @@ namespace Perigee
         }
 
         // забег из меню: сначала выбор способности слота A. Дневной забег и обучение всегда идут в первой эре.
-        public void StartFromMenu(int era, bool dailyRun)
+        public void StartFromMenu(int era, RunMode runMode)
         {
-            eraIndex = dailyRun || !Save.Data.tutorialDone ? 0 : era;
-            daily = dailyRun;
+            eraIndex = runMode == RunMode.Daily || !Save.Data.tutorialDone ? 0 : era;
+            mode = runMode;
             ResetRun();
             // обучение: слот A уже занят, экран выбора не нужен
             if (Run.tutorial)
@@ -134,10 +139,12 @@ namespace Perigee
 
         void ResetRun()
         {
-            Run.Reset(config, daily ? Today() : UnityEngine.Random.Range(0, int.MaxValue));
+            Run.Reset(config, mode == RunMode.Daily ? Today() : UnityEngine.Random.Range(0, int.MaxValue));
+            Run.mode = mode;
             // обучение = любой забег, пока ни один не доигран до итогов
             Run.tutorial = !Save.Data.tutorialDone;
             abilities.ResetRun();
+            eraRule.ResetRun();
             if (Run.tutorial) abilities.Assign(AbilitySystem.SlotA, AbilityId.Pulse);
             RecomputeStats();
             Run.hp = Stats.starMaxHp;
@@ -181,11 +188,11 @@ namespace Perigee
 
         public void RecomputeStats()
         {
-            Stats.Recompute(config, Era, Run.cardStacks, Save.Data.blueprints, abilities);
+            Stats.Recompute(config, Era, Run.cardStacks, Save.Data.blueprints, abilities, satellites.Slinging, eraRule.Sailing);
             armorRing.Refresh();
         }
 
-        // Комета убита: короткое празднование, потом итоги
+        // босс эры убит: короткое празднование, потом итоги
         public void Win()
         {
             victoryTimer = config.victoryTime;
@@ -219,15 +226,6 @@ namespace Perigee
             rewardedDone = done;
             AudioListener.pause = true;
             ads.ShowRewarded(onRewardedClosed);
-        }
-
-        // «Пыль ×2» на итогах: пыль забега уже начислена, добавляется разница
-        public void DoubleDust()
-        {
-            int bonus = Run.earned * (config.adDustMul - 1);
-            Run.earned += bonus;
-            Save.Data.dust += bonus;
-            Save.Save();
         }
 
         void RewardedClosed(bool rewarded)
@@ -319,6 +317,7 @@ namespace Perigee
             Run.time += dt;
             satellites.Tick(dt);
             abilities.Tick(dt);
+            eraRule.Tick(dt);
             enemies.Tick(dt);
             boss.Tick(dt);
             enemies.Collide();
@@ -332,40 +331,12 @@ namespace Perigee
             if (Run.tutorial) hints.Tick(dt);
         }
 
-        // итоги забега: пыль, рекорды и новая эра уходят в сохранение, потом открывается экран Result
+        // итоги забега: пыль, рекорды, новая эра и награды уходят в сохранение, потом открывается экран Result
         void Finish(bool victory)
         {
-            SaveData data = Save.Data;
             Run.victory = victory;
-
-            // пыль: собранные кристаллы × множитель эры и премия эры за победу; первый за дату дневной забег её удваивает
-            Run.earned = Mathf.RoundToInt(Run.dust * Era.dustMul) + (victory ? Era.victoryDust : 0);
-            if (daily && data.dailyBonusDate != Run.seed)
-            {
-                Run.earned *= config.dailyDustMul;
-                data.dailyBonusDate = Run.seed;
-            }
-            data.dust += Run.earned;
-
-            Run.recordGap = data.bestTime - Run.time;
-            data.bestTime = Mathf.Max(data.bestTime, Run.time);
-
-            int score = Run.dust + Mathf.RoundToInt(config.scorePerSecond * Run.time) + (victory ? config.scoreVictory : 0);
-            if (daily) data.bestDaily = Mathf.Max(data.bestDaily, score);
-            leaderboard.Submit(score);
-
-            // победа в последней открытой эре открывает следующую
-            Run.unlockedEra = 0;
-            if (victory && eraIndex == data.erasUnlocked - 1 && data.erasUnlocked < config.eras.Length)
-            {
-                Run.unlockedEra = data.erasUnlocked;
-                data.erasUnlocked++;
-            }
-
-            data.runs++;
-            if (!victory) data.defeats++;
-            data.tutorialDone = true;
-            Save.Save();
+            Progress.Finish(Run, eraIndex, Stats);
+            leaderboard.Submit(Run.score);
             SetState(GameState.Result);
         }
 

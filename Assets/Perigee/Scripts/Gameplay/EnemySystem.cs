@@ -55,7 +55,7 @@ namespace Perigee
         [SerializeField] ArtSet art;
         [SerializeField] GameLoop loop;
         [SerializeField] SatelliteSystem satellites;
-        [SerializeField] BossComet boss;
+        [SerializeField] BossSystem boss;
         [SerializeField] StarController star;
         [SerializeField] CrystalSystem crystals;
         [SerializeField] AbilitySystem abilities;
@@ -147,6 +147,7 @@ namespace Perigee
             float enemyDt = dt * loop.EnemyTimeScale;
             bool pull = abilities.Active(AbilityId.Pull);
             bool dome = abilities.Active(AbilityId.Dome);
+            bool horizon = loop.Stats.Horizon;
             float pullRadius = satellites.OuterRadius;
 
             for (int i = count - 1; i >= 0; i--)
@@ -157,12 +158,18 @@ namespace Perigee
                 for (int k = 0; k < e.hitCooldown.Length; k++) e.hitCooldown[k] -= dt;
                 e.sawCooldown -= dt;
 
-                // горящий враг теряет HP по времени врагов, без числа и вспышки
+                // поджог и ГОРИЗОНТ СОБЫТИЙ: враг теряет HP по времени врагов, без числа и вспышки
+                float seared = 0f;
                 if (e.burn > 0f)
                 {
                     float burning = Mathf.Min(e.burn, enemyDt);
                     e.burn -= burning;
-                    e.hp -= config.burnDps * burning;
+                    seared += config.burnDps * burning;
+                }
+                if (horizon && e.position.sqrMagnitude <= config.horizonRadius * config.horizonRadius) seared += config.horizonDps * enemyDt;
+                if (seared > 0f)
+                {
+                    e.hp -= seared;
                     e.hurt = true;
                     if (e.hp <= 0f)
                     {
@@ -187,6 +194,7 @@ namespace Perigee
                 switch (e.def.behavior)
                 {
                     case EnemyBehavior.Straight:
+                        Drift(e, enemyDt);
                         if (Advance(e, 0f, enemyDt) <= config.starRadius + e.radius)
                         {
                             Strike(i, dome);
@@ -293,7 +301,8 @@ namespace Perigee
                     // Щит с этой стороны держит удар и теряет прочность; на нуле ломается.
                     if (e.shieldHits > 0 && e.shieldSide == -satellites.OrbitDir)
                     {
-                        e.shieldHits--;
+                        // ЛОМ ломает щит первым же ударом в него
+                        e.shieldHits = stats.Crowbar ? 0 : e.shieldHits - 1;
                         if (e.shieldHits == 0) fx.Sparks(e.position, config.shieldBreakSparks);
                         Clink(e, hitter);
                         continue;
@@ -305,8 +314,10 @@ namespace Perigee
                         continue;
                     }
 
-                    // Факел греет спутник каждым ударом, который по нему прошёл
-                    if (e.def.heatOnHit > 0f) satellites.Warm(k, e.def.heatOnHit * stats.heatMul);
+                    // Факел греет спутник каждым ударом, который по нему прошёл; ЖАРОСТОЙКОСТЬ от этого спасает
+                    if (e.def.heatOnHit > 0f && !stats.Heatproof) satellites.Warm(k, e.def.heatOnHit * stats.heatMul);
+                    // ЛОМ: Кружащий получает удар дважды
+                    if (stats.Crowbar && e.def.behavior == EnemyBehavior.Orbit) damage *= config.crowbarOrbiterMul;
                     if (Hurt(i, damage, hitter, crit ? NumberKind.Crit : NumberKind.Normal)) break;
                     // РАСКАЛЁННЫЙ: горячий спутник поджигает, новый поджог начинает отсчёт заново
                     if (stats.Burn && satellites.HitterHeat(k) >= config.burnHeatMin) e.burn = config.burnTime;
@@ -360,6 +371,21 @@ namespace Perigee
 
                 if (e.def.id == EnemyType.Swarmer) Kill(i);
                 else Hurt(i, damage, centre, NumberKind.Normal);
+            }
+        }
+
+        // вспышка Красного карлика: враги в секторе получают урон, Рой гибнет; броня и щит не спасают.
+        // centre = середина сектора, halfArc = половина его ширины, градусы
+        public void Flare(float centre, float halfArc, float damage)
+        {
+            for (int i = count - 1; i >= 0; i--)
+            {
+                Enemy e = live[i];
+                float angle = Mathf.Atan2(e.position.y, e.position.x) * Mathf.Rad2Deg;
+                if (Mathf.Abs(Mathf.DeltaAngle(angle, centre)) > halfArc) continue;
+
+                if (e.def.id == EnemyType.Swarmer) Kill(i);
+                else Hurt(i, damage, Vector2.zero, NumberKind.Normal);
             }
         }
 
@@ -431,17 +457,28 @@ namespace Perigee
             return next;
         }
 
+        // воронка Чёрной дыры: путь к центру закручивается против часовой стрелки
+        void Drift(Enemy e, float dt)
+        {
+            if (loop.Era.rule == EraRule.Vortex) e.position = Turned(e.position, config.vortexDeg * dt);
+        }
+
         // Кружащий: поворот вокруг звезды против часовой стрелки и понемногу вниз; возвращает новое расстояние до центра
         float Circle(Enemy e, float dt)
         {
             float r = e.position.magnitude;
             float next = r - e.def.orbitInSpeed * dt;
-            float turn = e.def.orbitDeg * dt * Mathf.Deg2Rad;
-            float cos = Mathf.Cos(turn);
-            float sin = Mathf.Sin(turn);
-            Vector2 p = e.position * (next / r);
-            e.position = new Vector2(p.x * cos - p.y * sin, p.x * sin + p.y * cos);
+            e.position = Turned(e.position * (next / r), e.def.orbitDeg * dt);
             return next;
+        }
+
+        // точка p, повёрнутая вокруг звезды против часовой стрелки
+        static Vector2 Turned(Vector2 p, float degrees)
+        {
+            float rad = degrees * Mathf.Deg2Rad;
+            float cos = Mathf.Cos(rad);
+            float sin = Mathf.Sin(rad);
+            return new Vector2(p.x * cos - p.y * sin, p.x * sin + p.y * cos);
         }
 
         // Пожиратель: к ближайшему кристаллу рядом, иначе к звезде; возвращает новое расстояние до центра
@@ -449,7 +486,11 @@ namespace Perigee
         {
             // сытый кристаллы больше не ищет
             int c = e.eaten < config.devourMax ? crystals.Nearest(e.position, e.def.seekRadius) : CrystalSystem.None;
-            if (c == CrystalSystem.None) return Advance(e, 0f, dt);
+            if (c == CrystalSystem.None)
+            {
+                Drift(e, dt);
+                return Advance(e, 0f, dt);
+            }
 
             Vector2 target = crystals.Position(c);
             e.position = Vector2.MoveTowards(e.position, target, e.def.speed * e.speedMul * dt);
@@ -550,10 +591,10 @@ namespace Perigee
             return e.position + Vector2.up * e.radius;
         }
 
-        // Призрак сейчас прозрачный
-        static bool Phased(Enemy e)
+        // Призрак сейчас прозрачный; с ТЁМНОЙ МАТЕРИЕЙ он плотный всегда
+        bool Phased(Enemy e)
         {
-            return e.def.phaseOn > 0f && e.phase >= e.def.phaseOn;
+            return e.def.phaseOn > 0f && e.phase >= e.def.phaseOn && !loop.Stats.DarkMatter;
         }
 
         void Kill(int i)
@@ -572,6 +613,9 @@ namespace Perigee
             if (e.def.splitCount > 0) Scatter(e.position, e.def.splitCount, config.splitSpread, config.splitSpeedMul);
             // ЦЕПНАЯ РЕАКЦИЯ: на месте гибели будет взрыв
             if (loop.Stats.Chain && blastCount < blasts.Length) blasts[blastCount++] = e.position;
+            // АККРЕЦИЯ: гибель врага рядом со звездой лечит её
+            if (loop.Stats.Accretion && e.position.sqrMagnitude <= config.accretionRadius * config.accretionRadius) star.Heal(config.accretionHeal);
+            loop.Run.kills++;
             Remove(i);
         }
 

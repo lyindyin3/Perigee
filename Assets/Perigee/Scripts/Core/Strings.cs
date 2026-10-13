@@ -14,12 +14,29 @@ namespace Perigee
         public const string Daily = "ДНЕВНОЙ ЗАБЕГ";
         public const string EraFormat = "ЭРА: {0}";
         public const string BestTimeFormat = "Рекорд {0}";
-        public const string Blueprints = "ЧЕРТЕЖИ";
         public const string Back = "НАЗАД";
         public const string DustFormat = "Пыль: {0}";
-        // {0} = название, {1} = купленный уровень, {2} = всего уровней
-        public const string BlueprintLevelFormat = "{0}  {1}/{2}";
-        public const string BlueprintMax = "МАКС";
+
+        public const string Workshop = "МАСТЕРСКАЯ";
+        // вкладки Мастерской по порядку
+        public static readonly string[] WorkshopTab = { "ЧЕРТЕЖИ", "СПОСОБНОСТИ", "ОБЛИК" };
+        // по порядку BlueprintBranch
+        public static readonly string[] BranchTitle = { "ЗВЕЗДА", "УДАР", "ОРБИТА", "КРИСТАЛЛЫ" };
+        // {0} = цена
+        public const string BuyFormat = "Купить · {0}";
+        public const string BlueprintMax = "Макс.";
+        // {0} = название узла ярусом ниже
+        public const string NeedLevelFormat = "Нужен уровень: {0}";
+        public const string Owned = "Есть";
+        // {0} и {1} = секунды;   = неразрывный пробел между числом и «с»
+        public const string AbilityTimingFormat = "Действует {0:0.#} с · перезарядка {1:0.#} с";
+        public const string AbilityInstantFormat = "Мгновенно · перезарядка {0:0.#} с";
+        // по порядку SkinKind
+        public static readonly string[] SkinKindTitle = { "Спутник", "Звезда" };
+        public const string SkinSelected = "Выбран";
+        public const string SkinSelect = "Выбрать";
+        public const string EraWinFormat = "Победа в эре {0}";
+        public const string ChallengeFormat = "Испытание «{0}»";
 
         public const string Victory = "ПОБЕДА";
         public const string Defeat = "ПОРАЖЕНИЕ";
@@ -27,7 +44,13 @@ namespace Perigee
         public const string TimeFormat = "Время {0}";
         public const string RecordGapFormat = "До рекорда не хватило {0} с";
         public const string NewRecord = "Новый рекорд!";
-        public const string DustEarnedFormat = "Пыль +{0}";
+        // пыль забега по частям: {0} = кристаллы, {1} = множитель эры и чертежей, {2} = пыль за них
+        public const string DustCrystalsFormat = "Кристаллы {0} ×{1:0.##}: +{2}";
+        public const string DustVictoryFormat = "Победа: +{0}";
+        public const string DustFirstWinFormat = "Первая победа: +{0}";
+        public const string DustDailyFormat = "Первый забег дня: ×{0}";
+        public const string DustAdFormat = "Реклама: ×{0}";
+        public const string DustTotalFormat = "Итого пыли: +{0}";
         public const string EraUnlockedFormat = "Открыта эра: {0}";
 
         // кнопка с рекламой называет награду и говорит, что это реклама
@@ -36,6 +59,8 @@ namespace Perigee
         public const string GiveUp = "СДАТЬСЯ";
         public const string DoubleDustAd = "ПЫЛЬ ×2 (РЕКЛАМА)";
         public const string NewCardsAd = "НОВЫЕ КАРТОЧКИ (РЕКЛАМА)";
+        // бесплатная замена карточек: {0} = сколько осталось
+        public const string FreeRerollFormat = "ЗАМЕНИТЬ ({0})";
 
         // по порядку HintId
         public static readonly string[] Hint =
@@ -48,11 +73,29 @@ namespace Perigee
             "Резонанс: урон ×2",
         };
 
-        // имя над полосой HP босса
-        public const string BossTitle = "КОМЕТА";
+        // имя босса: над полосой HP и на баннере
+        public static string BossTitle(EnemyType boss)
+        {
+            switch (boss)
+            {
+                case EnemyType.Twin: return "БЛИЗНЕЦЫ";
+                case EnemyType.Colossus: return "КОЛОСС";
+                case EnemyType.Pulsar: return "ПУЛЬСАР";
+                default: return "КОМЕТА";
+            }
+        }
 
         // по порядку config.eras
         public static readonly string[] EraTitle = { "СОЛНЦЕ", "КРАСНЫЙ КАРЛИК", "ТЯЖЁЛАЯ ЗВЕЗДА", "ЧЁРНАЯ ДЫРА" };
+
+        // правило эры одной строкой, по порядку config.eras
+        public static readonly string[] EraRule =
+        {
+            "Спокойная звезда. Здесь учатся держать орбиту.",
+            "Вспышки: красный сектор греет спутники и жжёт врагов.",
+            "Тяжесть: спутники взлетают медленнее, падают быстрее, кристаллы тонут в звезде.",
+            "Воронка: враги летят к центру по спирали.",
+        };
 
         // подсказка при первой встрече, по порядку EnemyType до Призрака; у Роя, Снаряда и Кометы её нет
         public static readonly string[] EnemyTip =
@@ -74,15 +117,43 @@ namespace Perigee
         };
 
         // по порядку BlueprintId
-        public static readonly string[] BlueprintTitle = { "КОРПУС", "КОНДЕНСАТОР", "ОХЛАДИТЕЛЬ", "МАГНЕТИЗМ" };
-
-        // строка эффекта, по порядку BlueprintId; {0} = значение за уровень
-        public static readonly string[] BlueprintEffect =
+        public static readonly string[] BlueprintTitle =
         {
-            "HP звезды +{0} за уровень",
-            "Перезарядка способностей ×{0} за уровень",
-            "Нагрев ×{0} за уровень",
-            "Радиус магнита +{0} за уровень",
+            "КОРПУС", "ЯДРО", "ОТРАЖАТЕЛЬ", "ВТОРОЕ СОЛНЦЕ", "ЗАКАЛКА", "КАМЕРТОН", "ОСТРИЁ", "ПАРА",
+            "ТЯГА", "РАДИАТОР", "КОНДЕНСАТОР", "КВАДРИГА", "МАГНЕТИЗМ", "ОЗАРЕНИЕ", "АЛХИМИЯ", "ВЫБОР",
+        };
+
+        // текст узла, по порядку BlueprintId; {0} = что дают купленные уровни вместе (Blueprints.Total)
+        public static readonly string[] BlueprintText =
+        {
+            "Звезда: +8 к макс. HP за уровень. Сейчас +{0:0.##}",
+            "Звезда лечится +0.07 HP/с за уровень. Сейчас +{0:0.##}",
+            "Урон по звезде −5% за уровень. Сейчас −{0:0.#}%",
+            "Раз за забег звезда вспыхивает вместо гибели: 25% HP и волна",
+            "Удар +3% за уровень. Сейчас +{0:0.#}%",
+            "Резонанс +0.1 за уровень. Сейчас ×{0:0.##}",
+            "Шанс крита +3% за уровень. Сейчас {0:0.#}%",
+            "Забег начинается с двумя спутниками",
+            "Выход и падение +5% за уровень. Сейчас +{0:0.#}%",
+            "Нагрев −6% за уровень. Сейчас −{0:0.#}%",
+            "Перезарядка способностей −5% за уровень. Сейчас −{0:0.#}%",
+            "Можно взять четвёртый спутник",
+            "Притяжение кристаллов +0.3 за уровень. Сейчас +{0:0.##}",
+            "Опыта на уровень −5% за уровень. Сейчас −{0:0.#}%",
+            "Пыль за забег +8% за уровень. Сейчас +{0:0.#}%",
+            "Ур. 1: бесплатная замена карточек раз в забег. Ур. 2: на выбор 4 карточки",
+        };
+
+        // по порядку SkinId
+        public static readonly string[] SkinTitle =
+        {
+            "Ромб", "Спутник-1", "Шестерня", "Луна", "Звёздочка", "Глаз", "Солнце", "Око", "Подсолнух", "Мотор",
+        };
+
+        // по номеру испытания с нуля
+        public static readonly string[] ChallengeTitle =
+        {
+            "ОДИНОЧКА", "СТЕКЛЯННАЯ ЗВЕЗДА", "ВЫСОКАЯ ОРБИТА", "РОЙ", "БЕЗ СПОСОБНОСТЕЙ", "ЖАРА", "ВСТРЕЧНЫЙ ВЕТЕР", "МАРАФОН",
         };
 
         // время вида мм:сс
@@ -93,7 +164,7 @@ namespace Perigee
         }
 
         public const string CardPickTitle = "ВЫБЕРИ КАРТОЧКУ";
-        public const string MulFormat = "×{0}";
+        public const string MulFormat = "×{0:0.#}";
         public const string AbilityPickTitle = "ВЫБЕРИ СПОСОБНОСТЬ";
         //   = неразрывный пробел: число и «с» не разъезжаются по строкам
         public const string CooldownFormat = "Перезарядка {0:0.#} с";
@@ -122,12 +193,14 @@ namespace Perigee
             "ТЯЖЁЛЫЙ СПУТНИК", "ДАЛЬНИЙ УДАР", "ОСТРЫЕ ГРАНИ", "БРОНЕБОЙ", "РАСКОЛ", "НИТЬ-ПИЛА", "РАСКАЛЁННЫЙ", "ЦЕПНАЯ РЕАКЦИЯ",
             "НОВЫЙ СПУТНИК", "РЕАКТИВНЫЙ ДВИГАТЕЛЬ", "РАЗГОН", "КРУПНЫЙ СПУТНИК", "МАГНИТ", "ЖАДНОСТЬ", "ОХЛАДИТЕЛЬ",
             "БРОНЯ ЗВЕЗДЫ", "ФОТОСФЕРА", "КОРОНА", "МАЯК", "ПЕРЕЗАРЯДКА", "ДОЛГОЕ ДЕЙСТВИЕ",
+            "ЖАРОСТОЙКОСТЬ", "СОЛНЕЧНЫЙ ПАРУС", "ЖАР-ПТИЦА", "ПРАЩА", "ГРАВИЗАХВАТ", "ЛОМ", "ГОРИЗОНТ СОБЫТИЙ", "ТЁМНАЯ МАТЕРИЯ", "АККРЕЦИЯ",
         };
 
         // подпись на иконке взятой карточки, по порядку CardId
         public static readonly string[] CardShort =
         {
             "ТС", "ДУ", "ОГ", "ББ", "РК", "НП", "РЛ", "ЦР", "НС", "РД", "РЗ", "КС", "МГ", "ЖД", "ОХ", "БЗ", "ФС", "КР", "МК", "ПЗ", "ДД",
+            "ЖС", "СП", "ЖП", "ПР", "ГЗ", "ЛМ", "ГС", "ТМ", "АК",
         };
 
         // плюс карточки, по порядку CardId;   = неразрывный пробел между числом и «с»
@@ -154,6 +227,15 @@ namespace Perigee
             "Волна от звезды каждые 8 с",
             "Перезарядка способностей ×0.75",
             "Способности действуют ×1.4 дольше",
+            "Вспышки и Факелы не греют",
+            "Во время вспышки и 3 с после: удар ×2",
+            "Спутник с нагревом от 70% бьёт ×1.5",
+            "1 с после отпускания: удар ×1.5",
+            "Кристаллы не тонут в звезде",
+            "Щит Щитника ломается с 1 удара, Кружащие получают ×2",
+            "Враги ближе 1.8 к центру теряют 2 HP/с",
+            "Призраки не уходят в фазу",
+            "Убийство ближе 3.0 к центру лечит 1 HP",
         };
 
         // минус карточки, по порядку CardId
@@ -180,6 +262,15 @@ namespace Perigee
             "Кристаллы живут ×0.6",
             "Удар ×0.9",
             "Перезарядка ×1.15",
+            "Вращение ×0.95",
+            "Нагрев ×1.1",
+            "Нагрев ×1.2",
+            "Выход ×0.9",
+            "Удар ×0.95",
+            "Вращение ×0.9",
+            "Макс. HP звезды −10",
+            "Удар ×0.95",
+            "Кристаллы живут ×0.8",
         };
 
         const char PipOn = '●';

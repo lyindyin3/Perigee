@@ -69,6 +69,8 @@ namespace Perigee
             float pickup = satellites.HitterRadius + config.crystalRadius;
             float magnet = loop.Stats.magnetRadius;
             int hitters = satellites.HitterCount;
+            // Тяжёлая звезда: кристаллы тонут в ней; ГРАВИЗАХВАТ их держит
+            bool sink = loop.Era.rule == EraRule.Heavy && !loop.Stats.AnchorField;
 
             for (int i = count - 1; i >= 0; i--)
             {
@@ -110,6 +112,18 @@ namespace Perigee
                     Vector2 target = satellites.HitterPosition(nearest);
                     c.position = Vector2.MoveTowards(c.position, target, config.magnetSpeed * dt);
                     nearestSq = (target - c.position).sqrMagnitude;
+                }
+                else if (sink)
+                {
+                    // тонет только кристалл, который не тянет магнит; дойдя до звезды, пропадает
+                    float r = c.position.magnitude;
+                    float next = r - config.crystalSink * dt;
+                    if (next <= config.starRadius)
+                    {
+                        Remove(i);
+                        continue;
+                    }
+                    c.position *= next / r;
                 }
 
                 if (nearestSq <= pickup * pickup)

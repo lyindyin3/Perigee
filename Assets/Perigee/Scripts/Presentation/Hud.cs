@@ -16,12 +16,12 @@ namespace Perigee
         [SerializeField] ArtSet art;
         [SerializeField] GameLoop loop;
         [SerializeField] CardSystem cards;
-        [SerializeField] BossComet boss;
+        [SerializeField] BossSystem boss;
         [SerializeField] RectTransform safeArea;
         [SerializeField] BarView hpBar;
         [SerializeField] BarView xpBar;
         [SerializeField] TMP_Text levelText;
-        // имя и полоса HP Кометы: видны, пока Комета жива
+        // имя и полоса HP босса: видны, пока он жив; у Близнецов полоса показывает сумму
         [SerializeField] GameObject bossPanel;
         [SerializeField] BarView bossBar;
         [SerializeField] TMP_Text bossName;
@@ -75,7 +75,7 @@ namespace Perigee
             if (bossPanel.activeSelf != boss.Alive)
             {
                 bossPanel.SetActive(boss.Alive);
-                bossName.text = Strings.BossTitle;
+                bossName.text = Strings.BossTitle(loop.Era.boss);
             }
             if (boss.Alive) bossBar.Set(boss.Hp, boss.MaxHp);
 

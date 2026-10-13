@@ -3,12 +3,13 @@ using UnityEngine;
 namespace Perigee
 {
     // Серебряное кольцо на радиусе, где внутренний спутник бьёт ровно на броню Бастиона (armorBase минус БРОНЕБОЙ):
-    // ближе к звезде удар пробивает броню, дальше нет.
+    // ближе к звезде удар пробивает броню, дальше нет. Пока жив Колосс, кольцо показывает его броню.
     public class ArmorRing : MonoBehaviour
     {
         [SerializeField] GameConfig config;
         [SerializeField] GameLoop loop;
         [SerializeField] SatelliteSystem satellites;
+        [SerializeField] BossSystem boss;
         [SerializeField] Visual visual;
         // декор на кольце, в сцене выключен
         [SerializeField] Behaviour tutorialPulse;
@@ -25,7 +26,7 @@ namespace Perigee
         // вызывает GameLoop после каждого пересчёта Stats
         public void Refresh()
         {
-            float armor = config.armorBase - loop.Stats.armorPierce;
+            float armor = (boss.Armor > 0f ? boss.Armor : config.armorBase) - loop.Stats.armorPierce;
             // если брони не осталось или удар пробивает её и вдали, кольцо не нужно
             gameObject.SetActive(armor > 0f && satellites.Power(config.powerFarRadius) < armor);
 
