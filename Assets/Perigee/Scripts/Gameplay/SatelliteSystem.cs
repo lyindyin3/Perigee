@@ -30,6 +30,8 @@ namespace Perigee
             public bool resonant;
             // звук перегрева уже был; снова прозвучит, когда спутник остынет
             public bool overheatHeard;
+            // секунды замедления после удара по Студню
+            public float slow;
         }
 
         [SerializeField] GameConfig config;
@@ -143,7 +145,10 @@ namespace Perigee
             {
                 Satellite s = satellites[i];
                 s.r = Mathf.Min(baseR + i * config.ringGap, config.satMaxRadius);
-                s.angle = Mathf.Repeat(s.angle + orbitDir * AngularSpeed(s.r) * dt, 360f);
+                // Студень: после удара по нему спутник какое-то время кружит медленнее
+                float spin = s.slow > 0f ? config.jellySlow : 1f;
+                s.slow -= dt;
+                s.angle = Mathf.Repeat(s.angle + orbitDir * AngularSpeed(s.r) * spin * dt, 360f);
                 s.fade = Mathf.Max(s.fade - dt, 0f);
                 Heat(s, dt);
                 Place(s);
@@ -236,6 +241,18 @@ namespace Perigee
             if (k >= count || satellites[k].stun > 0f) return;
             satellites[k].heat += amount;
             Overheat(satellites[k]);
+        }
+
+        // удар спутника k по Студню: спутник замедляется; тень не замедляется
+        public void Slow(int k)
+        {
+            if (k < count) satellites[k].slow = config.jellyTime;
+        }
+
+        // удар по Отбойнику: орбита сразу подскакивает наружу
+        public void Kick()
+        {
+            baseR = Mathf.Min(baseR + config.bumperKick, config.ringMax);
         }
 
         // волна Пульсара: спутник i оглушён сразу, сколько бы нагрева у него ни было
@@ -335,6 +352,7 @@ namespace Perigee
             s.r = Mathf.Min(baseR + count * config.ringGap, config.satMaxRadius);
             s.heat = 0f;
             s.stun = 0f;
+            s.slow = 0f;
             s.fade = fade;
             s.resonant = false;
             count++;

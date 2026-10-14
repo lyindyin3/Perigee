@@ -65,6 +65,8 @@ namespace Perigee
         public TMP_Text damageNumber;
         [Tooltip("Кольцо волны Пульсара")]
         public Visual pulsarWave;
+        [Tooltip("Значок свойства элиты над врагом, по порядку EliteAffix")]
+        public SpriteSlot[] affixIcons;
 
         [Header("Карточки")]
         [Tooltip("Иконки карточек, по порядку CardId")]
@@ -96,8 +98,12 @@ namespace Perigee
         static readonly string[] EnemyNames =
         {
             "Рой", "Стрела", "Снаряд", "Бастион", "Паразит", "Стрелок", "Улей", "Комета", "Дробитель", "Факел", "Кружащий", "Щитник",
-            "Пожиратель", "Призрак", "Близнецы", "Колосс", "Пульсар",
+            "Пожиратель", "Призрак", "Близнецы", "Колосс", "Пульсар", "Студень", "Мина", "Отбойник", "Прыгун", "Затмитель", "Сеятель",
+            "Зеркало", "Гравитон", "Бездна", "Метеор", "Золотая комета",
         };
+
+        // EliteAffix
+        static readonly string[] AffixNames = { "броня", "скорость", "великан", "лечение" };
 
         // CardColor: рамка по цвету
         static readonly string[] FrameNames = { "кремовая", "красная", "чёрная", "золотая" };
@@ -128,6 +134,7 @@ namespace Perigee
             Name(abilityIcons = Fit(abilityIcons, Strings.AbilityTitle.Length), typeof(AbilityId), Strings.AbilityTitle);
             Name(blueprintIcons = Fit(blueprintIcons, Strings.BlueprintTitle.Length), typeof(BlueprintId), Strings.BlueprintTitle);
             Name(cardFrames = Fit(cardFrames, FrameNames.Length), typeof(CardColor), FrameNames);
+            Name(affixIcons = Fit(affixIcons, AffixNames.Length), typeof(EliteAffix), AffixNames);
 
             int eras = Strings.EraTitle.Length;
             eraIcons = Fit(eraIcons, eras);

@@ -789,6 +789,11 @@ MonoBehaviour:
     orbitRadius: 0
     orbitDeg: 0
     orbitInSpeed: 0
+    slowHitter: 0
+    kickHitter: 0
+    lightCut: 0
+    blinkInterval: 0
+    blinkDeg: 0
   - id: 1
     radius: 0.15
     hp: 1
@@ -808,6 +813,11 @@ MonoBehaviour:
     orbitRadius: 0
     orbitDeg: 0
     orbitInSpeed: 0
+    slowHitter: 0
+    kickHitter: 0
+    lightCut: 0
+    blinkInterval: 0
+    blinkDeg: 0
   - id: 2
     radius: 0.15
     hp: 1
@@ -827,6 +837,11 @@ MonoBehaviour:
     orbitRadius: 0
     orbitDeg: 0
     orbitInSpeed: 0
+    slowHitter: 0
+    kickHitter: 0
+    lightCut: 0
+    blinkInterval: 0
+    blinkDeg: 0
   - id: 3
     radius: 0.55
     hp: 5
@@ -846,6 +861,11 @@ MonoBehaviour:
     orbitRadius: 0
     orbitDeg: 0
     orbitInSpeed: 0
+    slowHitter: 0
+    kickHitter: 0
+    lightCut: 0
+    blinkInterval: 0
+    blinkDeg: 0
   - id: 4
     radius: 0.25
     hp: 5
@@ -865,6 +885,11 @@ MonoBehaviour:
     orbitRadius: 0
     orbitDeg: 0
     orbitInSpeed: 0
+    slowHitter: 0
+    kickHitter: 0
+    lightCut: 0
+    blinkInterval: 0
+    blinkDeg: 0
   - id: 5
     radius: 0.3
     hp: 2
@@ -884,6 +909,11 @@ MonoBehaviour:
     orbitRadius: 0
     orbitDeg: 0
     orbitInSpeed: 0
+    slowHitter: 0
+    kickHitter: 0
+    lightCut: 0
+    blinkInterval: 0
+    blinkDeg: 0
   - id: 6
     radius: 0.6
     hp: 4
@@ -903,6 +933,11 @@ MonoBehaviour:
     orbitRadius: 0
     orbitDeg: 0
     orbitInSpeed: 0
+    slowHitter: 0
+    kickHitter: 0
+    lightCut: 0
+    blinkInterval: 0
+    blinkDeg: 0
   - id: 7
     radius: 0.9
     hp: 80
@@ -922,6 +957,11 @@ MonoBehaviour:
     orbitRadius: 0
     orbitDeg: 0
     orbitInSpeed: 0
+    slowHitter: 0
+    kickHitter: 0
+    lightCut: 0
+    blinkInterval: 0
+    blinkDeg: 0
   - id: 8
     radius: 0.32
     hp: 2
@@ -941,6 +981,11 @@ MonoBehaviour:
     orbitRadius: 0
     orbitDeg: 0
     orbitInSpeed: 0
+    slowHitter: 0
+    kickHitter: 0
+    lightCut: 0
+    blinkInterval: 0
+    blinkDeg: 0
   - id: 9
     radius: 0.28
     hp: 3
@@ -960,6 +1005,11 @@ MonoBehaviour:
     orbitRadius: 0
     orbitDeg: 0
     orbitInSpeed: 0
+    slowHitter: 0
+    kickHitter: 0
+    lightCut: 0
+    blinkInterval: 0
+    blinkDeg: 0
   - id: 10
     radius: 0.25
     hp: 3
@@ -979,6 +1029,11 @@ MonoBehaviour:
     orbitRadius: 4.2
     orbitDeg: 50
     orbitInSpeed: 0.2
+    slowHitter: 0
+    kickHitter: 0
+    lightCut: 0
+    blinkInterval: 0
+    blinkDeg: 0
   - id: 11
     radius: 0.35
     hp: 3
@@ -998,6 +1053,11 @@ MonoBehaviour:
     orbitRadius: 0
     orbitDeg: 0
     orbitInSpeed: 0
+    slowHitter: 0
+    kickHitter: 0
+    lightCut: 0
+    blinkInterval: 0
+    blinkDeg: 0
   - id: 12
     radius: 0.4
     hp: 4
@@ -1017,6 +1077,11 @@ MonoBehaviour:
     orbitRadius: 0
     orbitDeg: 0
     orbitInSpeed: 0
+    slowHitter: 0
+    kickHitter: 0
+    lightCut: 0
+    blinkInterval: 0
+    blinkDeg: 0
   - id: 13
     radius: 0.22
     hp: 1.5
@@ -1036,6 +1101,11 @@ MonoBehaviour:
     orbitRadius: 0
     orbitDeg: 0
     orbitInSpeed: 0
+    slowHitter: 0
+    kickHitter: 0
+    lightCut: 0
+    blinkInterval: 0
+    blinkDeg: 0
   - id: 14
     radius: 0.75
     hp: 70
@@ -1055,6 +1125,11 @@ MonoBehaviour:
     orbitRadius: 0
     orbitDeg: 0
     orbitInSpeed: 0
+    slowHitter: 0
+    kickHitter: 0
+    lightCut: 0
+    blinkInterval: 0
+    blinkDeg: 0
   - id: 15
     radius: 1.1
     hp: 220
@@ -1074,6 +1149,11 @@ MonoBehaviour:
     orbitRadius: 0
     orbitDeg: 0
     orbitInSpeed: 0
+    slowHitter: 0
+    kickHitter: 0
+    lightCut: 0
+    blinkInterval: 0
+    blinkDeg: 0
   - id: 16
     radius: 1
     hp: 160
@@ -1093,6 +1173,179 @@ MonoBehaviour:
     orbitRadius: 0
     orbitDeg: 0
     orbitInSpeed: 0
+    slowHitter: 0
+    kickHitter: 0
+    lightCut: 0
+    blinkInterval: 0
+    blinkDeg: 0
+  - id: 17
+    radius: 0.38
+    hp: 4
+    speed: 0.6
+    armor: 0
+    starDamage: 12
+    crystals: 4
+    behavior: 0
+    faceStar: 1
+    prewarm: 8
+    splitCount: 0
+    heatOnHit: 0
+    shieldHits: 0
+    phaseOn: 0
+    phaseOff: 0
+    seekRadius: 0
+    orbitRadius: 0
+    orbitDeg: 0
+    orbitInSpeed: 0
+    slowHitter: 1
+    kickHitter: 0
+    lightCut: 0
+    blinkInterval: 0
+    blinkDeg: 0
+  - id: 18
+    radius: 0.3
+    hp: 2
+    speed: 1.2
+    armor: 0
+    starDamage: 14
+    crystals: 3
+    behavior: 9
+    faceStar: 1
+    prewarm: 8
+    splitCount: 0
+    heatOnHit: 0
+    shieldHits: 0
+    phaseOn: 0
+    phaseOff: 0
+    seekRadius: 0
+    orbitRadius: 0
+    orbitDeg: 0
+    orbitInSpeed: 0
+    slowHitter: 0
+    kickHitter: 0
+    lightCut: 0
+    blinkInterval: 0
+    blinkDeg: 0
+  - id: 19
+    radius: 0.34
+    hp: 3
+    speed: 0.8
+    armor: 0
+    starDamage: 10
+    crystals: 3
+    behavior: 0
+    faceStar: 1
+    prewarm: 8
+    splitCount: 0
+    heatOnHit: 0
+    shieldHits: 0
+    phaseOn: 0
+    phaseOff: 0
+    seekRadius: 0
+    orbitRadius: 0
+    orbitDeg: 0
+    orbitInSpeed: 0
+    slowHitter: 0
+    kickHitter: 1
+    lightCut: 0
+    blinkInterval: 0
+    blinkDeg: 0
+  - id: 20
+    radius: 0.24
+    hp: 2
+    speed: 1.1
+    armor: 0
+    starDamage: 8
+    crystals: 3
+    behavior: 10
+    faceStar: 1
+    prewarm: 8
+    splitCount: 0
+    heatOnHit: 0
+    shieldHits: 0
+    phaseOn: 0
+    phaseOff: 0
+    seekRadius: 0
+    orbitRadius: 0
+    orbitDeg: 0
+    orbitInSpeed: 0
+    slowHitter: 0
+    kickHitter: 0
+    lightCut: 0
+    blinkInterval: 1.6
+    blinkDeg: 35
+  - id: 21
+    radius: 0.45
+    hp: 6
+    speed: 0.5
+    armor: 1
+    starDamage: 18
+    crystals: 6
+    behavior: 0
+    faceStar: 1
+    prewarm: 4
+    splitCount: 0
+    heatOnHit: 0
+    shieldHits: 0
+    phaseOn: 0
+    phaseOff: 0
+    seekRadius: 0
+    orbitRadius: 0
+    orbitDeg: 0
+    orbitInSpeed: 0
+    slowHitter: 0
+    kickHitter: 0
+    lightCut: 0.8
+    blinkInterval: 0
+    blinkDeg: 0
+  - id: 26
+    radius: 0.22
+    hp: 1
+    speed: 4
+    armor: 0
+    starDamage: 3
+    crystals: 0
+    behavior: 11
+    faceStar: 0
+    prewarm: 10
+    splitCount: 0
+    heatOnHit: 0
+    shieldHits: 0
+    phaseOn: 0
+    phaseOff: 0
+    seekRadius: 0
+    orbitRadius: 0
+    orbitDeg: 0
+    orbitInSpeed: 0
+    slowHitter: 0
+    kickHitter: 0
+    lightCut: 0
+    blinkInterval: 0
+    blinkDeg: 0
+  - id: 27
+    radius: 0.4
+    hp: 6
+    speed: 2
+    armor: 0
+    starDamage: 0
+    crystals: 40
+    behavior: 11
+    faceStar: 0
+    prewarm: 1
+    splitCount: 0
+    heatOnHit: 0
+    shieldHits: 0
+    phaseOn: 0
+    phaseOff: 0
+    seekRadius: 0
+    orbitRadius: 0
+    orbitDeg: 0
+    orbitInSpeed: 0
+    slowHitter: 0
+    kickHitter: 0
+    lightCut: 0
+    blinkInterval: 0
+    blinkDeg: 0
   parasiteAttachOffset: 0.15
   parasiteDrainBase: 1.5
   parasiteDrainGrowth: 0.4
@@ -1110,6 +1363,36 @@ MonoBehaviour:
   devourHp: 1
   devourGrow: 0.04
   phantomAlpha: 0.25
+  jellyTime: 1
+  jellySlow: 0.5
+  bumperKick: 1.2
+  mineStopMin: 2.6
+  mineStopMax: 5
+  mineWait: 12
+  mineRadius: 1.3
+  mineDamage: 4
+  mineHeat: 0.6
+  blinkWarn: 0.25
+  blinkFlashColor: {r: 0.9372549, g: 0.89411765, b: 0.78431374, a: 1}
+  chordInner: 3
+  chordExit: 0.5
+  goldCometMiss: 3
+  meteorDamage: 3
+  meteorCrystals: 3
+  eliteMinBaseHp: 2
+  eliteHpMul: 1.5
+  eliteCrystalMul: 3
+  eliteArmor: 1.5
+  eliteSpeedMul: 1.5
+  giantHpMul: 2
+  giantRadiusMul: 1.35
+  giantStarDamageMul: 1.5
+  eliteRegen: 0.08
+  eliteRegenDelay: 1.5
+  endlessEliteStep: 0.03
+  eliteMax: 0.3
+  eliteSparks: 8
+  eliteGold: {r: 0.8901961, g: 0.69803923, b: 0.23529412, a: 1}
   flareFirst: 25
   flareInterval: 25
   flareMinGap: 60
@@ -1286,6 +1569,8 @@ MonoBehaviour:
     fallMul: 1
     rule: 0
     boss: 7
+    herald: 3
+    eliteChance: 0
     music: 1
     opening:
     - time: 2
@@ -1508,6 +1793,8 @@ MonoBehaviour:
     fallMul: 1
     rule: 1
     boss: 14
+    herald: 8
+    eliteChance: 0
     music: 1
     opening:
     - time: 2
@@ -1770,6 +2057,8 @@ MonoBehaviour:
     fallMul: 1.3
     rule: 2
     boss: 15
+    herald: 11
+    eliteChance: 0
     music: 2
     opening:
     - time: 2
@@ -2050,6 +2339,8 @@ MonoBehaviour:
     fallMul: 1
     rule: 3
     boss: 16
+    herald: 12
+    eliteChance: 0
     music: 2
     opening:
     - time: 2
@@ -2334,6 +2625,1196 @@ MonoBehaviour:
     background: {r: 0.019607844, g: 0.019607844, b: 0.019607844, a: 1}
     starTint: {r: 0.14901961, g: 0.14901961, b: 0.14901961, a: 1}
     raysTint: {r: 1, g: 1, b: 1, a: 1}
+  - kExp: 1
+    spinMul: 1.1
+    hpMul: 2.6
+    countMul: 1.55
+    ambientInterval: 2.9
+    dustMul: 2.1
+    riseMul: 1
+    fallMul: 1
+    rule: 0
+    boss: 7
+    herald: 17
+    eliteChance: 0.06
+    music: 3
+    opening:
+    - time: 2
+      groups:
+      - type: 0
+        count: 4
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 8
+      groups:
+      - type: 17
+        count: 1
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 14
+      groups:
+      - type: 3
+        count: 1
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    timeline:
+    - time: 20
+      groups:
+      - type: 0
+        count: 8
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 28
+      groups:
+      - type: 17
+        count: 2
+        angleMode: 4
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 36
+      groups:
+      - type: 3
+        count: 1
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 8
+        count: 2
+        angleMode: 1
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 46
+      groups:
+      - type: 1
+        count: 2
+        angleMode: 2
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 17
+        count: 1
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 56
+      groups:
+      - type: 0
+        count: 10
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 9
+        count: 2
+        angleMode: 4
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 62
+      groups:
+      - type: 1
+        count: 2
+        angleMode: 2
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 11
+        count: 1
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 70
+      groups:
+      - type: 4
+        count: 1
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 17
+        count: 2
+        angleMode: 1
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 80
+      groups:
+      - type: 3
+        count: 1
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 0
+        count: 8
+        angleMode: 1
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 88
+      groups:
+      - type: 6
+        count: 1
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 17
+        count: 2
+        angleMode: 2
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 98
+      groups:
+      - type: 5
+        count: 1
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 10
+        count: 2
+        angleMode: 4
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 108
+      groups:
+      - type: 1
+        count: 3
+        angleMode: 3
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 8
+        count: 2
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 116
+      groups:
+      - type: 6
+        count: 2
+        angleMode: 4
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 126
+      groups:
+      - type: 0
+        count: 11
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 17
+        count: 3
+        angleMode: 3
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 136
+      groups:
+      - type: 3
+        count: 2
+        angleMode: 4
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 12
+        count: 1
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 146
+      groups:
+      - type: 6
+        count: 1
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 1
+        count: 2
+        angleMode: 2
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 13
+        count: 2
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 156
+      groups:
+      - type: 4
+        count: 2
+        angleMode: 2
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 17
+        count: 3
+        angleMode: 3
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 164
+      groups:
+      - type: 5
+        count: 2
+        angleMode: 4
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 3
+        count: 1
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 172
+      groups:
+      - type: 1
+        count: 4
+        angleMode: 3
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 17
+        count: 2
+        angleMode: 4
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 0
+        count: 10
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    victoryDust: 300
+    firstWinDust: 1000
+    background: {r: 0.050980393, g: 0.039215688, b: 0.07058824, a: 1}
+    starTint: {r: 0.9098039, g: 0.8235294, b: 1, a: 1}
+    raysTint: {r: 0.9098039, g: 0.8235294, b: 1, a: 1}
+  - kExp: 0.95
+    spinMul: 1.1
+    hpMul: 2.9
+    countMul: 1.6
+    ambientInterval: 2.8
+    dustMul: 2.4
+    riseMul: 1
+    fallMul: 1
+    rule: 0
+    boss: 7
+    herald: 19
+    eliteChance: 0.08
+    music: 3
+    opening:
+    - time: 2
+      groups:
+      - type: 0
+        count: 4
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 8
+      groups:
+      - type: 18
+        count: 2
+        angleMode: 4
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 14
+      groups:
+      - type: 19
+        count: 1
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    timeline:
+    - time: 20
+      groups:
+      - type: 0
+        count: 8
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 28
+      groups:
+      - type: 18
+        count: 3
+        angleMode: 3
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 36
+      groups:
+      - type: 3
+        count: 1
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 19
+        count: 1
+        angleMode: 1
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 46
+      groups:
+      - type: 1
+        count: 2
+        angleMode: 2
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 18
+        count: 2
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 56
+      groups:
+      - type: 0
+        count: 10
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 19
+        count: 2
+        angleMode: 4
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 62
+      groups:
+      - type: 1
+        count: 2
+        angleMode: 2
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 17
+        count: 1
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 70
+      groups:
+      - type: 4
+        count: 1
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 18
+        count: 3
+        angleMode: 3
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 80
+      groups:
+      - type: 3
+        count: 1
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 0
+        count: 8
+        angleMode: 1
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 19
+        count: 1
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 88
+      groups:
+      - type: 10
+        count: 3
+        angleMode: 3
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 98
+      groups:
+      - type: 5
+        count: 1
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 18
+        count: 2
+        angleMode: 1
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 108
+      groups:
+      - type: 1
+        count: 3
+        angleMode: 3
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 19
+        count: 2
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 116
+      groups:
+      - type: 6
+        count: 1
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 11
+        count: 2
+        angleMode: 4
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 126
+      groups:
+      - type: 0
+        count: 11
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 18
+        count: 4
+        angleMode: 3
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 136
+      groups:
+      - type: 3
+        count: 2
+        angleMode: 4
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 19
+        count: 2
+        angleMode: 4
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 146
+      groups:
+      - type: 6
+        count: 1
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 1
+        count: 2
+        angleMode: 2
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 17
+        count: 2
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 156
+      groups:
+      - type: 4
+        count: 2
+        angleMode: 2
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 18
+        count: 3
+        angleMode: 3
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 164
+      groups:
+      - type: 5
+        count: 2
+        angleMode: 4
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 3
+        count: 1
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 19
+        count: 2
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 172
+      groups:
+      - type: 1
+        count: 4
+        angleMode: 3
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 18
+        count: 4
+        angleMode: 3
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 0
+        count: 10
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    victoryDust: 350
+    firstWinDust: 1200
+    background: {r: 0.0627451, g: 0.047058824, b: 0.02745098, a: 1}
+    starTint: {r: 1, g: 0.8509804, b: 0.627451, a: 1}
+    raysTint: {r: 1, g: 0.8509804, b: 0.627451, a: 1}
+  - kExp: 1
+    spinMul: 1.15
+    hpMul: 3.2
+    countMul: 1.65
+    ambientInterval: 2.7
+    dustMul: 2.7
+    riseMul: 1
+    fallMul: 1
+    rule: 0
+    boss: 7
+    herald: 20
+    eliteChance: 0.1
+    music: 4
+    opening:
+    - time: 2
+      groups:
+      - type: 0
+        count: 4
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 8
+      groups:
+      - type: 20
+        count: 2
+        angleMode: 4
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 14
+      groups:
+      - type: 3
+        count: 1
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    timeline:
+    - time: 20
+      groups:
+      - type: 0
+        count: 8
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 28
+      groups:
+      - type: 20
+        count: 3
+        angleMode: 3
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 36
+      groups:
+      - type: 3
+        count: 1
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 10
+        count: 2
+        angleMode: 1
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 46
+      groups:
+      - type: 1
+        count: 2
+        angleMode: 2
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 20
+        count: 2
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 56
+      groups:
+      - type: 0
+        count: 10
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 18
+        count: 2
+        angleMode: 4
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 62
+      groups:
+      - type: 1
+        count: 2
+        angleMode: 2
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 11
+        count: 1
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 20
+        count: 1
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 70
+      groups:
+      - type: 4
+        count: 1
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 19
+        count: 2
+        angleMode: 1
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 80
+      groups:
+      - type: 3
+        count: 1
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 0
+        count: 8
+        angleMode: 1
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 88
+      groups:
+      - type: 20
+        count: 4
+        angleMode: 3
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 98
+      groups:
+      - type: 5
+        count: 1
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 13
+        count: 3
+        angleMode: 3
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 108
+      groups:
+      - type: 1
+        count: 3
+        angleMode: 3
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 20
+        count: 2
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 116
+      groups:
+      - type: 6
+        count: 1
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 12
+        count: 1
+        angleMode: 1
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 126
+      groups:
+      - type: 0
+        count: 11
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 20
+        count: 3
+        angleMode: 3
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 136
+      groups:
+      - type: 3
+        count: 2
+        angleMode: 4
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 17
+        count: 2
+        angleMode: 4
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 146
+      groups:
+      - type: 6
+        count: 1
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 1
+        count: 2
+        angleMode: 2
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 20
+        count: 2
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 156
+      groups:
+      - type: 4
+        count: 2
+        angleMode: 2
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 10
+        count: 3
+        angleMode: 3
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 164
+      groups:
+      - type: 5
+        count: 2
+        angleMode: 4
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 3
+        count: 1
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 20
+        count: 2
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 172
+      groups:
+      - type: 1
+        count: 4
+        angleMode: 3
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 20
+        count: 4
+        angleMode: 3
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 0
+        count: 10
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    victoryDust: 400
+    firstWinDust: 1400
+    background: {r: 0.023529412, g: 0.0627451, b: 0.05490196, a: 1}
+    starTint: {r: 0.78431374, g: 1, b: 0.9411765, a: 1}
+    raysTint: {r: 0.78431374, g: 1, b: 0.9411765, a: 1}
+  - kExp: 1
+    spinMul: 1.15
+    hpMul: 3.5
+    countMul: 1.7
+    ambientInterval: 2.6
+    dustMul: 3
+    riseMul: 1
+    fallMul: 1
+    rule: 0
+    boss: 7
+    herald: 21
+    eliteChance: 0.12
+    music: 4
+    opening:
+    - time: 2
+      groups:
+      - type: 0
+        count: 4
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 8
+      groups:
+      - type: 13
+        count: 2
+        angleMode: 4
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 14
+      groups:
+      - type: 21
+        count: 1
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    timeline:
+    - time: 20
+      groups:
+      - type: 0
+        count: 8
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 28
+      groups:
+      - type: 13
+        count: 3
+        angleMode: 3
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 36
+      groups:
+      - type: 3
+        count: 1
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 21
+        count: 1
+        angleMode: 1
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 46
+      groups:
+      - type: 1
+        count: 2
+        angleMode: 2
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 20
+        count: 2
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 56
+      groups:
+      - type: 0
+        count: 10
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 17
+        count: 2
+        angleMode: 4
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 62
+      groups:
+      - type: 1
+        count: 2
+        angleMode: 2
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 18
+        count: 2
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 70
+      groups:
+      - type: 4
+        count: 1
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 21
+        count: 1
+        angleMode: 1
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 80
+      groups:
+      - type: 3
+        count: 1
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 0
+        count: 8
+        angleMode: 1
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 19
+        count: 1
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 88
+      groups:
+      - type: 13
+        count: 4
+        angleMode: 3
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 98
+      groups:
+      - type: 5
+        count: 1
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 12
+        count: 1
+        angleMode: 1
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 108
+      groups:
+      - type: 1
+        count: 3
+        angleMode: 3
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 21
+        count: 1
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 116
+      groups:
+      - type: 6
+        count: 1
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 20
+        count: 2
+        angleMode: 1
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 126
+      groups:
+      - type: 0
+        count: 11
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 13
+        count: 3
+        angleMode: 3
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 136
+      groups:
+      - type: 3
+        count: 2
+        angleMode: 4
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 21
+        count: 1
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 146
+      groups:
+      - type: 6
+        count: 1
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 1
+        count: 2
+        angleMode: 2
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 10
+        count: 2
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 156
+      groups:
+      - type: 4
+        count: 2
+        angleMode: 2
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 13
+        count: 4
+        angleMode: 3
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 164
+      groups:
+      - type: 5
+        count: 2
+        angleMode: 4
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 21
+        count: 2
+        angleMode: 4
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    - time: 172
+      groups:
+      - type: 1
+        count: 4
+        angleMode: 3
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 13
+        count: 6
+        angleMode: 3
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+      - type: 0
+        count: 10
+        angleMode: 0
+        spreadDeg: 30
+        speedMul: 1
+        radius: 0
+    victoryDust: 500
+    firstWinDust: 2000
+    background: {r: 0, g: 0, b: 0, a: 1}
+    starTint: {r: 1, g: 1, b: 1, a: 1}
+    raysTint: {r: 0.8392157, g: 0.15686275, b: 0.12156863, a: 1}
   endlessLoopTime: 160
   endlessHpStep: 0.35
   endlessCountStep: 0.2

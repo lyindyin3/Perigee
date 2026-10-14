@@ -192,9 +192,23 @@ namespace Perigee
                         angle += spawnRng.Range(-0.5f, 0.5f) * group.spreadDeg;
                         r += spawnRng.Range(0f, config.swarmRadiusJitter);
                     }
-                    enemies.Spawn(p.type, Polar(angle, r), group.speedMul, p.hpMul);
+                    enemies.Spawn(p.type, Polar(angle, r), group.speedMul, p.hpMul, Elite(p.type));
                 }
             }
+        }
+
+        // элита: свойство из зерна симуляции или 0. В обучении её нет, в Бесконечном её с каждым циклом больше
+        int Elite(EnemyType type)
+        {
+            RunState run = loop.Run;
+            EnemyDef def = enemies.Def(type);
+            if (run.tutorial || def.hp < config.eliteMinBaseHp || def.behavior == EnemyBehavior.Chord) return 0;
+
+            float chance = loop.Era.eliteChance;
+            if (run.mode == RunMode.Endless) chance += config.endlessEliteStep * run.cycle;
+            // без шанса зерно появления не трогаем: расписание эр 1–4 идёт как раньше
+            if (chance <= 0f || spawnRng.Range(0f, 1f) >= Mathf.Min(chance, config.eliteMax)) return 0;
+            return enemies.RandomAffix();
         }
 
         float Radius(Pending p)

@@ -111,16 +111,16 @@ namespace Perigee
             shakeTime = dur;
         }
 
-        // осколки: от точки удара или от убитого врага
-        public void Shards(Vector2 position, int amount)
+        // осколки: от точки удара или от убитого врага; gold = золотые (гибель элиты)
+        public void Shards(Vector2 position, int amount, bool gold = false)
         {
-            Emit(shards, art.shard, position, amount, config.shardSpeed);
+            Emit(shards, art.shard, position, amount, config.shardSpeed, gold);
         }
 
-        // искры: удар не пробил броню
-        public void Sparks(Vector2 position, int amount)
+        // искры: удар не пробил броню; gold = золотые (появилась элита)
+        public void Sparks(Vector2 position, int amount, bool gold = false)
         {
-            Emit(sparks, art.spark, position, amount, config.sparkSpeed);
+            Emit(sparks, art.spark, position, amount, config.sparkSpeed, gold);
         }
 
         // число урона: всплывает от position и гаснет
@@ -185,7 +185,7 @@ namespace Perigee
             cam.localPosition = camBase + (Vector3)offset;
         }
 
-        void Emit(Pool pool, Visual prefab, Vector2 position, int amount, float speed)
+        void Emit(Pool pool, Visual prefab, Vector2 position, int amount, float speed, bool gold)
         {
             // разлёт поровну по кругу от случайного угла; зерно симуляции эффекты не трогают
             float start = Random.Range(0f, 360f);
@@ -202,6 +202,7 @@ namespace Perigee
                 p.transform.localPosition = position;
                 // ось +Y картинки смотрит по ходу полёта
                 p.transform.localRotation = Quaternion.Euler(0f, 0f, angle - 90f);
+                p.visual.Tint(config.eliteGold, gold ? 1f : 0f);
                 p.visual.SetAlpha(1f);
                 p.visual.gameObject.SetActive(true);
             }

@@ -36,6 +36,10 @@ namespace Perigee
             "Новые враги: Дробитель, Факел",
             "Новые враги: Кружащий, Щитник",
             "Новые враги: Пожиратель, Призрак",
+            "Новый враг: Студень",
+            "Новые враги: Мина, Отбойник",
+            "Новый враг: Прыгун",
+            "Новый враг: Затмитель",
         };
         static readonly string[] EraEnemiesEn =
         {
@@ -43,6 +47,10 @@ namespace Perigee
             "New enemies: Splitter, Torch",
             "New enemies: Orbiter, Shielder",
             "New enemies: Devourer, Phantom",
+            "New enemy: Jelly",
+            "New enemies: Mine, Bumper",
+            "New enemy: Blinker",
+            "New enemy: Eclipser",
         };
         // {0} = номер эры, босса которой надо победить
         public static string EraLockedFormat => Loc.Pick("Победи босса эры {0}", "Beat the era {0} boss");
@@ -241,8 +249,8 @@ namespace Perigee
 
         // по порядку config.eras
         public static string[] EraTitle => Loc.Pick(EraTitleRu, EraTitleEn);
-        static readonly string[] EraTitleRu = { "СОЛНЦЕ", "КРАСНЫЙ КАРЛИК", "ТЯЖЁЛАЯ ЗВЕЗДА", "ЧЁРНАЯ ДЫРА" };
-        static readonly string[] EraTitleEn = { "SUN", "RED DWARF", "HEAVY STAR", "BLACK HOLE" };
+        static readonly string[] EraTitleRu = { "СОЛНЦЕ", "КРАСНЫЙ КАРЛИК", "ТЯЖЁЛАЯ ЗВЕЗДА", "ЧЁРНАЯ ДЫРА", "ТУМАННОСТЬ", "ГАЗОВЫЙ ГИГАНТ", "АНОМАЛИЯ", "СЕРДЦЕ ТЬМЫ" };
+        static readonly string[] EraTitleEn = { "SUN", "RED DWARF", "HEAVY STAR", "BLACK HOLE", "NEBULA", "GAS GIANT", "ANOMALY", "HEART OF DARKNESS" };
 
         // правило эры одной строкой, по порядку config.eras
         public static string[] EraRule => Loc.Pick(EraRuleRu, EraRuleEn);
@@ -252,6 +260,10 @@ namespace Perigee
             "Вспышки: красный сектор греет спутники и жжёт врагов.",
             "Тяжесть: спутники взлетают медленнее, падают быстрее, кристаллы тонут в звезде.",
             "Воронка: враги летят к центру по спирали.",
+            "Туманность: облака остужают спутник, а враги в них вязнут.",
+            "Луны: их притяжение гнёт орбиту, пролёт рядом даёт удар ×1.5.",
+            "Аномалии: колодцы тянут орбиту, отталкиватели толкают.",
+            "Тьма: видно только то, что рядом с орбитой.",
         };
         static readonly string[] EraRuleEn =
         {
@@ -259,9 +271,13 @@ namespace Perigee
             "Flares: a red sector heats satellites and burns enemies.",
             "Gravity: satellites rise slower, fall faster, crystals sink into the star.",
             "Vortex: enemies spiral toward the centre.",
+            "Nebula: clouds cool your satellite and bog enemies down.",
+            "Moons: their pull bends the orbit, a close pass strikes ×1.5.",
+            "Anomalies: wells pull the orbit, repulsors push it.",
+            "Darkness: you only see what is near the orbit.",
         };
 
-        // подсказка при первой встрече, по порядку EnemyType до Призрака; у Роя, Снаряда и Кометы её нет
+        // подсказка при первой встрече, по порядку EnemyType; у Роя, Снаряда, боссов и объектов событий её нет
         public static string[] EnemyTip => Loc.Pick(EnemyTipRu, EnemyTipEn);
         static readonly string[] EnemyTipRu =
         {
@@ -279,6 +295,13 @@ namespace Perigee
             "Щитник: щит держит удар с одной стороны. Бей с другой или жми РЕВЕРС",
             "Пожиратель: ест кристаллы и растёт",
             "Призрак: когда прозрачный, его не задеть",
+            "", "", "",
+            "Студень: вязкий — спутник после удара замедляется",
+            "Мина: висит на орбите. Взорвётся от удара и нагреет спутник",
+            "Отбойник: удар по нему подбрасывает орбиту",
+            "Прыгун: перескакивает вбок — бей, пока он мигает",
+            "Затмитель: в броне, и пока он жив, тьма гуще",
+            "", "", "", "", "", "",
         };
         static readonly string[] EnemyTipEn =
         {
@@ -296,7 +319,17 @@ namespace Perigee
             "Shielder: the shield blocks one side. Hit the other or press REVERSE",
             "Devourer: eats crystals and grows",
             "Phantom: can't be hit while transparent",
+            "", "", "",
+            "Jelly: sticky — your satellite slows down after a hit",
+            "Mine: hangs in orbit. Explodes when hit and heats your satellite",
+            "Bumper: hitting it kicks your orbit outward",
+            "Blinker: jumps sideways — strike while it blinks",
+            "Eclipser: armored, and while it lives the darkness is deeper",
+            "", "", "", "", "", "",
         };
+
+        // первая элита сохранения
+        public static string EliteTip => Loc.Pick("Элита: сильнее, но даёт втрое больше кристаллов", "Elite: tougher, but drops triple crystals");
 
         // по порядку BlueprintId
         public static string[] BlueprintTitle => Loc.Pick(BlueprintTitleRu, BlueprintTitleEn);

@@ -8,11 +8,17 @@ namespace Perigee
     public enum EnemyType
     {
         Swarmer, Arrow, Bolt, Bastion, Parasite, Shooter, Hive, Boss, Splitter, Torch, Orbiter, Shielder, Devourer, Phantom,
-        Twin, Colossus, Pulsar
+        Twin, Colossus, Pulsar,
+        // R4: враги эр 5–8, боссы эр 5–8, объекты событий
+        Jelly, Mine, Bumper, Blinker, Eclipser, Sower, Mirror, Graviton, Abyss, Meteor, GoldComet
     }
 
-    // Ellipse = тело кометы (Комета и Близнецы); Ellipse, Colossus и Pulsar ведёт BossSystem
-    public enum EnemyBehavior { Straight, Attach, Stopper, Burster, Ellipse, Orbit, Seek, Colossus, Pulsar }
+    // Ellipse = тело кометы (Комета и Близнецы); Ellipse, Colossus и Pulsar ведёт BossSystem.
+    // Chord = объект события: пролетает поле по хорде
+    public enum EnemyBehavior { Straight, Attach, Stopper, Burster, Ellipse, Orbit, Seek, Colossus, Pulsar, Mine, Blink, Chord, Sower, Mirror, Graviton, Abyss }
+
+    // свойство элиты: по нему идёт ArtSet.affixIcons
+    public enum EliteAffix { Armored, Swift, Giant, Regen }
 
     public enum AngleMode { Random, Opposite, Spread90, Even, OppositePair }
 
@@ -48,6 +54,14 @@ namespace Perigee
         public float orbitRadius;
         public float orbitDeg;
         public float orbitInSpeed;
+        // Студень: удар по нему замедляет спутник. Отбойник: удар по нему подбрасывает орбиту
+        public bool slowHitter;
+        public bool kickHitter;
+        // Затмитель: пока жив, радиус света во тьме меньше на столько
+        public float lightCut;
+        // Прыгун: раз в столько секунд прыгает вбок по своему кругу на столько градусов
+        public float blinkInterval;
+        public float blinkDeg;
     }
 
     [Serializable]
@@ -84,6 +98,10 @@ namespace Perigee
         public float fallMul;
         public EraRule rule;
         public EnemyType boss;
+        // Вестник: элита, которая несёт реликвию
+        public EnemyType herald;
+        // доля врагов Директора, которые приходят элитой
+        public float eliteChance;
         // музыка забега в этой эре
         public MusicId music;
         public SpawnEvent[] opening;
@@ -530,6 +548,15 @@ namespace Perigee
             new EnemyDef { id = EnemyType.Twin, radius = 0.75f, hp = 70f, speed = 0f, armor = 0f, starDamage = 6f, crystals = 15, behavior = EnemyBehavior.Ellipse, faceStar = false, prewarm = 0 },
             new EnemyDef { id = EnemyType.Colossus, radius = 1.1f, hp = 220f, speed = 0.25f, armor = 2.5f, starDamage = 25f, crystals = 40, behavior = EnemyBehavior.Colossus, faceStar = true, prewarm = 0 },
             new EnemyDef { id = EnemyType.Pulsar, radius = 1f, hp = 160f, speed = 1f, armor = 0f, starDamage = 0f, crystals = 40, behavior = EnemyBehavior.Pulsar, faceStar = false, prewarm = 0 },
+            // R4: враги эр 5–8
+            new EnemyDef { id = EnemyType.Jelly, radius = 0.38f, hp = 4f, speed = 0.6f, armor = 0f, starDamage = 12f, crystals = 4, behavior = EnemyBehavior.Straight, faceStar = true, prewarm = 8, slowHitter = true },
+            new EnemyDef { id = EnemyType.Mine, radius = 0.3f, hp = 2f, speed = 1.2f, armor = 0f, starDamage = 14f, crystals = 3, behavior = EnemyBehavior.Mine, faceStar = true, prewarm = 8 },
+            new EnemyDef { id = EnemyType.Bumper, radius = 0.34f, hp = 3f, speed = 0.8f, armor = 0f, starDamage = 10f, crystals = 3, behavior = EnemyBehavior.Straight, faceStar = true, prewarm = 8, kickHitter = true },
+            new EnemyDef { id = EnemyType.Blinker, radius = 0.24f, hp = 2f, speed = 1.1f, armor = 0f, starDamage = 8f, crystals = 3, behavior = EnemyBehavior.Blink, faceStar = true, prewarm = 8, blinkInterval = 1.6f, blinkDeg = 35f },
+            new EnemyDef { id = EnemyType.Eclipser, radius = 0.45f, hp = 6f, speed = 0.5f, armor = 1f, starDamage = 18f, crystals = 6, behavior = EnemyBehavior.Straight, faceStar = true, prewarm = 4, lightCut = 0.8f },
+            // объекты событий: Метеор отдаёт meteorCrystals, только когда его разбил спутник
+            new EnemyDef { id = EnemyType.Meteor, radius = 0.22f, hp = 1f, speed = 4f, armor = 0f, starDamage = 3f, crystals = 0, behavior = EnemyBehavior.Chord, faceStar = false, prewarm = 10 },
+            new EnemyDef { id = EnemyType.GoldComet, radius = 0.4f, hp = 6f, speed = 2f, armor = 0f, starDamage = 0f, crystals = 40, behavior = EnemyBehavior.Chord, faceStar = false, prewarm = 1 },
         };
 
         [Title("Поведение врагов")]
@@ -550,6 +577,47 @@ namespace Perigee
         public float devourHp = 1f;
         public float devourGrow = 0.04f;
         public float phantomAlpha = 0.25f;
+        // Студень: замедление спутника после удара; Отбойник: подброс орбиты
+        public float jellyTime = 1f;
+        public float jellySlow = 0.5f;
+        public float bumperKick = 1.2f;
+        // Мина: встаёт на случайный радиус, ждёт и летит дальше; взрыв при гибели, нагрев убившего спутника
+        public float mineStopMin = 2.6f;
+        public float mineStopMax = 5f;
+        public float mineWait = 12f;
+        public float mineRadius = 1.3f;
+        public float mineDamage = 4f;
+        public float mineHeat = 0.6f;
+        // Прыгун мигает столько секунд перед прыжком
+        public float blinkWarn = 0.25f;
+        public Color blinkFlashColor = new Color32(0xEF, 0xE4, 0xC8, 0xFF);
+        // хорда объектов событий: цель в круге chordInner, объект пропадает за spawnRadius + chordExit
+        public float chordInner = 3f;
+        public float chordExit = 0.5f;
+        // Золотая комета пролетает не ближе этого к центру
+        public float goldCometMiss = 3f;
+        public float meteorDamage = 3f;
+        public int meteorCrystals = 3;
+
+        [Title("Элита")]
+        // элитой бывают враги с базовым hp от этого числа
+        public float eliteMinBaseHp = 2f;
+        public float eliteHpMul = 1.5f;
+        public int eliteCrystalMul = 3;
+        public float eliteArmor = 1.5f;
+        public float eliteSpeedMul = 1.5f;
+        public float giantHpMul = 2f;
+        public float giantRadiusMul = 1.35f;
+        public float giantStarDamageMul = 1.5f;
+        // доля maxHp в секунду, пока враг не получал урона eliteRegenDelay секунд
+        public float eliteRegen = 0.08f;
+        public float eliteRegenDelay = 1.5f;
+        // Бесконечный: прибавка к шансу элиты за цикл; общий шанс не выше eliteMax
+        public float endlessEliteStep = 0.03f;
+        public float eliteMax = 0.3f;
+        // золотые искры при появлении и золотые осколки при гибели
+        public int eliteSparks = 8;
+        public Color eliteGold = new Color32(0xE3, 0xB2, 0x3C, 0xFF);
 
         [Title("Правила эр")]
         // вспышки Красного карлика
@@ -732,13 +800,13 @@ namespace Perigee
         [Title("Эры")]
         // длина списков эр в сохранении (bestTimes, bestEndless)
         public int maxEras = 8;
-        // СОЛНЦЕ, КРАСНЫЙ КАРЛИК, ТЯЖЁЛАЯ ЗВЕЗДА, ЧЁРНАЯ ДЫРА
+        // СОЛНЦЕ, КРАСНЫЙ КАРЛИК, ТЯЖЁЛАЯ ЗВЕЗДА, ЧЁРНАЯ ДЫРА, ТУМАННОСТЬ, ГАЗОВЫЙ ГИГАНТ, АНОМАЛИЯ, СЕРДЦЕ ТЬМЫ
         public EraDef[] eras =
         {
             new EraDef
             {
                 kExp = 0.9f, spinMul = 1f, hpMul = 1f, countMul = 1f, ambientInterval = 3.5f, dustMul = 1f, riseMul = 1f, fallMul = 1f,
-                rule = EraRule.None, boss = EnemyType.Boss, music = MusicId.Chapter1, victoryDust = 100, firstWinDust = 200,
+                rule = EraRule.None, boss = EnemyType.Boss, herald = EnemyType.Bastion, eliteChance = 0f, music = MusicId.Chapter1, victoryDust = 100, firstWinDust = 200,
                 background = new Color32(0x0E, 0x0E, 0x0E, 0xFF), starTint = Color.white, raysTint = Color.white,
                 opening = new[]
                 {
@@ -771,7 +839,7 @@ namespace Perigee
             new EraDef
             {
                 kExp = 0.9f, spinMul = 1.15f, hpMul = 1.4f, countMul = 1.2f, ambientInterval = 3.3f, dustMul = 1.25f, riseMul = 1f, fallMul = 1f,
-                rule = EraRule.Flares, boss = EnemyType.Twin, music = MusicId.Chapter1, victoryDust = 150, firstWinDust = 400,
+                rule = EraRule.Flares, boss = EnemyType.Twin, herald = EnemyType.Splitter, eliteChance = 0f, music = MusicId.Chapter1, victoryDust = 150, firstWinDust = 400,
                 background = new Color32(0x16, 0x0B, 0x0A, 0xFF), starTint = new Color32(0xFF, 0x9A, 0x80, 0xFF), raysTint = new Color32(0xFF, 0x9A, 0x80, 0xFF),
                 opening = new[]
                 {
@@ -806,7 +874,7 @@ namespace Perigee
             new EraDef
             {
                 kExp = 1.2f, spinMul = 1f, hpMul = 1.8f, countMul = 1.35f, ambientInterval = 3.1f, dustMul = 1.5f, riseMul = 0.8f, fallMul = 1.3f,
-                rule = EraRule.Heavy, boss = EnemyType.Colossus, music = MusicId.Chapter2, victoryDust = 200, firstWinDust = 600,
+                rule = EraRule.Heavy, boss = EnemyType.Colossus, herald = EnemyType.Shielder, eliteChance = 0f, music = MusicId.Chapter2, victoryDust = 200, firstWinDust = 600,
                 background = new Color32(0x0B, 0x0E, 0x14, 0xFF), starTint = new Color32(0xC9, 0xD8, 0xFF, 0xFF), raysTint = new Color32(0xC9, 0xD8, 0xFF, 0xFF),
                 opening = new[]
                 {
@@ -841,7 +909,7 @@ namespace Perigee
             new EraDef
             {
                 kExp = 1f, spinMul = 1.1f, hpMul = 2.3f, countMul = 1.5f, ambientInterval = 3f, dustMul = 1.8f, riseMul = 1f, fallMul = 1f,
-                rule = EraRule.Vortex, boss = EnemyType.Pulsar, music = MusicId.Chapter2, victoryDust = 250, firstWinDust = 800,
+                rule = EraRule.Vortex, boss = EnemyType.Pulsar, herald = EnemyType.Devourer, eliteChance = 0f, music = MusicId.Chapter2, victoryDust = 250, firstWinDust = 800,
                 background = new Color32(0x05, 0x05, 0x05, 0xFF), starTint = new Color32(0x26, 0x26, 0x26, 0xFF), raysTint = Color.white,
                 opening = new[]
                 {
@@ -870,6 +938,140 @@ namespace Perigee
                     At(164f, Of(EnemyType.Shooter, 2, AngleMode.OppositePair), Of(EnemyType.Bastion, 1), Of(EnemyType.Orbiter, 2, AngleMode.OppositePair)),
                     At(172f, Of(EnemyType.Arrow, 4, AngleMode.Even), Of(EnemyType.Phantom, 6, AngleMode.Even), Of(EnemyType.Swarmer, 8)),
                 },
+            },
+            // эры 5–8: правило и свой босс приходят в M19, до того в них Комета
+            new EraDef
+            {
+                kExp = 1f, spinMul = 1.1f, hpMul = 2.6f, countMul = 1.55f, ambientInterval = 2.9f, dustMul = 2.1f, riseMul = 1f, fallMul = 1f,
+                rule = EraRule.None, boss = EnemyType.Boss, herald = EnemyType.Jelly, eliteChance = 0.06f, music = MusicId.Chapter3, victoryDust = 300, firstWinDust = 1000,
+                background = new Color32(0x0D, 0x0A, 0x12, 0xFF), starTint = new Color32(0xE8, 0xD2, 0xFF, 0xFF), raysTint = new Color32(0xE8, 0xD2, 0xFF, 0xFF),
+                opening = new[]
+                {
+                    At(2f, Of(EnemyType.Swarmer, 4)),
+                    At(8f, Of(EnemyType.Jelly, 1)),
+                    At(14f, Of(EnemyType.Bastion, 1)),
+                },
+                timeline = new[]
+                {
+                    At(20f, Of(EnemyType.Swarmer, 8)),
+                    At(28f, Of(EnemyType.Jelly, 2, AngleMode.OppositePair)),
+                    At(36f, Of(EnemyType.Bastion, 1), Of(EnemyType.Splitter, 2, AngleMode.Opposite)),
+                    At(46f, Of(EnemyType.Arrow, 2, AngleMode.Spread90), Of(EnemyType.Jelly, 1)),
+                    At(56f, Of(EnemyType.Swarmer, 10), Of(EnemyType.Torch, 2, AngleMode.OppositePair)),
+                    At(62f, Of(EnemyType.Arrow, 2, AngleMode.Spread90), Of(EnemyType.Shielder, 1)),
+                    At(70f, Of(EnemyType.Parasite, 1), Of(EnemyType.Jelly, 2, AngleMode.Opposite)),
+                    At(80f, Of(EnemyType.Bastion, 1), Of(EnemyType.Swarmer, 8, AngleMode.Opposite)),
+                    At(88f, Of(EnemyType.Hive, 1), Of(EnemyType.Jelly, 2, AngleMode.Spread90)),
+                    At(98f, Of(EnemyType.Shooter, 1), Of(EnemyType.Orbiter, 2, AngleMode.OppositePair)),
+                    At(108f, Of(EnemyType.Arrow, 3, AngleMode.Even), Of(EnemyType.Splitter, 2)),
+                    At(116f, Of(EnemyType.Hive, 2, AngleMode.OppositePair)),
+                    At(126f, Of(EnemyType.Swarmer, 11), Of(EnemyType.Jelly, 3, AngleMode.Even)),
+                    At(136f, Of(EnemyType.Bastion, 2, AngleMode.OppositePair), Of(EnemyType.Devourer, 1)),
+                    At(146f, Of(EnemyType.Hive, 1), Of(EnemyType.Arrow, 2, AngleMode.Spread90), Of(EnemyType.Phantom, 2)),
+                    At(156f, Of(EnemyType.Parasite, 2, AngleMode.Spread90), Of(EnemyType.Jelly, 3, AngleMode.Even)),
+                    At(164f, Of(EnemyType.Shooter, 2, AngleMode.OppositePair), Of(EnemyType.Bastion, 1)),
+                    At(172f, Of(EnemyType.Arrow, 4, AngleMode.Even), Of(EnemyType.Jelly, 2, AngleMode.OppositePair), Of(EnemyType.Swarmer, 10)),
+                },
+            },
+            new EraDef
+            {
+                kExp = 0.95f, spinMul = 1.1f, hpMul = 2.9f, countMul = 1.6f, ambientInterval = 2.8f, dustMul = 2.4f, riseMul = 1f, fallMul = 1f,
+                rule = EraRule.None, boss = EnemyType.Boss, herald = EnemyType.Bumper, eliteChance = 0.08f, music = MusicId.Chapter3, victoryDust = 350, firstWinDust = 1200,
+                background = new Color32(0x10, 0x0C, 0x07, 0xFF), starTint = new Color32(0xFF, 0xD9, 0xA0, 0xFF), raysTint = new Color32(0xFF, 0xD9, 0xA0, 0xFF),
+                opening = new[]
+                {
+                    At(2f, Of(EnemyType.Swarmer, 4)),
+                    At(8f, Of(EnemyType.Mine, 2, AngleMode.OppositePair)),
+                    At(14f, Of(EnemyType.Bumper, 1)),
+                },
+                timeline = new[]
+                {
+                    At(20f, Of(EnemyType.Swarmer, 8)),
+                    At(28f, Of(EnemyType.Mine, 3, AngleMode.Even)),
+                    At(36f, Of(EnemyType.Bastion, 1), Of(EnemyType.Bumper, 1, AngleMode.Opposite)),
+                    At(46f, Of(EnemyType.Arrow, 2, AngleMode.Spread90), Of(EnemyType.Mine, 2)),
+                    At(56f, Of(EnemyType.Swarmer, 10), Of(EnemyType.Bumper, 2, AngleMode.OppositePair)),
+                    At(62f, Of(EnemyType.Arrow, 2, AngleMode.Spread90), Of(EnemyType.Jelly, 1)),
+                    At(70f, Of(EnemyType.Parasite, 1), Of(EnemyType.Mine, 3, AngleMode.Even)),
+                    At(80f, Of(EnemyType.Bastion, 1), Of(EnemyType.Swarmer, 8, AngleMode.Opposite), Of(EnemyType.Bumper, 1)),
+                    At(88f, Of(EnemyType.Orbiter, 3, AngleMode.Even)),
+                    At(98f, Of(EnemyType.Shooter, 1), Of(EnemyType.Mine, 2, AngleMode.Opposite)),
+                    At(108f, Of(EnemyType.Arrow, 3, AngleMode.Even), Of(EnemyType.Bumper, 2)),
+                    At(116f, Of(EnemyType.Hive, 1), Of(EnemyType.Shielder, 2, AngleMode.OppositePair)),
+                    At(126f, Of(EnemyType.Swarmer, 11), Of(EnemyType.Mine, 4, AngleMode.Even)),
+                    At(136f, Of(EnemyType.Bastion, 2, AngleMode.OppositePair), Of(EnemyType.Bumper, 2, AngleMode.OppositePair)),
+                    At(146f, Of(EnemyType.Hive, 1), Of(EnemyType.Arrow, 2, AngleMode.Spread90), Of(EnemyType.Jelly, 2)),
+                    At(156f, Of(EnemyType.Parasite, 2, AngleMode.Spread90), Of(EnemyType.Mine, 3, AngleMode.Even)),
+                    At(164f, Of(EnemyType.Shooter, 2, AngleMode.OppositePair), Of(EnemyType.Bastion, 1), Of(EnemyType.Bumper, 2)),
+                    At(172f, Of(EnemyType.Arrow, 4, AngleMode.Even), Of(EnemyType.Mine, 4, AngleMode.Even), Of(EnemyType.Swarmer, 10)),
+                },
+            },
+            new EraDef
+            {
+                kExp = 1f, spinMul = 1.15f, hpMul = 3.2f, countMul = 1.65f, ambientInterval = 2.7f, dustMul = 2.7f, riseMul = 1f, fallMul = 1f,
+                rule = EraRule.None, boss = EnemyType.Boss, herald = EnemyType.Blinker, eliteChance = 0.1f, music = MusicId.Chapter4, victoryDust = 400, firstWinDust = 1400,
+                background = new Color32(0x06, 0x10, 0x0E, 0xFF), starTint = new Color32(0xC8, 0xFF, 0xF0, 0xFF), raysTint = new Color32(0xC8, 0xFF, 0xF0, 0xFF),
+                opening = new[]
+                {
+                    At(2f, Of(EnemyType.Swarmer, 4)),
+                    At(8f, Of(EnemyType.Blinker, 2, AngleMode.OppositePair)),
+                    At(14f, Of(EnemyType.Bastion, 1)),
+                },
+                timeline = new[]
+                {
+                    At(20f, Of(EnemyType.Swarmer, 8)),
+                    At(28f, Of(EnemyType.Blinker, 3, AngleMode.Even)),
+                    At(36f, Of(EnemyType.Bastion, 1), Of(EnemyType.Orbiter, 2, AngleMode.Opposite)),
+                    At(46f, Of(EnemyType.Arrow, 2, AngleMode.Spread90), Of(EnemyType.Blinker, 2)),
+                    At(56f, Of(EnemyType.Swarmer, 10), Of(EnemyType.Mine, 2, AngleMode.OppositePair)),
+                    At(62f, Of(EnemyType.Arrow, 2, AngleMode.Spread90), Of(EnemyType.Shielder, 1), Of(EnemyType.Blinker, 1)),
+                    At(70f, Of(EnemyType.Parasite, 1), Of(EnemyType.Bumper, 2, AngleMode.Opposite)),
+                    At(80f, Of(EnemyType.Bastion, 1), Of(EnemyType.Swarmer, 8, AngleMode.Opposite)),
+                    At(88f, Of(EnemyType.Blinker, 4, AngleMode.Even)),
+                    At(98f, Of(EnemyType.Shooter, 1), Of(EnemyType.Phantom, 3, AngleMode.Even)),
+                    At(108f, Of(EnemyType.Arrow, 3, AngleMode.Even), Of(EnemyType.Blinker, 2)),
+                    At(116f, Of(EnemyType.Hive, 1), Of(EnemyType.Devourer, 1, AngleMode.Opposite)),
+                    At(126f, Of(EnemyType.Swarmer, 11), Of(EnemyType.Blinker, 3, AngleMode.Even)),
+                    At(136f, Of(EnemyType.Bastion, 2, AngleMode.OppositePair), Of(EnemyType.Jelly, 2, AngleMode.OppositePair)),
+                    At(146f, Of(EnemyType.Hive, 1), Of(EnemyType.Arrow, 2, AngleMode.Spread90), Of(EnemyType.Blinker, 2)),
+                    At(156f, Of(EnemyType.Parasite, 2, AngleMode.Spread90), Of(EnemyType.Orbiter, 3, AngleMode.Even)),
+                    At(164f, Of(EnemyType.Shooter, 2, AngleMode.OppositePair), Of(EnemyType.Bastion, 1), Of(EnemyType.Blinker, 2)),
+                    At(172f, Of(EnemyType.Arrow, 4, AngleMode.Even), Of(EnemyType.Blinker, 4, AngleMode.Even), Of(EnemyType.Swarmer, 10)),
+                },
+            },
+            new EraDef
+            {
+                kExp = 1f, spinMul = 1.15f, hpMul = 3.5f, countMul = 1.7f, ambientInterval = 2.6f, dustMul = 3f, riseMul = 1f, fallMul = 1f,
+                rule = EraRule.None, boss = EnemyType.Boss, herald = EnemyType.Eclipser, eliteChance = 0.12f, music = MusicId.Chapter4, victoryDust = 500, firstWinDust = 2000,
+                background = new Color32(0x00, 0x00, 0x00, 0xFF), starTint = Color.white, raysTint = new Color32(0xD6, 0x28, 0x1F, 0xFF),
+                opening = new[]
+                {
+                    At(2f, Of(EnemyType.Swarmer, 4)),
+                    At(8f, Of(EnemyType.Phantom, 2, AngleMode.OppositePair)),
+                    At(14f, Of(EnemyType.Eclipser, 1)),
+                },
+                timeline = new[]
+                {
+                    At(20f, Of(EnemyType.Swarmer, 8)),
+                    At(28f, Of(EnemyType.Phantom, 3, AngleMode.Even)),
+                    At(36f, Of(EnemyType.Bastion, 1), Of(EnemyType.Eclipser, 1, AngleMode.Opposite)),
+                    At(46f, Of(EnemyType.Arrow, 2, AngleMode.Spread90), Of(EnemyType.Blinker, 2)),
+                    At(56f, Of(EnemyType.Swarmer, 10), Of(EnemyType.Jelly, 2, AngleMode.OppositePair)),
+                    At(62f, Of(EnemyType.Arrow, 2, AngleMode.Spread90), Of(EnemyType.Mine, 2)),
+                    At(70f, Of(EnemyType.Parasite, 1), Of(EnemyType.Eclipser, 1, AngleMode.Opposite)),
+                    At(80f, Of(EnemyType.Bastion, 1), Of(EnemyType.Swarmer, 8, AngleMode.Opposite), Of(EnemyType.Bumper, 1)),
+                    At(88f, Of(EnemyType.Phantom, 4, AngleMode.Even)),
+                    At(98f, Of(EnemyType.Shooter, 1), Of(EnemyType.Devourer, 1, AngleMode.Opposite)),
+                    At(108f, Of(EnemyType.Arrow, 3, AngleMode.Even), Of(EnemyType.Eclipser, 1)),
+                    At(116f, Of(EnemyType.Hive, 1), Of(EnemyType.Blinker, 2, AngleMode.Opposite)),
+                    At(126f, Of(EnemyType.Swarmer, 11), Of(EnemyType.Phantom, 3, AngleMode.Even)),
+                    At(136f, Of(EnemyType.Bastion, 2, AngleMode.OppositePair), Of(EnemyType.Eclipser, 1)),
+                    At(146f, Of(EnemyType.Hive, 1), Of(EnemyType.Arrow, 2, AngleMode.Spread90), Of(EnemyType.Orbiter, 2)),
+                    At(156f, Of(EnemyType.Parasite, 2, AngleMode.Spread90), Of(EnemyType.Phantom, 4, AngleMode.Even)),
+                    At(164f, Of(EnemyType.Shooter, 2, AngleMode.OppositePair), Of(EnemyType.Eclipser, 2, AngleMode.OppositePair)),
+                    At(172f, Of(EnemyType.Arrow, 4, AngleMode.Even), Of(EnemyType.Phantom, 6, AngleMode.Even), Of(EnemyType.Swarmer, 10)),
+                },
+
             },
         };
 

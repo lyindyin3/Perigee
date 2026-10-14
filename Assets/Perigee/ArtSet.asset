@@ -76,6 +76,28 @@ MonoBehaviour:
     prefab: {fileID: 4258727596427704342, guid: 1f23453ea2726c644b7f48c119879102, type: 3}
   - label: "Pulsar \u2014 \u041F\u0443\u043B\u044C\u0441\u0430\u0440"
     prefab: {fileID: 6827269638911580012, guid: 11ced125dd532754a8ff56feb8fff1bc, type: 3}
+  - label: "Jelly \u2014 \u0421\u0442\u0443\u0434\u0435\u043D\u044C"
+    prefab: {fileID: 7775284049448801343, guid: 069826706a0225f45a634e52b6cfd713, type: 3}
+  - label: "Mine \u2014 \u041C\u0438\u043D\u0430"
+    prefab: {fileID: 3762128240633937116, guid: 7944c17ba40a5d146b2962a0da19142b, type: 3}
+  - label: "Bumper \u2014 \u041E\u0442\u0431\u043E\u0439\u043D\u0438\u043A"
+    prefab: {fileID: 6987992605688797818, guid: f696a980fd278a14b814857a1828826f, type: 3}
+  - label: "Blinker \u2014 \u041F\u0440\u044B\u0433\u0443\u043D"
+    prefab: {fileID: 5845922983372394962, guid: 044c0f49670feac4d8f157c77b05e6cb, type: 3}
+  - label: "Eclipser \u2014 \u0417\u0430\u0442\u043C\u0438\u0442\u0435\u043B\u044C"
+    prefab: {fileID: 8154671489878056321, guid: 503b2608f3a7c6949bdb4d90fe4b64d2, type: 3}
+  - label: "Sower \u2014 \u0421\u0435\u044F\u0442\u0435\u043B\u044C"
+    prefab: {fileID: 0}
+  - label: "Mirror \u2014 \u0417\u0435\u0440\u043A\u0430\u043B\u043E"
+    prefab: {fileID: 0}
+  - label: "Graviton \u2014 \u0413\u0440\u0430\u0432\u0438\u0442\u043E\u043D"
+    prefab: {fileID: 0}
+  - label: "Abyss \u2014 \u0411\u0435\u0437\u0434\u043D\u0430"
+    prefab: {fileID: 0}
+  - label: "Meteor \u2014 \u041C\u0435\u0442\u0435\u043E\u0440"
+    prefab: {fileID: 3441993523035354473, guid: 3f0cb36c268fe6a41918170d6f36e64f, type: 3}
+  - label: "GoldComet \u2014 \u0417\u043E\u043B\u043E\u0442\u0430\u044F \u043A\u043E\u043C\u0435\u0442\u0430"
+    prefab: {fileID: 6449268048396098989, guid: e8a9d35fd8f039b43bbc532c2b0c54ec, type: 3}
   enemyIcons:
   - label: "Swarmer \u2014 \u0420\u043E\u0439"
     sprite: {fileID: 0}
@@ -111,6 +133,28 @@ MonoBehaviour:
     sprite: {fileID: 0}
   - label: "Pulsar \u2014 \u041F\u0443\u043B\u044C\u0441\u0430\u0440"
     sprite: {fileID: 0}
+  - label: "Jelly \u2014 \u0421\u0442\u0443\u0434\u0435\u043D\u044C"
+    sprite: {fileID: 0}
+  - label: "Mine \u2014 \u041C\u0438\u043D\u0430"
+    sprite: {fileID: 0}
+  - label: "Bumper \u2014 \u041E\u0442\u0431\u043E\u0439\u043D\u0438\u043A"
+    sprite: {fileID: 0}
+  - label: "Blinker \u2014 \u041F\u0440\u044B\u0433\u0443\u043D"
+    sprite: {fileID: 0}
+  - label: "Eclipser \u2014 \u0417\u0430\u0442\u043C\u0438\u0442\u0435\u043B\u044C"
+    sprite: {fileID: 0}
+  - label: "Sower \u2014 \u0421\u0435\u044F\u0442\u0435\u043B\u044C"
+    sprite: {fileID: 0}
+  - label: "Mirror \u2014 \u0417\u0435\u0440\u043A\u0430\u043B\u043E"
+    sprite: {fileID: 0}
+  - label: "Graviton \u2014 \u0413\u0440\u0430\u0432\u0438\u0442\u043E\u043D"
+    sprite: {fileID: 0}
+  - label: "Abyss \u2014 \u0411\u0435\u0437\u0434\u043D\u0430"
+    sprite: {fileID: 0}
+  - label: "Meteor \u2014 \u041C\u0435\u0442\u0435\u043E\u0440"
+    sprite: {fileID: 0}
+  - label: "GoldComet \u2014 \u0417\u043E\u043B\u043E\u0442\u0430\u044F \u043A\u043E\u043C\u0435\u0442\u0430"
+    sprite: {fileID: 0}
   shard: {fileID: 4447092194057351455, guid: 15e77b4ea224eb64491ef68e79a771a3, type: 3}
   spark: {fileID: 3603967468732144573, guid: ad0546211bf8f1148904391c0948c333, type: 3}
   telegraphArrow: {fileID: 6095737476598327340, guid: dce6e766a81156e4580d0344597de5e6, type: 3}
@@ -118,6 +162,15 @@ MonoBehaviour:
   telegraphLine: {fileID: 8820235256590244160, guid: 074fdb2097c1dd847bffedcacd20ad0e, type: 3}
   damageNumber: {fileID: 6650806078587790051, guid: 637790c99951ebe4190a5a243aa28993, type: 3}
   pulsarWave: {fileID: 5187077046948144319, guid: 27a7f1d42ef577045a0bde6603449383, type: 3}
+  affixIcons:
+  - label: "Armored \u2014 \u0431\u0440\u043E\u043D\u044F"
+    sprite: {fileID: 21300000, guid: 624ca138cd03e694a928f7891697615c, type: 3}
+  - label: "Swift \u2014 \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u044C"
+    sprite: {fileID: 21300000, guid: 8e28da3f3bfb7dc42a5b9736b64c92de, type: 3}
+  - label: "Giant \u2014 \u0432\u0435\u043B\u0438\u043A\u0430\u043D"
+    sprite: {fileID: 21300000, guid: a2e94b3494380ee43a8b987084432d33, type: 3}
+  - label: "Regen \u2014 \u043B\u0435\u0447\u0435\u043D\u0438\u0435"
+    sprite: {fileID: 21300000, guid: 62cbbb5468a7a9a4e84be4ce2ed389a7, type: 3}
   cardIcons:
   - label: "Heavy \u2014 \u0422\u042F\u0416\u0401\u041B\u042B\u0419 \u0421\u041F\u0423\u0422\u041D\u0418\u041A"
     sprite: {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
@@ -305,6 +358,14 @@ MonoBehaviour:
     sprite: {fileID: 21300000, guid: bb3da0662f6f0ce449f75ad068e3cae3, type: 3}
   - label: "4 \u0427\u0401\u0420\u041D\u0410\u042F \u0414\u042B\u0420\u0410"
     sprite: {fileID: 21300000, guid: b7b5d316e3a3c7b4293366911db8a4a7, type: 3}
+  - label: "5 \u0422\u0423\u041C\u0410\u041D\u041D\u041E\u0421\u0422\u042C"
+    sprite: {fileID: 21300000, guid: b6df1b3064187bd48b3024d6297e64ab, type: 3}
+  - label: "6 \u0413\u0410\u0417\u041E\u0412\u042B\u0419 \u0413\u0418\u0413\u0410\u041D\u0422"
+    sprite: {fileID: 21300000, guid: 1d4f2ebdd976ee14586abd5188c693e4, type: 3}
+  - label: "7 \u0410\u041D\u041E\u041C\u0410\u041B\u0418\u042F"
+    sprite: {fileID: 21300000, guid: bb58f4cdd8297b54d987240733ac5ac9, type: 3}
+  - label: "8 \u0421\u0415\u0420\u0414\u0426\u0415 \u0422\u042C\u041C\u042B"
+    sprite: {fileID: 21300000, guid: e0900ae69db724947a6427cfc0172871, type: 3}
   eraBackdrops:
   - label: "1 \u0421\u041E\u041B\u041D\u0426\u0415"
     sprite: {fileID: 0}
@@ -314,6 +375,14 @@ MonoBehaviour:
     sprite: {fileID: 0}
   - label: "4 \u0427\u0401\u0420\u041D\u0410\u042F \u0414\u042B\u0420\u0410"
     sprite: {fileID: 0}
+  - label: "5 \u0422\u0423\u041C\u0410\u041D\u041D\u041E\u0421\u0422\u042C"
+    sprite: {fileID: 0}
+  - label: "6 \u0413\u0410\u0417\u041E\u0412\u042B\u0419 \u0413\u0418\u0413\u0410\u041D\u0422"
+    sprite: {fileID: 0}
+  - label: "7 \u0410\u041D\u041E\u041C\u0410\u041B\u0418\u042F"
+    sprite: {fileID: 0}
+  - label: "8 \u0421\u0415\u0420\u0414\u0426\u0415 \u0422\u042C\u041C\u042B"
+    sprite: {fileID: 0}
   eraStarSprites:
   - label: "1 \u0421\u041E\u041B\u041D\u0426\u0415"
     sprite: {fileID: 0}
@@ -322,4 +391,12 @@ MonoBehaviour:
   - label: "3 \u0422\u042F\u0416\u0401\u041B\u0410\u042F \u0417\u0412\u0415\u0417\u0414\u0410"
     sprite: {fileID: 0}
   - label: "4 \u0427\u0401\u0420\u041D\u0410\u042F \u0414\u042B\u0420\u0410"
+    sprite: {fileID: 0}
+  - label: "5 \u0422\u0423\u041C\u0410\u041D\u041D\u041E\u0421\u0422\u042C"
+    sprite: {fileID: 0}
+  - label: "6 \u0413\u0410\u0417\u041E\u0412\u042B\u0419 \u0413\u0418\u0413\u0410\u041D\u0422"
+    sprite: {fileID: 0}
+  - label: "7 \u0410\u041D\u041E\u041C\u0410\u041B\u0418\u042F"
+    sprite: {fileID: 0}
+  - label: "8 \u0421\u0415\u0420\u0414\u0426\u0415 \u0422\u042C\u041C\u042B"
     sprite: {fileID: 0}
