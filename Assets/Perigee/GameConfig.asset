@@ -77,6 +77,10 @@ MonoBehaviour:
   weightCommon: 3
   weightRare: 1
   weightEra: 4
+  weightEvolution: 6
+  evoMergeTime: 0.35
+  evoFlashTime: 0.25
+  evoPunch: 0.3
   cards:
   - id: 0
     color: 1
@@ -89,6 +93,8 @@ MonoBehaviour:
     minus:
       stat: 1
       value: 0.75
+    sourceA: 0
+    sourceB: 0
   - id: 1
     color: 1
     rarity: 0
@@ -100,6 +106,8 @@ MonoBehaviour:
     minus:
       stat: 3
       value: 1.15
+    sourceA: 0
+    sourceB: 0
   - id: 2
     color: 1
     rarity: 0
@@ -111,6 +119,8 @@ MonoBehaviour:
     minus:
       stat: 0
       value: 0.92
+    sourceA: 0
+    sourceB: 0
   - id: 3
     color: 1
     rarity: 0
@@ -122,6 +132,8 @@ MonoBehaviour:
     minus:
       stat: 4
       value: 0.9
+    sourceA: 0
+    sourceB: 0
   - id: 4
     color: 1
     rarity: 1
@@ -133,6 +145,8 @@ MonoBehaviour:
     minus:
       stat: 8
       value: 0.7
+    sourceA: 0
+    sourceB: 0
   - id: 5
     color: 1
     rarity: 1
@@ -144,6 +158,8 @@ MonoBehaviour:
     minus:
       stat: 0
       value: 0.9
+    sourceA: 0
+    sourceB: 0
   - id: 6
     color: 1
     rarity: 0
@@ -155,6 +171,8 @@ MonoBehaviour:
     minus:
       stat: 3
       value: 1.15
+    sourceA: 0
+    sourceB: 0
   - id: 7
     color: 1
     rarity: 1
@@ -166,6 +184,8 @@ MonoBehaviour:
     minus:
       stat: 12
       value: 0.9
+    sourceA: 0
+    sourceB: 0
   - id: 8
     color: 0
     rarity: 0
@@ -177,6 +197,8 @@ MonoBehaviour:
     minus:
       stat: 3
       value: 1.2
+    sourceA: 0
+    sourceB: 0
   - id: 9
     color: 0
     rarity: 0
@@ -188,6 +210,8 @@ MonoBehaviour:
     minus:
       stat: 3
       value: 1.2
+    sourceA: 0
+    sourceB: 0
   - id: 10
     color: 0
     rarity: 0
@@ -199,6 +223,8 @@ MonoBehaviour:
     minus:
       stat: 3
       value: 1.15
+    sourceA: 0
+    sourceB: 0
   - id: 11
     color: 0
     rarity: 0
@@ -210,6 +236,8 @@ MonoBehaviour:
     minus:
       stat: 4
       value: 0.9
+    sourceA: 0
+    sourceB: 0
   - id: 12
     color: 0
     rarity: 0
@@ -221,6 +249,8 @@ MonoBehaviour:
     minus:
       stat: 9
       value: 1.15
+    sourceA: 0
+    sourceB: 0
   - id: 13
     color: 0
     rarity: 0
@@ -232,6 +262,8 @@ MonoBehaviour:
     minus:
       stat: 18
       value: -15
+    sourceA: 0
+    sourceB: 0
   - id: 14
     color: 0
     rarity: 0
@@ -243,6 +275,8 @@ MonoBehaviour:
     minus:
       stat: 0
       value: 0.9
+    sourceA: 0
+    sourceB: 0
   - id: 15
     color: 2
     rarity: 0
@@ -254,6 +288,8 @@ MonoBehaviour:
     minus:
       stat: 4
       value: 0.9
+    sourceA: 0
+    sourceB: 0
   - id: 16
     color: 2
     rarity: 0
@@ -265,6 +301,8 @@ MonoBehaviour:
     minus:
       stat: 12
       value: 0.85
+    sourceA: 0
+    sourceB: 0
   - id: 17
     color: 2
     rarity: 0
@@ -276,6 +314,8 @@ MonoBehaviour:
     minus:
       stat: 8
       value: 0.8
+    sourceA: 0
+    sourceB: 0
   - id: 18
     color: 2
     rarity: 0
@@ -287,6 +327,8 @@ MonoBehaviour:
     minus:
       stat: 8
       value: 0.6
+    sourceA: 0
+    sourceB: 0
   - id: 19
     color: 2
     rarity: 0
@@ -298,6 +340,8 @@ MonoBehaviour:
     minus:
       stat: 0
       value: 0.9
+    sourceA: 0
+    sourceB: 0
   - id: 20
     color: 2
     rarity: 0
@@ -309,6 +353,8 @@ MonoBehaviour:
     minus:
       stat: 10
       value: 1.15
+    sourceA: 0
+    sourceB: 0
   - id: 21
     color: 0
     rarity: 0
@@ -320,6 +366,8 @@ MonoBehaviour:
     minus:
       stat: 4
       value: 0.95
+    sourceA: 0
+    sourceB: 0
   - id: 22
     color: 1
     rarity: 0
@@ -331,6 +379,8 @@ MonoBehaviour:
     minus:
       stat: 3
       value: 1.1
+    sourceA: 0
+    sourceB: 0
   - id: 23
     color: 1
     rarity: 1
@@ -342,6 +392,8 @@ MonoBehaviour:
     minus:
       stat: 3
       value: 1.2
+    sourceA: 0
+    sourceB: 0
   - id: 24
     color: 1
     rarity: 0
@@ -353,6 +405,8 @@ MonoBehaviour:
     minus:
       stat: 2
       value: 0.9
+    sourceA: 0
+    sourceB: 0
   - id: 25
     color: 0
     rarity: 0
@@ -364,6 +418,8 @@ MonoBehaviour:
     minus:
       stat: 0
       value: 0.95
+    sourceA: 0
+    sourceB: 0
   - id: 26
     color: 1
     rarity: 1
@@ -375,6 +431,8 @@ MonoBehaviour:
     minus:
       stat: 4
       value: 0.9
+    sourceA: 0
+    sourceB: 0
   - id: 27
     color: 2
     rarity: 0
@@ -386,6 +444,8 @@ MonoBehaviour:
     minus:
       stat: 18
       value: -10
+    sourceA: 0
+    sourceB: 0
   - id: 28
     color: 1
     rarity: 0
@@ -397,6 +457,8 @@ MonoBehaviour:
     minus:
       stat: 0
       value: 0.95
+    sourceA: 0
+    sourceB: 0
   - id: 29
     color: 2
     rarity: 1
@@ -408,6 +470,190 @@ MonoBehaviour:
     minus:
       stat: 8
       value: 0.8
+    sourceA: 0
+    sourceB: 0
+  - id: 30
+    color: 1
+    rarity: 0
+    era: 0
+    maxStacks: 1
+    plus:
+      stat: 41
+      value: 1
+    minus:
+      stat: 0
+      value: 0.95
+    sourceA: 0
+    sourceB: 0
+  - id: 31
+    color: 1
+    rarity: 1
+    era: 0
+    maxStacks: 1
+    plus:
+      stat: 42
+      value: 1
+    minus:
+      stat: 3
+      value: 1.1
+    sourceA: 0
+    sourceB: 0
+  - id: 32
+    color: 2
+    rarity: 0
+    era: 0
+    maxStacks: 1
+    plus:
+      stat: 43
+      value: 1
+    minus:
+      stat: 12
+      value: 0.9
+    sourceA: 0
+    sourceB: 0
+  - id: 33
+    color: 2
+    rarity: 0
+    era: 0
+    maxStacks: 2
+    plus:
+      stat: 44
+      value: 1
+    minus:
+      stat: 8
+      value: 0.85
+    sourceA: 0
+    sourceB: 0
+  - id: 34
+    color: 0
+    rarity: 0
+    era: 0
+    maxStacks: 2
+    plus:
+      stat: 45
+      value: 0.3
+    minus:
+      stat: 4
+      value: 0.92
+    sourceA: 0
+    sourceB: 0
+  - id: 35
+    color: 0
+    rarity: 1
+    era: 0
+    maxStacks: 1
+    plus:
+      stat: 46
+      value: 1
+    minus:
+      stat: 3
+      value: 1.1
+    sourceA: 0
+    sourceB: 0
+  - id: 48
+    color: 3
+    rarity: 1
+    era: 0
+    maxStacks: 1
+    plus:
+      stat: 59
+      value: 1
+    minus:
+      stat: 0
+      value: 0
+    sourceA: 5
+    sourceB: 10
+  - id: 49
+    color: 3
+    rarity: 1
+    era: 0
+    maxStacks: 1
+    plus:
+      stat: 60
+      value: 1
+    minus:
+      stat: 0
+      value: 0
+    sourceA: 6
+    sourceB: 7
+  - id: 50
+    color: 3
+    rarity: 1
+    era: 0
+    maxStacks: 1
+    plus:
+      stat: 61
+      value: 1
+    minus:
+      stat: 0
+      value: 0
+    sourceA: 18
+    sourceB: 17
+  - id: 51
+    color: 3
+    rarity: 1
+    era: 0
+    maxStacks: 1
+    plus:
+      stat: 62
+      value: 1
+    minus:
+      stat: 0
+      value: 0
+    sourceA: 0
+    sourceB: 2
+  - id: 52
+    color: 3
+    rarity: 1
+    era: 0
+    maxStacks: 1
+    plus:
+      stat: 63
+      value: 1
+    minus:
+      stat: 0
+      value: 0
+    sourceA: 12
+    sourceB: 13
+  - id: 53
+    color: 3
+    rarity: 1
+    era: 0
+    maxStacks: 1
+    plus:
+      stat: 64
+      value: 1
+    minus:
+      stat: 0
+      value: 0
+    sourceA: 4
+    sourceB: 3
+  - id: 54
+    color: 3
+    rarity: 1
+    era: 0
+    maxStacks: 1
+    plus:
+      stat: 65
+      value: 1
+    minus:
+      stat: 0
+      value: 0
+    sourceA: 15
+    sourceB: 16
+  - id: 55
+    color: 3
+    rarity: 1
+    era: 0
+    maxStacks: 1
+    plus:
+      stat: 66
+      value: 1
+    minus:
+      stat: 0
+      value: 0
+    sourceA: 35
+    sourceB: 14
   critMul: 2
   executeFraction: 0.25
   sawWidth: 0.08
@@ -430,6 +676,43 @@ MonoBehaviour:
   horizonDps: 2
   accretionRadius: 3
   accretionHeal: 1
+  shockRadius: 1.2
+  shockPush: 0.8
+  solarWindRange: 0.8
+  solarWindMul: 0.5
+  tideEvery: 25
+  tideHeal: 2
+  overloadRadius: 1.5
+  overloadDamage: 3
+  stringSawMul: 3
+  stringSawInterval: 0.15
+  wildfireBurnDps: 2
+  wildfireRadius: 1.2
+  prominenceRadius: 3.5
+  prominenceDamage: 3
+  prominenceHeal: 2
+  hammerCritMul: 3
+  hammerShred: 0.5
+  harvestInterval: 8
+  guillotineFraction: 0.4
+  livingStarRegenMul: 2
+  livingStarHp: 40
+  reactorRadius: 2.5
+  reactorDamage: 6
+  reactorStunMul: 0.5
+  comboWindow: 2
+  comboTiers: 0a000000190000003200000064000000
+  comboMuls:
+  - 1.2
+  - 1.5
+  - 2
+  - 3
+  comboShowMin: 5
+  comboPunch: 0.25
+  comboPunchTime: 0.15
+  comboShake: 12
+  comboBreakTime: 0.3
+  maxFields: 32
   beaconInterval: 8
   beaconStackMul: 0.7
   beaconRadius: 2.5

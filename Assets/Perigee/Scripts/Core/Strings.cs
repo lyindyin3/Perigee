@@ -381,6 +381,9 @@ namespace Perigee
             return string.Format("{0:00}:{1:00}", total / SecondsPerMinute, total % SecondsPerMinute);
         }
 
+        // ComboView: строка ступени комбо
+        public static string ComboTierFormat => Loc.Pick("КОМБО ×{0:0.#}", "COMBO ×{0:0.#}");
+        public const string ComboCountFormat = "×{0}";
         public static string CardPickTitle => Loc.Pick("ВЫБЕРИ КАРТОЧКУ", "CHOOSE A CARD");
         public const string MulFormat = "×{0:0.#}";
         public static string AbilityPickTitle => Loc.Pick("ВЫБЕРИ СПОСОБНОСТЬ", "CHOOSE AN ABILITY");
@@ -426,6 +429,9 @@ namespace Perigee
             "НОВЫЙ СПУТНИК", "РЕАКТИВНЫЙ ДВИГАТЕЛЬ", "РАЗГОН", "КРУПНЫЙ СПУТНИК", "МАГНИТ", "ЖАДНОСТЬ", "ОХЛАДИТЕЛЬ",
             "БРОНЯ ЗВЕЗДЫ", "ФОТОСФЕРА", "КОРОНА", "МАЯК", "ПЕРЕЗАРЯДКА", "ДОЛГОЕ ДЕЙСТВИЕ",
             "ЖАРОСТОЙКОСТЬ", "СОЛНЕЧНЫЙ ПАРУС", "ЖАР-ПТИЦА", "ПРАЩА", "ГРАВИЗАХВАТ", "ЛОМ", "ГОРИЗОНТ СОБЫТИЙ", "ТЁМНАЯ МАТЕРИЯ", "АККРЕЦИЯ",
+            "УДАРНАЯ ВОЛНА", "ПРИЗМА", "СОЛНЕЧНЫЙ ВЕТЕР", "ПРИЛИВ", "ИНЕРЦИЯ", "ПЕРЕГРУЗКА",
+            "КОНДЕНСАТ", "ГЛАДКИЙ КОРПУС", "ЗАСЕВ", "ГРАВИМАНЁВР", "САПЁР", "ПРИЛИВНЫЕ СИЛЫ", "СТАБИЛИЗАТОР", "ФИКСАТОР", "СИНГУЛЯРНОСТЬ", "ФОНАРЬ", "НОЧНОЕ ЗРЕНИЕ", "ПОСЛЕДНИЙ СВЕТ",
+            "СТРУНА", "ПОЖАР", "ПРОТУБЕРАНЕЦ", "МОЛОТ", "ЖАТВА", "ГИЛЬОТИНА", "ЖИВАЯ ЗВЕЗДА", "РЕАКТОР",
         };
         static readonly string[] CardTitleEn =
         {
@@ -433,6 +439,9 @@ namespace Perigee
             "NEW SATELLITE", "JET ENGINE", "SPIN-UP", "BIG SATELLITE", "MAGNET", "GREED", "COOLANT",
             "STAR PLATING", "PHOTOSPHERE", "CORONA", "BEACON", "QUICK RECHARGE", "LONG EFFECT",
             "HEATPROOF", "SOLAR SAIL", "FIREBIRD", "SLINGSHOT", "GRAVITY GRIP", "CROWBAR", "EVENT HORIZON", "DARK MATTER", "ACCRETION",
+            "SHOCKWAVE", "PRISM", "SOLAR WIND", "TIDE", "INERTIA", "OVERLOAD",
+            "CONDENSATE", "SMOOTH HULL", "CLOUD SEEDING", "GRAVITY ASSIST", "SAPPER", "TIDAL FORCES", "STABILIZER", "LOCK", "SINGULARITY", "LANTERN", "NIGHT SIGHT", "LAST LIGHT",
+            "STRING", "WILDFIRE", "PROMINENCE", "HAMMER", "HARVEST", "GUILLOTINE", "LIVING STAR", "REACTOR",
         };
 
         // подпись на иконке взятой карточки, по порядку CardId
@@ -441,11 +450,13 @@ namespace Perigee
         {
             "ТС", "ДУ", "ОГ", "ББ", "РК", "НП", "РЛ", "ЦР", "НС", "РД", "РЗ", "КС", "МГ", "ЖД", "ОХ", "БЗ", "ФС", "КР", "МК", "ПЗ", "ДД",
             "ЖС", "СП", "ЖП", "ПР", "ГЗ", "ЛМ", "ГС", "ТМ", "АК",
+            "УВ", "ПМ", "СВ", "ПЛ", "ИН", "ПГ", "КД", "ГК", "ЗС", "ГМ", "СР", "ПС", "СТ", "ФК", "СН", "ФН", "НЗ", "ПО", "СА", "ПЖ", "ПТ", "МЛ", "ЖТ", "ГЛ", "ЖЗ", "РТ",
         };
         static readonly string[] CardShortEn =
         {
             "HS", "FS", "SE", "AP", "SH", "ST", "RH", "CR", "NS", "JE", "SU", "BS", "MG", "GR", "CL", "PL", "PH", "CO", "BC", "QR", "LE",
             "HP", "SS", "FB", "SL", "GG", "CB", "EH", "DM", "AC",
+            "SW", "PR", "SO", "TI", "IN", "OV", "CN", "SM", "CS", "GA", "SP", "TF", "SB", "LK", "SG", "LN", "NI", "LL", "SR", "WF", "PO", "HM", "HV", "GU", "LS", "RE",
         };
 
         // плюс карточки, по порядку CardId;   = неразрывный пробел между числом и «с»
@@ -482,6 +493,32 @@ namespace Perigee
             "Враги ближе 1.8 к центру теряют 2 HP/с",
             "Призраки не уходят в фазу",
             "Убийство ближе 3.0 к центру лечит 1 HP",
+            "Убитый враг отбрасывает соседей",
+            "Крит пробивает броню и щит",
+            "Враги у звезды вдвое медленнее",
+            "Каждые 25 кристаллов лечат 2 HP",
+            "Пока спутник летит вверх или вниз: удар +30%",
+            "Оглушённый спутник взрывается: 3 урона рядом",
+            "2 с после выхода из облака: удар ×1.5",
+            "Студень не замедляет спутник",
+            "Убийство в облаке: +2 кристалла",
+            "Манёвр у луны: удар ×2 на 2.5 с",
+            "Мины не греют спутник, взрыв ×2",
+            "Враги ближе 1.2 к луне теряют 2 HP/с",
+            "Аномалии не сгибают орбиту",
+            "Раненый Прыгун больше не прыгает",
+            "Враги в колодце теряют 2 HP/с",
+            "Свет вокруг орбиты +1.5",
+            "Во тьме видны силуэты врагов",
+            "HP звезды ниже 30%: удар ×1.4",
+            "Нить режет втрое сильнее и чаще",
+            "Огонь перекидывается с убитых на соседей",
+            "Волна маяка шире, сильнее и лечит звезду",
+            "Крит ×3 и сбивает броню",
+            "Каждые 8 с все кристаллы летят к вам",
+            "Враг с HP ≤ 40% гибнет от удара",
+            "Лечение вдвое и +40 к макс. HP",
+            "Взрыв при оглушении больше, оглушение короче",
         };
         static readonly string[] CardPlusEn =
         {
@@ -515,6 +552,32 @@ namespace Perigee
             "Enemies within 1.8 of the centre lose 2 HP/s",
             "Phantoms don't phase out",
             "A kill within 3.0 of the centre heals 1 HP",
+            "A killed enemy knocks back its neighbours",
+            "Crits pierce armor and shields",
+            "Enemies near the star are half as fast",
+            "Every 25 crystals heal 2 HP",
+            "While a satellite rises or falls: strike +30%",
+            "A stunned satellite explodes: 3 dmg nearby",
+            "2 s after leaving a cloud: strike ×1.5",
+            "Jellies don't slow the satellite",
+            "A kill in a cloud: +2 crystals",
+            "A moon flyby: strike ×2 for 2.5 s",
+            "Mines don't heat the satellite, blast ×2",
+            "Enemies within 1.2 of a moon lose 2 HP/s",
+            "Anomalies don't bend the orbit",
+            "A wounded Blinker no longer jumps",
+            "Enemies in a well lose 2 HP/s",
+            "Light around the orbit +1.5",
+            "Enemy silhouettes show in the dark",
+            "Star HP below 30%: strike ×1.4",
+            "The thread cuts three times harder and faster",
+            "Fire spreads from the dead to their neighbours",
+            "The beacon wave is wider, stronger and heals the star",
+            "Crits ×3 and knock off armor",
+            "Every 8 s all crystals fly to you",
+            "An enemy at ≤ 40% HP dies to a hit",
+            "Healing ×2 and +40 max HP",
+            "Bigger stun blast, shorter stun",
         };
 
         // минус карточки, по порядку CardId
@@ -551,6 +614,32 @@ namespace Perigee
             "Макс. HP звезды −10",
             "Удар ×0.95",
             "Кристаллы живут ×0.8",
+            "Удар ×0.95",
+            "Нагрев ×1.1",
+            "Опыт за кристалл ×0.9",
+            "Кристаллы живут ×0.85",
+            "Вращение ×0.92",
+            "Нагрев ×1.1",
+            "Нагрев ×1.1",
+            "Удар ×0.95",
+            "Вращение ×0.92",
+            "Нагрев ×1.1",
+            "Вращение ×0.95",
+            "Кристаллы живут ×0.8",
+            "Удар ×0.95",
+            "Вращение ×0.95",
+            "Макс. HP звезды −10",
+            "Вращение ×0.95",
+            "Опыт за кристалл ×0.9",
+            "Макс. HP звезды −10",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
         };
         static readonly string[] CardMinusEn =
         {
@@ -584,6 +673,32 @@ namespace Perigee
             "Star max HP −10",
             "Strike ×0.95",
             "Crystals last ×0.8",
+            "Strike ×0.95",
+            "Heat ×1.1",
+            "XP per crystal ×0.9",
+            "Crystals last ×0.85",
+            "Spin ×0.92",
+            "Heat ×1.1",
+            "Heat ×1.1",
+            "Strike ×0.95",
+            "Spin ×0.92",
+            "Heat ×1.1",
+            "Spin ×0.95",
+            "Crystals last ×0.8",
+            "Strike ×0.95",
+            "Spin ×0.95",
+            "Star max HP −10",
+            "Spin ×0.95",
+            "XP per crystal ×0.9",
+            "Star max HP −10",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
         };
 
         const char PipOn = '●';

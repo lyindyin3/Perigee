@@ -37,6 +37,7 @@ namespace Perigee
         [SerializeField] GameLoop loop;
         [SerializeField] InputHold input;
         [SerializeField] AbilitySystem abilities;
+        [SerializeField] EnemySystem enemies;
         [SerializeField] AudioManager sfx;
         [SerializeField] Transform root;
 
@@ -58,6 +59,8 @@ namespace Perigee
         float sinceRelease;
         // «Встречный ветер»: секунды с прошлого разворота орбиты
         float reverseTimer;
+        // орбита в этом шаге идёт вверх или вниз (ИНЕРЦИЯ)
+        bool shifting;
 
         void Awake()
         {
@@ -132,6 +135,7 @@ namespace Perigee
             // эра и карточки по-разному меняют выход наружу и падение (Тяжёлая звезда, минус ПРАЩИ)
             EraDef era = loop.Era;
             float k = target > baseR ? era.riseMul * loop.Stats.radialOutMul : era.fallMul;
+            shifting = baseR != target;
             baseR = Mathf.MoveTowards(baseR, target, config.radialSpeed * loop.Stats.radialSpeedMul * k * dt);
 
             echoing = abilities.Active(AbilityId.Echo);
@@ -208,11 +212,13 @@ namespace Perigee
 
         public float HitterDamage(int k)
         {
+            // ИНЕРЦИЯ: пока орбита идёт вверх или вниз, удар сильнее
+            float hitMul = shifting ? loop.Stats.hitMul * (1f + loop.Stats.Sum(StatId.Inertia)) : loop.Stats.hitMul;
             // тень бьёт долей удара своего спутника без резонанса
-            if (k >= count) return Power(satellites[k - count].r) * loop.Stats.hitMul * config.echoDamageMul;
+            if (k >= count) return Power(satellites[k - count].r) * hitMul * config.echoDamageMul;
 
             Satellite s = satellites[k];
-            float damage = Power(s.r) * loop.Stats.hitMul;
+            float damage = Power(s.r) * hitMul;
             // ЖАР-ПТИЦА: горячий спутник бьёт сильнее; тень холодная, ей множитель не достаётся
             if (loop.Stats.Firebird && s.heat >= config.firebirdHeat) damage *= config.firebirdMul;
             return s.resonant ? damage * loop.Stats.resonanceMul : damage;
@@ -239,8 +245,16 @@ namespace Perigee
             if (s.stun > 0f) return;
 
             s.heat = 1f;
-            s.stun = config.stunTime;
+            Stunned(s);
+        }
+
+        // оглушение: РЕАКТОР его укорачивает; ПЕРЕГРУЗКА взрывает спутник, взрыв идёт в очередь ЦЕПНОЙ РЕАКЦИИ
+        void Stunned(Satellite s)
+        {
+            Stats stats = loop.Stats;
+            s.stun = stats.stunTime;
             sfx.Play(SfxId.Stun);
+            if (stats.Has(StatId.Overload)) enemies.QueueBlast(s.position, stats.overloadRadius, stats.overloadDamage);
         }
 
         public float Power(float r)
@@ -356,8 +370,8 @@ namespace Perigee
             }
             if (s.heat < 1f) return;
 
-            s.stun = config.stunTime;
-            sfx.Play(SfxId.Stun);
+            Stunned(s);
+
         }
 
         void Resonate(float dt)

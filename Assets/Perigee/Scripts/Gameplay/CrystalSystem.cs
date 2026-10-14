@@ -12,12 +12,16 @@ namespace Perigee
             // пока лежит: секунды с появления; после подбора: секунды хлопка
             public float age;
             public bool picked;
+            // ЖАТВА: летит к ближайшему хиттеру с любого расстояния
+            public bool harvested;
         }
 
         [SerializeField] GameConfig config;
         [SerializeField] ArtSet art;
         [SerializeField] GameLoop loop;
         [SerializeField] SatelliteSystem satellites;
+        [SerializeField] StarController star;
+        [SerializeField] ComboSystem combo;
         [SerializeField] AudioManager sfx;
         [SerializeField] Transform root;
 
@@ -25,6 +29,9 @@ namespace Perigee
         Crystal[] pool;
         int count;
         int created;
+        // дробная пыль от множителя комбо копится до целой
+        float dustBank;
+        float harvestTimer;
 
         float Life => config.crystalLife * loop.Stats.crystalLifeMul;
 
@@ -39,6 +46,8 @@ namespace Perigee
             for (int i = root.childCount - 1; i >= 0; i--) Destroy(root.GetChild(i).gameObject);
             count = 0;
             created = 0;
+            dustBank = 0f;
+            harvestTimer = 0f;
             while (created < config.crystalPrewarm) Create();
         }
 
@@ -57,6 +66,7 @@ namespace Perigee
                 c.position = centre + new Vector2(Mathf.Cos(rad) * r, Mathf.Sin(rad) * r);
                 c.age = 0f;
                 c.picked = false;
+                c.harvested = false;
                 c.visual.SetSizeMul(1f);
                 Place(c, life);
                 c.visual.gameObject.SetActive(true);
@@ -71,6 +81,14 @@ namespace Perigee
             int hitters = satellites.HitterCount;
             // Тяжёлая звезда: кристаллы тонут в ней; ГРАВИЗАХВАТ их держит
             bool sink = loop.Era.rule == EraRule.Heavy && !loop.Stats.AnchorField;
+            // ЖАТВА: раз в harvestInterval все лежащие кристаллы летят к ближайшему хиттеру
+            bool harvest = false;
+            if (loop.Stats.Has(StatId.Harvest))
+            {
+                harvestTimer += dt;
+                harvest = harvestTimer >= config.harvestInterval;
+                if (harvest) harvestTimer -= config.harvestInterval;
+            }
 
             for (int i = count - 1; i >= 0; i--)
             {
@@ -94,6 +112,7 @@ namespace Perigee
                     Remove(i);
                     continue;
                 }
+                if (harvest) c.harvested = true;
 
                 int nearest = 0;
                 float nearestSq = float.MaxValue;
@@ -107,7 +126,8 @@ namespace Perigee
                     nearest = k;
                 }
 
-                if (nearestSq <= magnet * magnet)
+                // все хиттеры оглушены: ЖАТВЕ некуда тянуть
+                if (nearestSq <= magnet * magnet || c.harvested && nearestSq < float.MaxValue)
                 {
                     Vector2 target = satellites.HitterPosition(nearest);
                     c.position = Vector2.MoveTowards(c.position, target, config.magnetSpeed * dt);
@@ -128,8 +148,14 @@ namespace Perigee
 
                 if (nearestSq <= pickup * pickup)
                 {
-                    loop.Run.dust++;
-                    loop.Run.xp += loop.Stats.xpPerCrystalMul;
+                    // комбо умножает опыт и пыль за кристалл в момент подбора
+                    float mul = combo.Mul;
+                    dustBank += mul;
+                    int whole = (int)dustBank;
+                    dustBank -= whole;
+                    loop.Run.dust += whole;
+                    loop.Run.xp += loop.Stats.xpPerCrystalMul * mul;
+                    Tide();
                     c.picked = true;
                     c.age = 0f;
                     sfx.Play(SfxId.Crystal);
@@ -139,7 +165,17 @@ namespace Perigee
             }
         }
 
+        // ПРИЛИВ (и КРИСТАЛЛ ЖИЗНИ): каждые tideEvery подобранных кристаллов лечат звезду за каждый стак
+        void Tide()
+        {
+            RunState run = loop.Run;
+            run.crystalsPicked++;
+            float stacks = loop.Stats.Sum(StatId.TideHeal);
+            if (stacks > 0f && run.crystalsPicked % config.tideEvery == 0) star.Heal(config.tideHeal * stacks);
+        }
+
         // ответ Nearest, когда кристаллов рядом нет
+
         public const int None = -1;
 
         // номер ближайшего лежащего кристалла не дальше radius от точки; годен, пока ни один кристалл не убран

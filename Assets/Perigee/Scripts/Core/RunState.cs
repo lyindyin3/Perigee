@@ -54,6 +54,12 @@ namespace Perigee
         public int freeRerollsUsed;
         // до этой секунды забега звезда не получает урон
         public float immuneUntil;
+        // лучшая серия комбо в забеге
+        public int bestCombo;
+        // подобрано кристаллов за забег (ПРИЛИВ)
+        public int crystalsPicked;
+        // бит на каждый CardId: эволюцию уже показывали, первое место ей больше не положено
+        public long evoShown;
 
         // итоги: Progress заполняет их перед экраном Result
         public bool victory;
@@ -100,6 +106,9 @@ namespace Perigee
             secondSunUsed = false;
             freeRerollsUsed = 0;
             immuneUntil = 0f;
+            bestCombo = 0;
+            crystalsPicked = 0;
+            evoShown = 0;
         }
     }
 }

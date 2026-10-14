@@ -182,6 +182,60 @@ MonoBehaviour:
     sprite: {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
   - label: "Accretion \u2014 \u0410\u041A\u041A\u0420\u0415\u0426\u0418\u042F"
     sprite: {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
+  - label: "Shockwave \u2014 \u0423\u0414\u0410\u0420\u041D\u0410\u042F \u0412\u041E\u041B\u041D\u0410"
+    sprite: {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
+  - label: "Prism \u2014 \u041F\u0420\u0418\u0417\u041C\u0410"
+    sprite: {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
+  - label: "SolarWind \u2014 \u0421\u041E\u041B\u041D\u0415\u0427\u041D\u042B\u0419
+      \u0412\u0415\u0422\u0415\u0420"
+    sprite: {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
+  - label: "Tide \u2014 \u041F\u0420\u0418\u041B\u0418\u0412"
+    sprite: {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
+  - label: "Inertia \u2014 \u0418\u041D\u0415\u0420\u0426\u0418\u042F"
+    sprite: {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
+  - label: "Overload \u2014 \u041F\u0415\u0420\u0415\u0413\u0420\u0423\u0417\u041A\u0410"
+    sprite: {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
+  - label: "Condensate \u2014 \u041A\u041E\u041D\u0414\u0415\u041D\u0421\u0410\u0422"
+    sprite: {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
+  - label: "SmoothHull \u2014 \u0413\u041B\u0410\u0414\u041A\u0418\u0419 \u041A\u041E\u0420\u041F\u0423\u0421"
+    sprite: {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
+  - label: "CloudSeed \u2014 \u0417\u0410\u0421\u0415\u0412"
+    sprite: {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
+  - label: "GravAssist \u2014 \u0413\u0420\u0410\u0412\u0418\u041C\u0410\u041D\u0401\u0412\u0420"
+    sprite: {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
+  - label: "Sapper \u2014 \u0421\u0410\u041F\u0401\u0420"
+    sprite: {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
+  - label: "Tidal \u2014 \u041F\u0420\u0418\u041B\u0418\u0412\u041D\u042B\u0415 \u0421\u0418\u041B\u042B"
+    sprite: {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
+  - label: "Stabilizer \u2014 \u0421\u0422\u0410\u0411\u0418\u041B\u0418\u0417\u0410\u0422\u041E\u0420"
+    sprite: {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
+  - label: "Lock \u2014 \u0424\u0418\u041A\u0421\u0410\u0422\u041E\u0420"
+    sprite: {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
+  - label: "Singularity \u2014 \u0421\u0418\u041D\u0413\u0423\u041B\u042F\u0420\u041D\u041E\u0421\u0422\u042C"
+    sprite: {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
+  - label: "Lantern \u2014 \u0424\u041E\u041D\u0410\u0420\u042C"
+    sprite: {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
+  - label: "NightSight \u2014 \u041D\u041E\u0427\u041D\u041E\u0415 \u0417\u0420\u0415\u041D\u0418\u0415"
+    sprite: {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
+  - label: "LastLight \u2014 \u041F\u041E\u0421\u041B\u0415\u0414\u041D\u0418\u0419
+      \u0421\u0412\u0415\u0422"
+    sprite: {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
+  - label: "String \u2014 \u0421\u0422\u0420\u0423\u041D\u0410"
+    sprite: {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
+  - label: "Wildfire \u2014 \u041F\u041E\u0416\u0410\u0420"
+    sprite: {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
+  - label: "Prominence \u2014 \u041F\u0420\u041E\u0422\u0423\u0411\u0415\u0420\u0410\u041D\u0415\u0426"
+    sprite: {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
+  - label: "Hammer \u2014 \u041C\u041E\u041B\u041E\u0422"
+    sprite: {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
+  - label: "Harvest \u2014 \u0416\u0410\u0422\u0412\u0410"
+    sprite: {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
+  - label: "Guillotine \u2014 \u0413\u0418\u041B\u042C\u041E\u0422\u0418\u041D\u0410"
+    sprite: {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
+  - label: "LivingStar \u2014 \u0416\u0418\u0412\u0410\u042F \u0417\u0412\u0415\u0417\u0414\u0410"
+    sprite: {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
+  - label: "Reactor \u2014 \u0420\u0415\u0410\u041A\u0422\u041E\u0420"
+    sprite: {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
   abilityIcons:
   - label: "Reverse \u2014 \u0420\u0415\u0412\u0415\u0420\u0421"
     sprite: {fileID: 21300000, guid: 6ffd6324143cea845b2c38c49ec4bd7c, type: 3}
@@ -204,8 +258,11 @@ MonoBehaviour:
     sprite: {fileID: -7563491844460861693, guid: bd5f7b52640872646b6e2f8cd9ff9790, type: 3}
   - label: "Star \u2014 \u0447\u0451\u0440\u043D\u0430\u044F"
     sprite: {fileID: 6891944439056856822, guid: bd5f7b52640872646b6e2f8cd9ff9790, type: 3}
+  - label: "Evolution \u2014 \u0437\u043E\u043B\u043E\u0442\u0430\u044F"
+    sprite: {fileID: 21300000, guid: f20af9d1964599748b60fb8398549322, type: 3}
   cardRareRim: {fileID: -1881626107737315355, guid: bd5f7b52640872646b6e2f8cd9ff9790, type: 3}
   abilityFrame: {fileID: 8571015244451640116, guid: bd5f7b52640872646b6e2f8cd9ff9790, type: 3}
+  relicFrame: {fileID: 21300000, guid: 77af321dc1186dc46afab54f0b4bd572, type: 3}
   blueprintIcons:
   - label: "Hull \u2014 \u041A\u041E\u0420\u041F\u0423\u0421"
     sprite: {fileID: 21300000, guid: 2b9ed6036ae877d499d298b04aab4c33, type: 3}

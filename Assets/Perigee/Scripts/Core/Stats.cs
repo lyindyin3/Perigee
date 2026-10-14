@@ -43,6 +43,21 @@ namespace Perigee
         public int freeRerolls;
         public int extraChoices;
 
+        // числа после эволюций (и реликвий): системы берут их отсюда, а не из конфига
+        public float critMul;
+        public float sawDamage;
+        public float sawInterval;
+        public float burnDps;
+        public float executeFraction;
+        public float beaconRadius;
+        public float beaconDamage;
+        // ПРОТУБЕРАНЕЦ: каждая волна маяка лечит звезду
+        public float beaconHeal;
+        public float stunTime;
+        // ПЕРЕГРУЗКА: взрыв у оглушённого спутника; РЕАКТОР его усиливает
+        public float overloadRadius;
+        public float overloadDamage;
+
         float execute;
         float sawThread;
         float burn;
@@ -139,7 +154,8 @@ namespace Perigee
                 for (int s = 0; s < cardStacks[i]; s++)
                 {
                     Apply(cards[i].plus);
-                    Apply(cards[i].minus);
+                    // у эволюции минуса нет
+                    if (cards[i].color != CardColor.Evolution) Apply(cards[i].minus);
                 }
             }
 
@@ -147,6 +163,28 @@ namespace Perigee
             BlueprintDef[] blueprints = config.blueprints;
             for (int i = 0; i < blueprints.Length; i++)
                 for (int l = 0; l < blueprintLevels[i]; l++) Apply(blueprints[i].levels[l].mod);
+
+            // эволюции: свои числа поверх конфига
+            bool hammer = Has(StatId.Hammer);
+            critMul = (hammer ? config.hammerCritMul : config.critMul) + Sum(StatId.CritMulBonus);
+            bool stringSaw = Has(StatId.String);
+            sawDamage = stringSaw ? config.sawDamage * config.stringSawMul : config.sawDamage;
+            sawInterval = stringSaw ? config.stringSawInterval : config.sawInterval;
+            burnDps = Has(StatId.Wildfire) ? config.wildfireBurnDps : config.burnDps;
+            executeFraction = Has(StatId.Guillotine) ? config.guillotineFraction : config.executeFraction;
+            bool prominence = Has(StatId.Prominence);
+            beaconRadius = prominence ? config.prominenceRadius : config.beaconRadius;
+            beaconDamage = prominence ? config.prominenceDamage : config.beaconDamage;
+            beaconHeal = prominence ? config.prominenceHeal : 0f;
+            bool reactor = Has(StatId.Reactor);
+            stunTime = reactor ? config.stunTime * config.reactorStunMul : config.stunTime;
+            overloadRadius = reactor ? config.reactorRadius : config.overloadRadius;
+            overloadDamage = reactor ? config.reactorDamage : config.overloadDamage;
+            if (Has(StatId.LivingStar))
+            {
+                regen *= config.livingStarRegenMul;
+                starMaxHp += config.livingStarHp;
+            }
 
             // модификаторы забега (День и испытания)
             if ((mods & RunModifier.DoubleHeat) != 0) heatMul *= config.doubleHeatMul;

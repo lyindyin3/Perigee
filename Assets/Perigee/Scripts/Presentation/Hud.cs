@@ -9,8 +9,9 @@ namespace Perigee
     {
         const int SecondsPerMinute = 60;
         const int DigitBase = 10;
-        // обязательная часть префаба HudCardIcon: картинка карточки
+        // обязательные части префаба HudCardIcon: картинка карточки и золотая кайма эволюции
         const string IconName = "Icon";
+        const string RimName = "Rim";
 
         [SerializeField] GameConfig config;
         [SerializeField] ArtSet art;
@@ -39,6 +40,10 @@ namespace Perigee
         [SerializeField] RectTransform hint;
         [SerializeField] RectTransform hintPortrait;
         [SerializeField] RectTransform hintLandscape;
+        // ComboView: под полосками в портрете, под таймером в альбоме
+        [SerializeField] RectTransform combo;
+        [SerializeField] RectTransform comboPortrait;
+        [SerializeField] RectTransform comboLandscape;
         [SerializeField] RectTransform cardIconsRoot;
         [SerializeField] GameObject cardIconPrefab;
 
@@ -72,8 +77,9 @@ namespace Perigee
         {
             shownMark = int.MinValue;
             bossName.text = Strings.BossTitle(loop.Era.boss);
+            // иконки источников, слитых в эволюцию, уже убраны
             for (int i = 0; i < cardIcons.Length; i++)
-                if (shownStacks[i] > 0) cardIconTexts[i].text = Strings.CardShort[(int)config.cards[i].id] + "\n" + shownStacks[i];
+                if (shownStacks[i] > 0 && cardIcons[i] != null) cardIconTexts[i].text = Strings.CardShort[(int)config.cards[i].id] + "\n" + shownStacks[i];
         }
 
         void Update()
@@ -135,17 +141,55 @@ namespace Perigee
                 if (stacks == shownStacks[i]) continue;
 
                 // иконка создаётся, когда карточку взяли впервые, и убирается с новым забегом
-                CardId id = config.cards[i].id;
+                CardDef card = config.cards[i];
+                CardId id = card.id;
                 if (shownStacks[i] == 0)
                 {
                     cardIcons[i] = Instantiate(cardIconPrefab, cardIconsRoot);
                     cardIcons[i].transform.Find(IconName).GetComponent<Image>().sprite = art.cardIcons[(int)id].sprite;
                     cardIconTexts[i] = cardIcons[i].GetComponentInChildren<TMP_Text>();
+                    if (card.color == CardColor.Evolution) Evolve(i, card);
                 }
                 shownStacks[i] = stacks;
-                if (stacks == 0) Destroy(cardIcons[i]);
+                // у слитого источника иконки уже нет
+                if (stacks == 0)
+                {
+                    if (cardIcons[i] != null) Destroy(cardIcons[i]);
+                }
                 else cardIconTexts[i].text = Strings.CardShort[(int)id] + "\n" + stacks;
             }
+        }
+
+        // эволюция взята: иконки двух источников слетаются в её иконку с золотой каймой и гаснут в ней; дальше HUD показывает только эволюцию
+        void Evolve(int evolution, CardDef card)
+        {
+            GameObject evo = cardIcons[evolution];
+            evo.transform.Find(RimName).gameObject.SetActive(true);
+            CanvasGroup evoGroup = evo.GetComponent<CanvasGroup>();
+            evoGroup.alpha = 0f;
+            evoGroup.DOFade(1f, config.evoMergeTime).SetLink(evo);
+
+            GameObject a = Detach(cards.Index(card.sourceA));
+            GameObject b = Detach(cards.Index(card.sourceB));
+            // место иконки эволюции в ряду известно только после перестройки ряда без источников
+            LayoutRebuilder.ForceRebuildLayoutImmediate(cardIconsRoot);
+            Fly(a, evo.transform.position);
+            Fly(b, evo.transform.position);
+        }
+
+        // источник уходит из ряда (остаётся поверх него на том же месте) и больше не принадлежит карточке
+        GameObject Detach(int source)
+        {
+            GameObject icon = cardIcons[source];
+            cardIcons[source] = null;
+            icon.transform.SetParent(cardIconsRoot.parent, true);
+            return icon;
+        }
+
+        void Fly(GameObject icon, Vector3 target)
+        {
+            icon.transform.DOMove(target, config.evoMergeTime).SetLink(icon);
+            icon.GetComponent<CanvasGroup>().DOFade(0f, config.evoMergeTime).SetLink(icon).OnComplete(() => Destroy(icon));
         }
 
         void Layout()
@@ -163,6 +207,8 @@ namespace Perigee
             bars.SetParent(landscape ? barsLandscape : barsPortrait, false);
             dust.SetParent(landscape ? dustLandscape : dustPortrait, false);
             hint.SetParent(landscape ? hintLandscape : hintPortrait, false);
+            combo.SetParent(landscape ? comboLandscape : comboPortrait, false);
+
         }
     }
 }

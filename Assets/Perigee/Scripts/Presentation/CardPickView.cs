@@ -49,11 +49,19 @@ namespace Perigee
         {
             if (closing) return;
 
+            // эволюция: сначала слияние значков на карточке, потом экран гаснет
+            bool evolution = cards.Offer(slot).color == CardColor.Evolution;
             cards.Pick(slot);
-            sfx.Play(SfxId.CardPick);
+            if (evolution)
+            {
+                views[slot].Merge();
+                sfx.Play(SfxId.Evolution);
+            }
+            else sfx.Play(SfxId.CardPick);
             closing = true;
             group.blocksRaycasts = false;
-            group.DOFade(0f, config.pickFadeOut).SetLink(gameObject).OnComplete(Close);
+            float delay = evolution ? config.evoMergeTime + config.evoFlashTime : 0f;
+            group.DOFade(0f, config.pickFadeOut).SetDelay(delay).SetLink(gameObject).OnComplete(Close);
         }
 
         // кнопка под карточками: другие карточки бесплатно

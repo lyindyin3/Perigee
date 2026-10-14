@@ -170,7 +170,7 @@ namespace Perigee
                 {
                     float burning = Mathf.Min(part.burn, enemyDt);
                     part.burn -= burning;
-                    seared += config.burnDps * burning;
+                    seared += loop.Stats.burnDps * burning;
                 }
                 if (horizon && part.position.sqrMagnitude <= config.horizonRadius * config.horizonRadius) seared += config.horizonDps * enemyDt;
                 if (seared > 0f)
@@ -216,9 +216,11 @@ namespace Perigee
                     part.hitCooldown[k] = config.hitCooldown;
                     float damage = satellites.HitterDamage(k);
                     bool crit = loop.Run.simRng.Range(0f, 1f) < stats.critChance;
-                    if (crit) damage *= config.critMul;
-                    // броня (Колосс): удар слабее брони урона не наносит; БРОНЕБОЙ её срезает
-                    if (damage < Mathf.Max(armor - stats.armorPierce, 0f))
+                    if (crit) damage *= stats.critMul;
+                    // МОЛОТ: каждый крит навсегда сбивает часть брони
+                    if (crit && stats.Has(StatId.Hammer)) armor = Mathf.Max(armor - config.hammerShred, 0f);
+                    // броня (Колосс): удар слабее брони урона не наносит; БРОНЕБОЙ её срезает, крит с ПРИЗМОЙ проходит сквозь неё
+                    if (!(crit && stats.Has(StatId.Prism)) && damage < Mathf.Max(armor - stats.armorPierce, 0f))
                     {
                         fx.Sparks(hitter, config.clinkSparks);
                         fx.Number(Above(part), 0f, NumberKind.Blocked);
@@ -239,8 +241,9 @@ namespace Perigee
                 Vector2 point;
                 if (!part.alive || !stats.SawThread || part.sawCooldown > 0f || !satellites.Sawn(part.position, def.radius, out point)) continue;
 
-                part.sawCooldown = config.sawInterval;
-                if (Hurt(part, config.sawDamage, point, NumberKind.Normal)) continue;
+                part.sawCooldown = stats.sawInterval;
+                if (Hurt(part, stats.sawDamage, point, NumberKind.Normal)) continue;
+
                 fx.Shards(point, config.hitShards);
                 sfx.Play(SfxId.Hit);
             }

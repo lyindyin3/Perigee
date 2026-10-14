@@ -97,16 +97,19 @@ namespace Perigee
         public Color raysTint;
     }
 
-    // порядок таблиц GDD 6.2 и 6.3 (карточки эр в конце); по нему идут ArtSet.cardIcons и строки в Strings
+    // порядок GDD 6.3 (конец): 6.2, карточки эр 2–4, 6.5, карточки эр 5–8, эволюции 6.6; по нему идут ArtSet.cardIcons и строки в Strings
     public enum CardId
     {
         Heavy, FarStrike, Sharp, Pierce, Execute, SawThread, Burn, Chain, AddSat, Swift, Spin, BigSat, Magnet, Greed, Coolant,
         StarPlating, Photosphere, Corona, Beacon, AbilityHaste, AbilityLong,
-        Heatproof, SolarSail, Firebird, Slingshot, AnchorField, Crowbar, EventHorizon, DarkMatter, Accretion
+        Heatproof, SolarSail, Firebird, Slingshot, AnchorField, Crowbar, EventHorizon, DarkMatter, Accretion,
+        Shockwave, Prism, SolarWind, Tide, Inertia, Overload,
+        Condensate, SmoothHull, CloudSeed, GravAssist, Sapper, Tidal, Stabilizer, Lock, Singularity, Lantern, NightSight, LastLight,
+        String, Wildfire, Prominence, Hammer, Harvest, Guillotine, LivingStar, Reactor
     }
 
-    // цвет рамки: кремовая, красная, чёрная
-    public enum CardColor { Orbit, Strike, Star }
+    // цвет рамки: кремовая, красная, чёрная, золотая (эволюция)
+    public enum CardColor { Orbit, Strike, Star, Evolution }
 
     public enum CardRarity { Common, Rare }
 
@@ -151,7 +154,11 @@ namespace Perigee
         // 0 = предела нет (ADD_SAT ограничен числом спутников)
         public int maxStacks;
         public StatMod plus;
+        // у эволюции минуса нет: поле не действует
         public StatMod minus;
+        // эволюция: две карточки-источника, обе на максимуме стаков
+        public CardId sourceA;
+        public CardId sourceB;
     }
 
     public enum AbilityId { Reverse, Grow, Pulse, Stasis, Echo, Pull, Dome }
@@ -327,6 +334,12 @@ namespace Perigee
         public int weightCommon = 3;
         public int weightRare = 1;
         public int weightEra = 4;
+        // эволюция после первого показа
+        public int weightEvolution = 6;
+        // слияние значков эволюции на карточке и в HUD
+        public float evoMergeTime = 0.35f;
+        public float evoFlashTime = 0.25f;
+        public float evoPunch = 0.3f;
         [TableList]
         public CardDef[] cards =
         {
@@ -361,6 +374,22 @@ namespace Perigee
             Card(CardId.EventHorizon, CardColor.Star, CardRarity.Common, 1, StatId.Horizon, 1f, StatId.StarMaxHp, -10f, 4),
             Card(CardId.DarkMatter, CardColor.Strike, CardRarity.Common, 1, StatId.DarkMatter, 1f, StatId.PowerMul, 0.95f, 4),
             Card(CardId.Accretion, CardColor.Star, CardRarity.Rare, 1, StatId.Accretion, 1f, StatId.CrystalLifeMul, 0.8f, 4),
+            // R4: новые карточки любой эры
+            Card(CardId.Shockwave, CardColor.Strike, CardRarity.Common, 1, StatId.Shockwave, 1f, StatId.PowerMul, 0.95f),
+            Card(CardId.Prism, CardColor.Strike, CardRarity.Rare, 1, StatId.Prism, 1f, StatId.HeatMul, 1.1f),
+            Card(CardId.SolarWind, CardColor.Star, CardRarity.Common, 1, StatId.SolarWind, 1f, StatId.XpPerCrystalMul, 0.9f),
+            Card(CardId.Tide, CardColor.Star, CardRarity.Common, 2, StatId.TideHeal, 1f, StatId.CrystalLifeMul, 0.85f),
+            Card(CardId.Inertia, CardColor.Orbit, CardRarity.Common, 2, StatId.Inertia, 0.3f, StatId.SpinMul, 0.92f),
+            Card(CardId.Overload, CardColor.Orbit, CardRarity.Rare, 1, StatId.Overload, 1f, StatId.HeatMul, 1.1f),
+            // эволюции: две карточки-источника на максимуме
+            Evolution(CardId.String, StatId.String, CardId.SawThread, CardId.Spin),
+            Evolution(CardId.Wildfire, StatId.Wildfire, CardId.Burn, CardId.Chain),
+            Evolution(CardId.Prominence, StatId.Prominence, CardId.Beacon, CardId.Corona),
+            Evolution(CardId.Hammer, StatId.Hammer, CardId.Heavy, CardId.Sharp),
+            Evolution(CardId.Harvest, StatId.Harvest, CardId.Magnet, CardId.Greed),
+            Evolution(CardId.Guillotine, StatId.Guillotine, CardId.Execute, CardId.Pierce),
+            Evolution(CardId.LivingStar, StatId.LivingStar, CardId.StarPlating, CardId.Photosphere),
+            Evolution(CardId.Reactor, StatId.Reactor, CardId.Overload, CardId.Coolant),
         };
 
         [Title("Эффекты карточек")]
@@ -389,6 +418,52 @@ namespace Perigee
         public float horizonDps = 2f;
         public float accretionRadius = 3f;
         public float accretionHeal = 1f;
+        // УДАРНАЯ ВОЛНА: убийство хиттером отбрасывает соседей от звезды
+        public float shockRadius = 1.2f;
+        public float shockPush = 0.8f;
+        // СОЛНЕЧНЫЙ ВЕТЕР: враги ближе starRadius + solarWindRange идут медленнее
+        public float solarWindRange = 0.8f;
+        public float solarWindMul = 0.5f;
+        // ПРИЛИВ: каждые tideEvery подобранных кристаллов лечат tideHeal за стак
+        public int tideEvery = 25;
+        public float tideHeal = 2f;
+        // ПЕРЕГРУЗКА: взрыв у оглушённого спутника
+        public float overloadRadius = 1.5f;
+        public float overloadDamage = 3f;
+
+        [Title("Эволюции")]
+        public float stringSawMul = 3f;
+        public float stringSawInterval = 0.15f;
+        public float wildfireBurnDps = 2f;
+        public float wildfireRadius = 1.2f;
+        public float prominenceRadius = 3.5f;
+        public float prominenceDamage = 3f;
+        public float prominenceHeal = 2f;
+        public float hammerCritMul = 3f;
+        public float hammerShred = 0.5f;
+        public float harvestInterval = 8f;
+        public float guillotineFraction = 0.4f;
+        public float livingStarRegenMul = 2f;
+        public float livingStarHp = 40f;
+        public float reactorRadius = 2.5f;
+        public float reactorDamage = 6f;
+        public float reactorStunMul = 0.5f;
+
+        [Title("Комбо")]
+        public float comboWindow = 2f;
+        // пороги серии и множители опыта и пыли за кристалл; ниже первого порога множитель 1
+        public int[] comboTiers = { 10, 25, 50, 100 };
+        public float[] comboMuls = { 1.2f, 1.5f, 2f, 3f };
+        public int comboShowMin = 5;
+        // ComboView: прыжок числа на каждое убийство, тряска (px) и угасание при обрыве
+        public float comboPunch = 0.25f;
+        public float comboPunchTime = 0.15f;
+        public float comboShake = 12f;
+        public float comboBreakTime = 0.3f;
+
+        [Title("Поля у врагов")]
+        // сколько областей EnemySystem.Field за один шаг
+        public int maxFields = 32;
 
         [Title("Маяк")]
         public float beaconInterval = 8f;
@@ -924,6 +999,11 @@ namespace Perigee
         static CardDef Card(CardId id, CardColor color, CardRarity rarity, int maxStacks, StatId plus, float plusValue, StatId minus, float minusValue, int era = 0)
         {
             return new CardDef { id = id, color = color, rarity = rarity, era = era, maxStacks = maxStacks, plus = new StatMod(plus, plusValue), minus = new StatMod(minus, minusValue) };
+        }
+
+        static CardDef Evolution(CardId id, StatId plus, CardId sourceA, CardId sourceB)
+        {
+            return new CardDef { id = id, color = CardColor.Evolution, rarity = CardRarity.Rare, maxStacks = 1, plus = new StatMod(plus, 1f), sourceA = sourceA, sourceB = sourceB };
         }
 
         static SpawnEvent At(float time, params SpawnGroup[] groups)

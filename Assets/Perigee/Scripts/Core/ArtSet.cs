@@ -77,6 +77,8 @@ namespace Perigee
         public Sprite cardRareRim;
         [Tooltip("Рамка способности на экране выбора")]
         public Sprite abilityFrame;
+        [Tooltip("Рамка реликвии на экране выбора")]
+        public Sprite relicFrame;
 
         [Header("Меню")]
         [Tooltip("Иконки чертежей в Мастерской, по порядку BlueprintId")]
@@ -98,7 +100,7 @@ namespace Perigee
         };
 
         // CardColor: рамка по цвету
-        static readonly string[] FrameNames = { "кремовая", "красная", "чёрная" };
+        static readonly string[] FrameNames = { "кремовая", "красная", "чёрная", "золотая" };
 
         void OnValidate()
         {

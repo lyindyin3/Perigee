@@ -14,6 +14,7 @@ namespace Perigee
         [SerializeField] SatelliteSystem satellites;
         [SerializeField] EnemySystem enemies;
         [SerializeField] BossSystem boss;
+        [SerializeField] StarController star;
         [SerializeField] AbilitySystem abilities;
         [SerializeField] CardPickView view;
         [SerializeField] AbilityPickView abilityView;
@@ -92,7 +93,11 @@ namespace Perigee
 
         public void Tick(float dt)
         {
-            if (loop.Stats.beacons > 0)
+            Stats stats = loop.Stats;
+            // СОЛНЕЧНЫЙ ВЕТЕР: у звезды враги вдвое медленнее (область действует в следующем шаге врагов)
+            if (stats.Has(StatId.SolarWind)) enemies.Field(Vector2.zero, config.starRadius + config.solarWindRange, 0f, config.solarWindMul, 0f);
+
+            if (stats.beacons > 0)
             {
                 beaconTimer += dt;
                 // второй МАЯК укорачивает период
@@ -100,8 +105,10 @@ namespace Perigee
                 if (beaconTimer >= interval)
                 {
                     beaconTimer -= interval;
-                    enemies.Blast(Vector2.zero, config.beaconRadius, config.beaconDamage);
-                    boss.Blast(Vector2.zero, config.beaconRadius, config.beaconDamage);
+                    // ПРОТУБЕРАНЕЦ: волна шире, сильнее и лечит звезду
+                    enemies.Blast(Vector2.zero, stats.beaconRadius, stats.beaconDamage);
+                    boss.Blast(Vector2.zero, stats.beaconRadius, stats.beaconDamage);
+                    if (stats.beaconHeal > 0f) star.Heal(stats.beaconHeal);
                     BeaconFx();
                     sfx.Play(SfxId.Pulse);
                 }
@@ -118,7 +125,16 @@ namespace Perigee
         {
             int index = offer[slot];
             CardDef card = config.cards[index];
-            loop.Run.cardStacks[index]++;
+            RunState run = loop.Run;
+            // показанные эволюции первое место больше не занимают
+            for (int k = 0; k < offerCount; k++)
+                if (config.cards[offer[k]].color == CardColor.Evolution) run.evoShown |= Bit(config.cards[offer[k]].id);
+            if (card.color == CardColor.Evolution)
+            {
+                loop.Save.Data.evolutionsTaken++;
+                loop.Save.Save();
+            }
+            run.cardStacks[index]++;
             loop.RecomputeStats();
             // STAR_PLATING лечит на столько же, на сколько поднимает максимум (стеклянную звезду не лечит ничто); ЖАДНОСТЬ срезает HP сверх нового максимума
             float heal = card.plus.stat == StatId.StarMaxHp && !loop.Run.Has(RunModifier.GlassStar) ? card.plus.value : 0f;
@@ -157,13 +173,17 @@ namespace Perigee
         void Roll(bool first)
         {
             CardDef[] cards = config.cards;
+            RunState run = loop.Run;
             int n = 0;
             int forced = -1;
+            int evolution = -1;
             for (int i = 0; i < cards.Length; i++)
             {
                 if (!Eligible(i)) continue;
                 // первый экран забега всегда предлагает ADD_SAT, пока спутников меньше максимума
                 if (first && cards[i].id == CardId.AddSat) forced = i;
+                // готовая эволюция в первый раз встаёт на первое место
+                if (evolution < 0 && cards[i].color == CardColor.Evolution && (run.evoShown & Bit(cards[i].id)) == 0) evolution = i;
                 eligible[n++] = i;
             }
 
@@ -184,10 +204,44 @@ namespace Perigee
                 if (index == forced) forcedMissing = false;
             }
             if (forcedMissing) offer[cardRng.Range(0, offerCount)] = forced;
+            if (evolution >= 0)
+            {
+                // уже вытянута: меняется местами с первой, иначе встаёт на первое место
+                int at = System.Array.IndexOf(offer, evolution, 0, offerCount);
+                if (at > 0) offer[at] = offer[0];
+                offer[0] = evolution;
+            }
+            Seen();
+        }
+
+        // предложенные карточки отмечаются в сохранении (Атлас показывает только их)
+        void Seen()
+        {
+            SaveData data = loop.Save.Data;
+            long seen = data.seenCards;
+            for (int k = 0; k < offerCount; k++) seen |= Bit(config.cards[offer[k]].id);
+            if (seen == data.seenCards) return;
+            data.seenCards = seen;
+            loop.Save.Save();
+        }
+
+        static long Bit(CardId id)
+        {
+            return 1L << (int)id;
+        }
+
+        // номер карточки в config.cards
+        public int Index(CardId id)
+        {
+            CardDef[] cards = config.cards;
+            for (int i = 0; i < cards.Length; i++)
+                if (cards[i].id == id) return i;
+            return -1;
         }
 
         int Weight(CardDef card)
         {
+            if (card.color == CardColor.Evolution) return config.weightEvolution;
             if (card.era != 0) return config.weightEra;
             return card.rarity == CardRarity.Rare ? config.weightRare : config.weightCommon;
         }
@@ -199,6 +253,8 @@ namespace Perigee
             // у ADD_SAT предела стаков нет: карточка идёт, пока спутников меньше максимума; в «Одиночке» её нет
             if (card.id == CardId.AddSat) return !run.Has(RunModifier.SingleSat) && 1 + loop.Stats.extraSatellites < satellites.Cap;
             if (run.cardStacks[i] >= card.maxStacks) return false;
+            // эволюции нужны обе карточки-источника на максимуме
+            if (card.color == CardColor.Evolution) return Maxed(card.sourceA) && Maxed(card.sourceB);
             // «Без способностей»: их карточки не нужны
             if ((card.id == CardId.AbilityHaste || card.id == CardId.AbilityLong) && run.Has(RunModifier.NoAbilities)) return false;
             // карточка эры идёт только в своей эре
@@ -208,6 +264,12 @@ namespace Perigee
             // ABILITY_LONG нужна способность с длительностью
             if (card.id == CardId.AbilityLong && !abilities.HasTimed) return false;
             return true;
+        }
+
+        bool Maxed(CardId id)
+        {
+            int i = Index(id);
+            return loop.Run.cardStacks[i] >= config.cards[i].maxStacks;
         }
 
         void BeaconFx()
@@ -221,7 +283,8 @@ namespace Perigee
         void SetWave(float value)
         {
             wave = value;
-            beaconRing.SetSizeMul(value * config.beaconRadius);
+            beaconRing.SetSizeMul(value * loop.Stats.beaconRadius);
+
             beaconRing.SetAlpha(1f - value);
         }
 

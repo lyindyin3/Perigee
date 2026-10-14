@@ -22,6 +22,7 @@ namespace Perigee
         [SerializeField] Director director;
         [SerializeField] StarController star;
         [SerializeField] CardSystem cards;
+        [SerializeField] ComboSystem combo;
         [SerializeField] AbilitySystem abilities;
         [SerializeField] ArmorRing armorRing;
         [SerializeField] Fx fx;
@@ -170,6 +171,7 @@ namespace Perigee
             enemies.ResetRun();
             boss.ResetRun();
             crystals.ResetRun();
+            combo.ResetRun();
             star.ResetRun();
             director.ResetRun(Run.seed);
             cards.ResetRun(Run.seed + Rng.CardOffset);
@@ -363,6 +365,7 @@ namespace Perigee
             boss.Tick(dt);
             enemies.Collide();
             boss.Collide();
+            combo.Tick(dt);
             crystals.Tick(dt);
             director.Tick(dt);
             // победа важнее поражения, поражение важнее экрана карточек
@@ -376,6 +379,9 @@ namespace Perigee
         void Finish(bool victory)
         {
             Run.victory = victory;
+            // незаконченная серия тоже идёт в лучшую серию сохранения
+            combo.Break();
+
             Progress.Finish(Run, eraIndex, Stats);
             leaderboard.Submit(Run.score);
             SetState(GameState.Result);

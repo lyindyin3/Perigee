@@ -8,6 +8,7 @@ namespace Perigee
         [SerializeField] ArtSet art;
         [SerializeField] GameLoop loop;
         [SerializeField] AbilitySystem abilities;
+        [SerializeField] ComboSystem combo;
         [SerializeField] Visual visual;
         [SerializeField] SpriteRenderer rays;
         [SerializeField] Fx fx;
@@ -28,6 +29,9 @@ namespace Perigee
         {
             if (Immune) return;
             Drain(amount);
+            // удар по звезде обрывает комбо (Паразит, который пьёт, нет)
+            combo.Break();
+
             visual.Flash(config.starHitFlashColor, config.starFlashTime);
             fx.Shake(config.starShakeAmp, config.starShakeTime);
             fx.HitStop(config.hitStopTime);
