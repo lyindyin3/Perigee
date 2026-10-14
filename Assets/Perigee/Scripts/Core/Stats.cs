@@ -58,6 +58,9 @@ namespace Perigee
         public float overloadRadius;
         public float overloadDamage;
 
+        // Блеск Белого карлика: прибавка к шансу крита у горячего спутника
+        float glintCrit;
+        float glintHeat;
         float execute;
         float sawThread;
         float burn;
@@ -99,9 +102,16 @@ namespace Perigee
             return sums[(int)id] >= FlagOn;
         }
 
-        // база × эра × карточки × чертежи × модификаторы забега × активные способности: множители перемножаются, бонусы складываются.
-        // slinging = идёт окно ПРАЩИ после отпускания, sailing = идёт окно СОЛНЕЧНОГО ПАРУСА вокруг вспышки.
-        public void Recompute(GameConfig config, EraDef era, RunModifier mods, int[] cardStacks, int[] blueprintLevels, AbilitySystem abilities, bool slinging, bool sailing)
+        // шанс крита спутника или тени с нагревом heat
+        public float CritChance(float heat)
+        {
+            return heat >= glintHeat ? critChance + glintCrit : critChance;
+        }
+
+        // база × эра × класс звезды × карточки × чертежи × модификаторы забега × активные способности: множители перемножаются, бонусы складываются.
+        // slinging = идёт окно ПРАЩИ после отпускания, sailing = идёт окно СОЛНЕЧНОГО ПАРУСА вокруг вспышки,
+        // bright = у Цефеиды яркая фаза дыхания.
+        public void Recompute(GameConfig config, EraDef era, StarClassDef starClass, bool bright, RunModifier mods, int[] cardStacks, int[] relicStacks, int[] blueprintLevels, AbilitySystem abilities, bool slinging, bool sailing)
         {
             radialSpeedMul = 1f;
             radialOutMul = 1f;
@@ -123,7 +133,7 @@ namespace Perigee
             starDamageMul = 1f;
             dustMul = 1f;
             magnetRadius = 0f;
-            starMaxHp = config.starMaxHp;
+            starMaxHp = starClass.maxHp;
             regen = 0f;
             critChance = 0f;
             armorPierce = 0f;
@@ -147,6 +157,11 @@ namespace Perigee
             accretion = 0f;
             secondSun = 0f;
             System.Array.Clear(sums, 0, sums.Length);
+            glintCrit = starClass.trait == StarTrait.Glint ? config.glintCrit : 0f;
+            glintHeat = config.glintHeat;
+
+            // свойства класса звезды идут как ещё одна карточка
+            for (int i = 0; i < starClass.mods.Length; i++) Apply(starClass.mods[i]);
 
             CardDef[] cards = config.cards;
             for (int i = 0; i < cards.Length; i++)
@@ -158,6 +173,12 @@ namespace Perigee
                     if (cards[i].color != CardColor.Evolution) Apply(cards[i].minus);
                 }
             }
+
+            // реликвии: все свойства за каждый стак
+            RelicDef[] relics = config.relics;
+            for (int i = 0; i < relics.Length; i++)
+                for (int s = 0; s < relicStacks[i]; s++)
+                    for (int m = 0; m < relics[i].mods.Length; m++) Apply(relics[i].mods[m]);
 
             // чертежи: эффект каждого купленного уровня
             BlueprintDef[] blueprints = config.blueprints;
@@ -184,6 +205,13 @@ namespace Perigee
             {
                 regen *= config.livingStarRegenMul;
                 starMaxHp += config.livingStarHp;
+            }
+
+            // дыхание Цефеиды: яркая фаза лечит и бьёт слабее, тусклая бьёт сильнее
+            if (starClass.trait == StarTrait.Breath)
+            {
+                if (bright) regen += config.breathRegen;
+                powerMul *= bright ? config.breathBrightPower : config.breathDimPower;
             }
 
             // модификаторы забега (День и испытания)

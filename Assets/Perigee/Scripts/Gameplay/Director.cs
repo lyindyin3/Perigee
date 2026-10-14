@@ -18,6 +18,8 @@ namespace Perigee
             public int pack;
             // множитель HP: циклы Бесконечного и повтор «Марафона»
             public float hpMul;
+            // Вестник: элита со своими свойствами, его гибель открывает выбор реликвии
+            public bool herald;
         }
 
         [SerializeField] GameConfig config;
@@ -26,8 +28,11 @@ namespace Perigee
         [SerializeField] EnemySystem enemies;
         [SerializeField] Camera cam;
         [SerializeField] Transform root;
+        [SerializeField] BannerView banner;
 
         readonly List<Visual> markers = new List<Visual>();
+        // вне расписания: Вестник и Нашествие; вышедшие убираются
+        readonly List<Pending> extra = new List<Pending>();
         readonly List<Visual> arrowWedges = new List<Visual>();
         readonly List<Visual> arrowLines = new List<Visual>();
         Pending[] pending;
@@ -58,6 +63,8 @@ namespace Perigee
             int n = Fill(era.timeline, Fill(opening, 0, 0f, 0f, 1f, 1f), 0f, 0f, 1f, 1f);
             // «Марафон»: вторая часть расписания идёт ещё раз, позже и с врагами крепче
             if (marathon) Fill(era.timeline, n, config.marathonReplayFrom, config.marathonShift, config.marathonHpMul, 1f);
+            extra.Clear();
+            if (!loop.Run.tutorial) extra.Add(Herald(config.heraldTime, 1f));
 
             // метки создаются заново из префабов: правка префаба видна со следующего забега
             for (int i = root.childCount - 1; i >= 0; i--) Destroy(root.GetChild(i).gameObject);
@@ -91,27 +98,17 @@ namespace Perigee
             int usedArrows = 0;
             bool allSpawned = true;
             for (int i = 0; i < pending.Length; i++)
+                if (!pending[i].spawned && !Due(ref pending[i], t, ref usedMarkers, ref usedArrows)) allSpawned = false;
+            for (int i = extra.Count - 1; i >= 0; i--)
             {
-                if (pending[i].spawned) continue;
-
-                if (t >= pending[i].time)
+                Pending p = extra[i];
+                if (Due(ref p, t, ref usedMarkers, ref usedArrows))
                 {
-                    pending[i].spawned = true;
-                    Spawn(pending[i]);
-                    continue;
+                    extra.RemoveAt(i);
+                    // Бесконечный: Вестник приходит каждый цикл, с врагами цикла крепче
+                    if (p.herald && endless) extra.Add(Herald(p.time + config.endlessLoopTime, p.hpMul + config.endlessHpStep));
                 }
-                allSpawned = false;
-                if (t < pending[i].time - Lead(pending[i].type)) continue;
-
-                // у стаи Роя одна метка на всю группу, у остальных по метке на каждое место
-                int n = pending[i].units;
-                int shown = IsSwarm(pending[i]) ? 1 : n;
-                for (int k = 0; k < shown; k++)
-                {
-                    float angle = UnitAngle(pending[i].group, pending[i].centre, k, n);
-                    if (pending[i].type == EnemyType.Arrow) PlaceArrowMarker(usedArrows++, angle, Radius(pending[i]));
-                    else PlaceMarker(Marker(markers, art.telegraphArrow, usedMarkers++), angle);
-                }
+                else extra[i] = p;
             }
             Hide(markers, usedMarkers);
             Hide(arrowWedges, usedArrows);
@@ -138,6 +135,62 @@ namespace Perigee
                     enemies.Spawn(EnemyType.Swarmer, Polar(spawnRng.Range(0f, 360f), config.spawnRadius), 1f);
                 }
             }
+        }
+
+        // группа выходит в своё время, а до него за время упреждения показывает телеграф; true = вышла
+        bool Due(ref Pending p, float t, ref int usedMarkers, ref int usedArrows)
+        {
+            if (t >= p.time)
+            {
+                p.spawned = true;
+                Spawn(p);
+                return true;
+            }
+            if (t < p.time - Lead(p.type)) return false;
+
+            // у стаи Роя одна метка на всю группу, у остальных по метке на каждое место; Рою по кругу (Нашествие) метка на каждого
+            int n = p.units;
+            int shown = IsSwarm(p) && p.group.angleMode != AngleMode.Even ? 1 : n;
+            for (int k = 0; k < shown; k++)
+            {
+                float angle = UnitAngle(p.group, p.centre, k, n);
+                if (p.type == EnemyType.Arrow) PlaceArrowMarker(usedArrows++, angle, Radius(p));
+                else PlaceMarker(Marker(markers, art.telegraphArrow, usedMarkers++), angle);
+            }
+            return false;
+        }
+
+        // Вестник эры на секунде time: Великан в броне с обычным телеграфом
+        Pending Herald(float time, float hpMul)
+        {
+            EnemyType type = loop.Era.herald;
+            return new Pending
+            {
+                time = time,
+                group = new SpawnGroup { type = type },
+                centre = spawnRng.Range(0f, 360f),
+                type = type,
+                units = 1,
+                pack = 1,
+                hpMul = hpMul,
+                herald = true,
+            };
+        }
+
+        // событие Нашествие: Рой по кругу со всех сторон, с телеграфом, через время его упреждения
+        public void Invade()
+        {
+            var group = new SpawnGroup { type = EnemyType.Swarmer, count = config.invasionCount, angleMode = AngleMode.Even, spreadDeg = 0f, speedMul = config.invasionSpeedMul };
+            extra.Add(new Pending
+            {
+                time = loop.Run.time + config.telegraphLeadSwarm,
+                group = group,
+                centre = spawnRng.Range(0f, 360f),
+                type = EnemyType.Swarmer,
+                units = config.invasionCount,
+                pack = 1,
+                hpMul = 1f,
+            });
         }
 
         // события не раньше секунды from встают в pending с места n со сдвигом shift; возвращает место за последним
@@ -177,6 +230,12 @@ namespace Perigee
         {
             SpawnGroup group = p.group;
             float radius = Radius(p);
+            if (p.herald)
+            {
+                enemies.Spawn(p.type, Polar(p.centre, radius), group.speedMul, p.hpMul, 1 << (int)EliteAffix.Giant | 1 << (int)EliteAffix.Armored, true);
+                banner.Show(Strings.HeraldBanner, null, Color.white, config.bannerHeraldHold);
+                return;
+            }
             // стая разбросана по дуге: вокруг середины группы, а у «Роя» вокруг места каждого заменённого врага
             bool scattered = IsSwarm(p) || p.pack > 1;
 
@@ -271,9 +330,9 @@ namespace Perigee
 
             // длину линии задаёт код, толщину префаб
             Visual line = Marker(arrowLines, art.telegraphLine, i);
-            line.transform.localPosition = Polar(angle, (config.starRadius + radius) * 0.5f);
+            line.transform.localPosition = Polar(angle, (loop.Star.Radius + radius) * 0.5f);
             line.transform.localRotation = Quaternion.Euler(0f, 0f, angle);
-            line.SetSizeMul(radius - config.starRadius, 1f);
+            line.SetSizeMul(radius - loop.Star.Radius, 1f);
             line.gameObject.SetActive(true);
         }
 

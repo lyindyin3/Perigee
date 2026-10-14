@@ -10,6 +10,7 @@ namespace Perigee
     {
         [SerializeField] GameConfig config;
         [SerializeField] ComboSystem combo;
+        [SerializeField] ScreenFx screenFx;
         [SerializeField] CanvasGroup group;
         [SerializeField] TMP_Text count;
         // строка «КОМБО ×1.2»: видна со ступени 1
@@ -19,13 +20,18 @@ namespace Perigee
 
         RectTransform rect;
         Vector2 home;
+        // цвет счётчика из префаба: после золотой вспышки он возвращается
+        Color countColor;
         int shown;
         int shownTier;
+        // ступень в прошлом кадре: её рост вспыхивает золотом
+        int lastTier;
 
         void Awake()
         {
             rect = (RectTransform)transform;
             home = rect.anchoredPosition;
+            countColor = count.color;
             group.alpha = 0f;
             Loc.Changed += Localize;
         }
@@ -50,6 +56,8 @@ namespace Perigee
                 else if (c < shown && shown >= config.comboShowMin) Break();
                 shown = c;
             }
+            if (combo.Tier > lastTier) TierUp();
+            lastTier = combo.Tier;
             if (c < config.comboShowMin) return;
 
             timerBar.localScale = new Vector3(Mathf.Clamp01(combo.Timer / combo.Window), 1f, 1f);
@@ -67,6 +75,14 @@ namespace Perigee
             group.alpha = 1f;
             count.SetText(Strings.ComboCountFormat, c);
             count.rectTransform.DOPunchScale(Vector3.one * config.comboPunch, config.comboPunchTime).SetTarget(this).SetLink(gameObject);
+        }
+
+        void TierUp()
+        {
+            count.DOKill();
+            count.color = config.eliteGold;
+            count.DOColor(countColor, config.comboTierFlashTime).SetLink(gameObject);
+            screenFx.Flash(config.eliteGold, config.comboTierFlash, config.comboTierFlashTime);
         }
 
         void Break()

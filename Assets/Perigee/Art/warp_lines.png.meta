@@ -1,0 +1,1079 @@
+fileFormatVersion: 2
+guid: 8cd8bb616cff2ec4cb1bfbfd496a80cd
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 5627540258237031080
+    second: warp_lines_0
+  - first:
+      213: 7621430512651785828
+    second: warp_lines_1
+  - first:
+      213: 1426022020505912245
+    second: warp_lines_2
+  - first:
+      213: -8940878258111382009
+    second: warp_lines_3
+  - first:
+      213: -9143781157003119064
+    second: warp_lines_4
+  - first:
+      213: 2794462436231591552
+    second: warp_lines_5
+  - first:
+      213: 7998216496222889342
+    second: warp_lines_6
+  - first:
+      213: -2788051836935232613
+    second: warp_lines_7
+  - first:
+      213: 3785518426354748870
+    second: warp_lines_8
+  - first:
+      213: -8599098821532711197
+    second: warp_lines_9
+  - first:
+      213: 8323005312507085856
+    second: warp_lines_10
+  - first:
+      213: -364672753704616090
+    second: warp_lines_11
+  - first:
+      213: 3930525128687300053
+    second: warp_lines_12
+  - first:
+      213: -6950395523882193104
+    second: warp_lines_13
+  - first:
+      213: -1228972982318849016
+    second: warp_lines_14
+  - first:
+      213: 4618927935874981776
+    second: warp_lines_15
+  - first:
+      213: -8473220067978678411
+    second: warp_lines_16
+  - first:
+      213: -3430205176402298588
+    second: warp_lines_17
+  - first:
+      213: -1746551591368846173
+    second: warp_lines_18
+  - first:
+      213: 6881202305758776254
+    second: warp_lines_19
+  - first:
+      213: -6808172702320486018
+    second: warp_lines_20
+  - first:
+      213: -2601458332790239839
+    second: warp_lines_21
+  - first:
+      213: 7912321741116647631
+    second: warp_lines_22
+  - first:
+      213: 1523165681030345614
+    second: warp_lines_23
+  - first:
+      213: 609450867459938353
+    second: warp_lines_24
+  - first:
+      213: 7642676121574012451
+    second: warp_lines_25
+  - first:
+      213: -4749592426314414527
+    second: warp_lines_26
+  - first:
+      213: 4240798518608705955
+    second: warp_lines_27
+  - first:
+      213: 3483873956442313561
+    second: warp_lines_28
+  - first:
+      213: 4780472421885219403
+    second: warp_lines_29
+  - first:
+      213: -509604035423647945
+    second: warp_lines_30
+  - first:
+      213: -2900197541498247696
+    second: warp_lines_31
+  - first:
+      213: 874684563939971329
+    second: warp_lines_32
+  - first:
+      213: -9125199056606405344
+    second: warp_lines_33
+  - first:
+      213: 1939826985706823555
+    second: warp_lines_34
+  - first:
+      213: 4518125860293510702
+    second: warp_lines_35
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 0
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 256
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 512
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: warp_lines_0
+      rect:
+        serializedVersion: 2
+        x: 14
+        y: 280
+        width: 171
+        height: 66
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8a2ad638c0a091e40800000000000000
+      internalID: 5627540258237031080
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warp_lines_1
+      rect:
+        serializedVersion: 2
+        x: 33
+        y: 292
+        width: 158
+        height: 94
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 466dee2dba2c4c960800000000000000
+      internalID: 7621430512651785828
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warp_lines_2
+      rect:
+        serializedVersion: 2
+        x: 58
+        y: 304
+        width: 141
+        height: 119
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5b3c326e87f3ac310800000000000000
+      internalID: 1426022020505912245
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warp_lines_3
+      rect:
+        serializedVersion: 2
+        x: 89
+        y: 313
+        width: 119
+        height: 141
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 70ef145589e9be380800000000000000
+      internalID: -8940878258111382009
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warp_lines_4
+      rect:
+        serializedVersion: 2
+        x: 126
+        y: 321
+        width: 94
+        height: 158
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8263be8cb73ca1180800000000000000
+      internalID: -9143781157003119064
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warp_lines_5
+      rect:
+        serializedVersion: 2
+        x: 166
+        y: 327
+        width: 66
+        height: 171
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 086b1c1b7cce7c620800000000000000
+      internalID: 2794462436231591552
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warp_lines_6
+      rect:
+        serializedVersion: 2
+        x: 208
+        y: 331
+        width: 37
+        height: 178
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e75e806e68f5ffe60800000000000000
+      internalID: 7998216496222889342
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warp_lines_7
+      rect:
+        serializedVersion: 2
+        x: 252
+        y: 332
+        width: 8
+        height: 180
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b93a91440a9de49d0800000000000000
+      internalID: -2788051836935232613
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warp_lines_8
+      rect:
+        serializedVersion: 2
+        x: 267
+        y: 331
+        width: 37
+        height: 178
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6cd0295c3fcd88430800000000000000
+      internalID: 3785518426354748870
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warp_lines_9
+      rect:
+        serializedVersion: 2
+        x: 280
+        y: 327
+        width: 66
+        height: 171
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3e6001a8e2dd9a880800000000000000
+      internalID: -8599098821532711197
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warp_lines_10
+      rect:
+        serializedVersion: 2
+        x: 292
+        y: 321
+        width: 94
+        height: 158
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0248cab0c31418370800000000000000
+      internalID: 8323005312507085856
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warp_lines_11
+      rect:
+        serializedVersion: 2
+        x: 304
+        y: 313
+        width: 119
+        height: 141
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 66f3c28001c60faf0800000000000000
+      internalID: -364672753704616090
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warp_lines_12
+      rect:
+        serializedVersion: 2
+        x: 313
+        y: 304
+        width: 141
+        height: 119
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5dd272c97c70c8630800000000000000
+      internalID: 3930525128687300053
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warp_lines_13
+      rect:
+        serializedVersion: 2
+        x: 321
+        y: 292
+        width: 158
+        height: 94
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 03f6986881c3b8f90800000000000000
+      internalID: -6950395523882193104
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warp_lines_14
+      rect:
+        serializedVersion: 2
+        x: 327
+        y: 280
+        width: 171
+        height: 66
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 804255e759fc1fee0800000000000000
+      internalID: -1228972982318849016
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warp_lines_15
+      rect:
+        serializedVersion: 2
+        x: 3
+        y: 267
+        width: 178
+        height: 37
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 09fd4fc4c7ab91040800000000000000
+      internalID: 4618927935874981776
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warp_lines_16
+      rect:
+        serializedVersion: 2
+        x: 331
+        y: 267
+        width: 178
+        height: 37
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 57f6b60cd33196a80800000000000000
+      internalID: -8473220067978678411
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warp_lines_17
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 252
+        width: 180
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 429b5d9e0967560d0800000000000000
+      internalID: -3430205176402298588
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warp_lines_18
+      rect:
+        serializedVersion: 2
+        x: 332
+        y: 252
+        width: 180
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3a4119ec49003c7e0800000000000000
+      internalID: -1746551591368846173
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warp_lines_19
+      rect:
+        serializedVersion: 2
+        x: 3
+        y: 208
+        width: 178
+        height: 37
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ebbc956f901fe7f50800000000000000
+      internalID: 6881202305758776254
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warp_lines_20
+      rect:
+        serializedVersion: 2
+        x: 14
+        y: 166
+        width: 171
+        height: 66
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e791dac9ff28481a0800000000000000
+      internalID: -6808172702320486018
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warp_lines_21
+      rect:
+        serializedVersion: 2
+        x: 33
+        y: 126
+        width: 158
+        height: 94
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1adce00fd63c5ebd0800000000000000
+      internalID: -2601458332790239839
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warp_lines_22
+      rect:
+        serializedVersion: 2
+        x: 58
+        y: 89
+        width: 141
+        height: 119
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fc8abd7c3b63ecd60800000000000000
+      internalID: 7912321741116647631
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warp_lines_23
+      rect:
+        serializedVersion: 2
+        x: 313
+        y: 89
+        width: 141
+        height: 119
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e8331e7ed1f532510800000000000000
+      internalID: 1523165681030345614
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warp_lines_24
+      rect:
+        serializedVersion: 2
+        x: 321
+        y: 126
+        width: 158
+        height: 94
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 138d00fb554357800800000000000000
+      internalID: 609450867459938353
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warp_lines_25
+      rect:
+        serializedVersion: 2
+        x: 327
+        y: 166
+        width: 171
+        height: 66
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 32677cf907d301a60800000000000000
+      internalID: 7642676121574012451
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warp_lines_26
+      rect:
+        serializedVersion: 2
+        x: 331
+        y: 208
+        width: 178
+        height: 37
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 146c4a94ade061eb0800000000000000
+      internalID: -4749592426314414527
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warp_lines_27
+      rect:
+        serializedVersion: 2
+        x: 89
+        y: 58
+        width: 119
+        height: 141
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3a9bca1b8c75ada30800000000000000
+      internalID: 4240798518608705955
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warp_lines_28
+      rect:
+        serializedVersion: 2
+        x: 126
+        y: 33
+        width: 94
+        height: 158
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9539affa7e4395030800000000000000
+      internalID: 3483873956442313561
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warp_lines_29
+      rect:
+        serializedVersion: 2
+        x: 166
+        y: 14
+        width: 66
+        height: 171
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b421505f656a75240800000000000000
+      internalID: 4780472421885219403
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warp_lines_30
+      rect:
+        serializedVersion: 2
+        x: 208
+        y: 3
+        width: 37
+        height: 178
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 737c77c64d58de8f0800000000000000
+      internalID: -509604035423647945
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warp_lines_31
+      rect:
+        serializedVersion: 2
+        x: 252
+        y: 0
+        width: 8
+        height: 180
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0f52980b3bd60c7d0800000000000000
+      internalID: -2900197541498247696
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warp_lines_32
+      rect:
+        serializedVersion: 2
+        x: 267
+        y: 3
+        width: 37
+        height: 178
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 101d8240af0832c00800000000000000
+      internalID: 874684563939971329
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warp_lines_33
+      rect:
+        serializedVersion: 2
+        x: 280
+        y: 14
+        width: 66
+        height: 171
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 02dde3e2ec7cc5180800000000000000
+      internalID: -9125199056606405344
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warp_lines_34
+      rect:
+        serializedVersion: 2
+        x: 292
+        y: 33
+        width: 94
+        height: 158
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 38f95c8ad56abea10800000000000000
+      internalID: 1939826985706823555
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warp_lines_35
+      rect:
+        serializedVersion: 2
+        x: 304
+        y: 58
+        width: 119
+        height: 141
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e260d49288b93be30800000000000000
+      internalID: 4518125860293510702
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      warp_lines_0: 5627540258237031080
+      warp_lines_1: 7621430512651785828
+      warp_lines_10: 8323005312507085856
+      warp_lines_11: -364672753704616090
+      warp_lines_12: 3930525128687300053
+      warp_lines_13: -6950395523882193104
+      warp_lines_14: -1228972982318849016
+      warp_lines_15: 4618927935874981776
+      warp_lines_16: -8473220067978678411
+      warp_lines_17: -3430205176402298588
+      warp_lines_18: -1746551591368846173
+      warp_lines_19: 6881202305758776254
+      warp_lines_2: 1426022020505912245
+      warp_lines_20: -6808172702320486018
+      warp_lines_21: -2601458332790239839
+      warp_lines_22: 7912321741116647631
+      warp_lines_23: 1523165681030345614
+      warp_lines_24: 609450867459938353
+      warp_lines_25: 7642676121574012451
+      warp_lines_26: -4749592426314414527
+      warp_lines_27: 4240798518608705955
+      warp_lines_28: 3483873956442313561
+      warp_lines_29: 4780472421885219403
+      warp_lines_3: -8940878258111382009
+      warp_lines_30: -509604035423647945
+      warp_lines_31: -2900197541498247696
+      warp_lines_32: 874684563939971329
+      warp_lines_33: -9125199056606405344
+      warp_lines_34: 1939826985706823555
+      warp_lines_35: 4518125860293510702
+      warp_lines_4: -9143781157003119064
+      warp_lines_5: 2794462436231591552
+      warp_lines_6: 7998216496222889342
+      warp_lines_7: -2788051836935232613
+      warp_lines_8: 3785518426354748870
+      warp_lines_9: -8599098821532711197
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

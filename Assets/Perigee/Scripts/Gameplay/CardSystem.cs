@@ -20,6 +20,7 @@ namespace Perigee
         [SerializeField] AbilityPickView abilityView;
         [SerializeField] Visual beaconRing;
         [SerializeField] AudioManager sfx;
+        [SerializeField] ScreenFx screenFx;
 
         Rng cardRng;
         // индексы в config.cards
@@ -95,7 +96,7 @@ namespace Perigee
         {
             Stats stats = loop.Stats;
             // СОЛНЕЧНЫЙ ВЕТЕР: у звезды враги вдвое медленнее (область действует в следующем шаге врагов)
-            if (stats.Has(StatId.SolarWind)) enemies.Field(Vector2.zero, config.starRadius + config.solarWindRange, 0f, config.solarWindMul, 0f);
+            if (stats.Has(StatId.SolarWind)) enemies.Field(Vector2.zero, loop.Star.Radius + config.solarWindRange, 0f, config.solarWindMul, 0f);
 
             if (stats.beacons > 0)
             {
@@ -147,6 +148,7 @@ namespace Perigee
             run.xp -= Need(run.level);
             run.level++;
             sfx.Play(SfxId.LevelUp);
+            screenFx.LevelUp();
 
             // это повышение уровня открывает выбор второй способности вместо карточек; «Без способностей»: карточки
             if (run.level == config.abilityPickLevel && !run.Has(RunModifier.NoAbilities))

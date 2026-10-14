@@ -41,6 +41,23 @@ MonoBehaviour:
   echo: {fileID: 5187077046948144319, guid: 39724e1bcfa1b8941b28a2520dc1bf60, type: 3}
   crystal: {fileID: 4764373594962635259, guid: 875babf7df9991845a0a695afce1554e, type: 3}
   resonanceThread: {fileID: 1654234894692130570, guid: 59b7b556ebf8896458be467ad18ccce6, type: 3}
+  starClasses:
+  - label: "Yellow \u2014 \u0416\u0401\u041B\u0422\u042B\u0419 \u041A\u0410\u0420\u041B\u0418\u041A"
+    icon: {fileID: 21300000, guid: ed470b70804955348a84cc116cd7ecfe, type: 3}
+    aura: {fileID: 0}
+  - label: "RedGiant \u2014 \u041A\u0420\u0410\u0421\u041D\u042B\u0419 \u0413\u0418\u0413\u0410\u041D\u0422"
+    icon: {fileID: 21300000, guid: ed470b70804955348a84cc116cd7ecfe, type: 3}
+    aura: {fileID: 5694983718492883482, guid: b0ea2fbcf09261244a8a201e5e8cff9c, type: 3}
+  - label: "WhiteDwarf \u2014 \u0411\u0415\u041B\u042B\u0419 \u041A\u0410\u0420\u041B\u0418\u041A"
+    icon: {fileID: 21300000, guid: ed470b70804955348a84cc116cd7ecfe, type: 3}
+    aura: {fileID: 2113631724374844496, guid: 755eaceae9451ca40b5792df8c166766, type: 3}
+  - label: "Neutron \u2014 \u041D\u0415\u0419\u0422\u0420\u041E\u041D\u041D\u0410\u042F
+      \u0417\u0412\u0415\u0417\u0414\u0410"
+    icon: {fileID: 21300000, guid: ed470b70804955348a84cc116cd7ecfe, type: 3}
+    aura: {fileID: 597145194061377201, guid: 959c70c3ba25c224fa6fe57de08a927c, type: 3}
+  - label: "Cepheid \u2014 \u0426\u0415\u0424\u0415\u0418\u0414\u0410"
+    icon: {fileID: 21300000, guid: ed470b70804955348a84cc116cd7ecfe, type: 3}
+    aura: {fileID: 6232158795079961906, guid: 560d81d00fda369429250c28ad66ddb0, type: 3}
   enemies:
   - label: "Swarmer \u2014 \u0420\u043E\u0439"
     prefab: {fileID: 3132394689175449554, guid: 52a286404508d13459c431c1a4a75db7, type: 3}
@@ -87,13 +104,13 @@ MonoBehaviour:
   - label: "Eclipser \u2014 \u0417\u0430\u0442\u043C\u0438\u0442\u0435\u043B\u044C"
     prefab: {fileID: 8154671489878056321, guid: 503b2608f3a7c6949bdb4d90fe4b64d2, type: 3}
   - label: "Sower \u2014 \u0421\u0435\u044F\u0442\u0435\u043B\u044C"
-    prefab: {fileID: 0}
+    prefab: {fileID: 8106397024599669588, guid: cbc6040de3ef6fc42b9af5d59e2b2d83, type: 3}
   - label: "Mirror \u2014 \u0417\u0435\u0440\u043A\u0430\u043B\u043E"
-    prefab: {fileID: 0}
+    prefab: {fileID: 2727953107693921805, guid: 768c52fbbbd62524f8f0305618acba50, type: 3}
   - label: "Graviton \u2014 \u0413\u0440\u0430\u0432\u0438\u0442\u043E\u043D"
-    prefab: {fileID: 0}
+    prefab: {fileID: 2869179394950651794, guid: 86874717b1cdf2f4cb965752154f949d, type: 3}
   - label: "Abyss \u2014 \u0411\u0435\u0437\u0434\u043D\u0430"
-    prefab: {fileID: 0}
+    prefab: {fileID: 4181204371976241371, guid: 15911a887932d0047ab2e4aec570ce3f, type: 3}
   - label: "Meteor \u2014 \u041C\u0435\u0442\u0435\u043E\u0440"
     prefab: {fileID: 3441993523035354473, guid: 3f0cb36c268fe6a41918170d6f36e64f, type: 3}
   - label: "GoldComet \u2014 \u0417\u043E\u043B\u043E\u0442\u0430\u044F \u043A\u043E\u043C\u0435\u0442\u0430"
@@ -316,6 +333,40 @@ MonoBehaviour:
   cardRareRim: {fileID: -1881626107737315355, guid: bd5f7b52640872646b6e2f8cd9ff9790, type: 3}
   abilityFrame: {fileID: 8571015244451640116, guid: bd5f7b52640872646b6e2f8cd9ff9790, type: 3}
   relicFrame: {fileID: 21300000, guid: 77af321dc1186dc46afab54f0b4bd572, type: 3}
+  relicIcons:
+  - label: "CometShard \u2014 \u041E\u0421\u041A\u041E\u041B\u041E\u041A \u041A\u041E\u041C\u0415\u0422\u042B"
+    sprite: {fileID: 21300000, guid: ba739edc94f26684da93ea2abf4e955d, type: 3}
+  - label: "Lens \u2014 \u041B\u0418\u041D\u0417\u0410"
+    sprite: {fileID: 21300000, guid: ba739edc94f26684da93ea2abf4e955d, type: 3}
+  - label: "Heartwood \u2014 \u0421\u0415\u0420\u0414\u0426\u0415\u0412\u0418\u041D\u0410"
+    sprite: {fileID: 21300000, guid: ba739edc94f26684da93ea2abf4e955d, type: 3}
+  - label: "Compass \u2014 \u041A\u041E\u041C\u041F\u0410\u0421"
+    sprite: {fileID: 21300000, guid: ba739edc94f26684da93ea2abf4e955d, type: 3}
+  - label: "Chronometer \u2014 \u0425\u0420\u041E\u041D\u041E\u041C\u0415\u0422\u0420"
+    sprite: {fileID: 21300000, guid: ba739edc94f26684da93ea2abf4e955d, type: 3}
+  - label: "Aegis \u2014 \u0429\u0418\u0422 \u041F\u0420\u0415\u0414\u041A\u041E\u0412"
+    sprite: {fileID: 21300000, guid: ba739edc94f26684da93ea2abf4e955d, type: 3}
+  - label: "Hourglass \u2014 \u041F\u0415\u0421\u041E\u0427\u041D\u042B\u0415 \u0427\u0410\u0421\u042B"
+    sprite: {fileID: 21300000, guid: ba739edc94f26684da93ea2abf4e955d, type: 3}
+  - label: "GravLens \u2014 \u0413\u0420\u0410\u0412\u0418\u041B\u0418\u041D\u0417\u0410"
+    sprite: {fileID: 21300000, guid: ba739edc94f26684da93ea2abf4e955d, type: 3}
+  - label: "LifeCrystal \u2014 \u041A\u0420\u0418\u0421\u0422\u0410\u041B\u041B \u0416\u0418\u0417\u041D\u0418"
+    sprite: {fileID: 21300000, guid: ba739edc94f26684da93ea2abf4e955d, type: 3}
+  - label: "IceCore \u2014 \u041B\u0415\u0414\u042F\u041D\u041E\u0415 \u042F\u0414\u0420\u041E"
+    sprite: {fileID: 21300000, guid: ba739edc94f26684da93ea2abf4e955d, type: 3}
+  - label: "Nozzle \u2014 \u0421\u041E\u041F\u041B\u041E"
+    sprite: {fileID: 21300000, guid: ba739edc94f26684da93ea2abf4e955d, type: 3}
+  - label: "Trophy \u2014 \u0422\u0420\u041E\u0424\u0415\u0419"
+    sprite: {fileID: 21300000, guid: ba739edc94f26684da93ea2abf4e955d, type: 3}
+  - label: "Laurel \u2014 \u041B\u0410\u0412\u0420\u041E\u0412\u042B\u0419 \u0412\u0415\u041D\u041E\u041A"
+    sprite: {fileID: 21300000, guid: ba739edc94f26684da93ea2abf4e955d, type: 3}
+  - label: "LastBreath \u2014 \u041F\u041E\u0421\u041B\u0415\u0414\u041D\u0418\u0419
+      \u0412\u0417\u0414\u041E\u0425"
+    sprite: {fileID: 21300000, guid: ba739edc94f26684da93ea2abf4e955d, type: 3}
+  - label: "Thorns \u2014 \u0428\u0418\u041F\u042B"
+    sprite: {fileID: 21300000, guid: ba739edc94f26684da93ea2abf4e955d, type: 3}
+  - label: "Feather \u2014 \u041F\u0415\u0420\u041E \u0416\u0410\u0420-\u041F\u0422\u0418\u0426\u042B"
+    sprite: {fileID: 21300000, guid: ba739edc94f26684da93ea2abf4e955d, type: 3}
   blueprintIcons:
   - label: "Hull \u2014 \u041A\u041E\u0420\u041F\u0423\u0421"
     sprite: {fileID: 21300000, guid: 2b9ed6036ae877d499d298b04aab4c33, type: 3}
@@ -400,3 +451,5 @@ MonoBehaviour:
     sprite: {fileID: 0}
   - label: "8 \u0421\u0415\u0420\u0414\u0426\u0415 \u0422\u042C\u041C\u042B"
     sprite: {fileID: 0}
+  anomalyWell: {fileID: 1240810125467223434, guid: e9c10a1cfa8bced45ae7e5a0ec2d5d9b, type: 3}
+  anomalyRepulsor: {fileID: 3318677852488444289, guid: d85cda21b89e06540aade858eac8ed82, type: 3}

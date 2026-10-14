@@ -23,9 +23,13 @@ namespace Perigee
         [SerializeField] StarController star;
         [SerializeField] CardSystem cards;
         [SerializeField] ComboSystem combo;
+        [SerializeField] RelicSystem relics;
+        [SerializeField] RunEventSystem events;
         [SerializeField] AbilitySystem abilities;
         [SerializeField] ArmorRing armorRing;
         [SerializeField] Fx fx;
+        [SerializeField] ScreenFx screenFx;
+        [SerializeField] BossIntro bossIntro;
         [SerializeField] AudioManager sfx;
         [SerializeField] Hud hud;
         [SerializeField] TutorialHints hints;
@@ -45,13 +49,18 @@ namespace Perigee
         public Shop Shop { get; private set; }
         public Progress Progress { get; private set; }
         public EraDef Era => config.eras[eraIndex];
+        // звезда: класс забега, её радиус сейчас, фаза дыхания
+        public StarController Star => star;
         // номер эры с единицы: по нему отбираются карточки эр
         public int EraNumber => eraIndex + 1;
         // СТАЗИС: враги, их таймеры и боссы живут в замедленном времени
-        public float EnemyTimeScale => abilities.Active(AbilityId.Stasis) ? config.stasisSlow : 1f;
+        // ПЕСОЧНЫЕ ЧАСЫ замедляют так же
+        public float EnemyTimeScale => abilities.Active(AbilityId.Stasis) || relics.Stasis ? config.stasisSlow : 1f;
         // секунда забега, на которой приходит босс; в «Марафоне» позже
         public float BossTime => Run.Has(RunModifier.Marathon) ? config.marathonBossTime : config.bossTime;
         // музыка забега: при живом боссе его тема, иначе музыка эры
+        // замедление от эффектов (приход и гибель босса): множитель шага симуляции
+        public float FxTimeScale => fx.TimeScale;
         public MusicId RunMusic => boss.Alive ? (EraNumber == config.finalBossEra ? MusicId.FinalBoss : MusicId.Boss) : Era.music;
 
         IAdService ads;
@@ -63,6 +72,8 @@ namespace Perigee
         int challenge;
         float accumulator;
         float victoryTimer;
+        // забег сброшен, но ещё не шёл: первый вход в Playing играет разгон
+        bool starting;
         // вкладка свёрнута или окно без фокуса
         bool away;
         // настоящее время последних показов рекламы
@@ -161,10 +172,16 @@ namespace Perigee
             // обучение = любой забег, пока ни один не доигран до итогов
             Run.tutorial = !Save.Data.tutorialDone;
             Run.mods = Modifiers();
+            // класс звезды: выбранный в меню, в обучении всегда Жёлтый
+            Run.starClass = Run.tutorial ? StarClassId.Yellow : Shop.StarClass;
+            relics.ResetRun(Run.seed + Rng.RelicOffset);
             abilities.ResetRun();
             if (Run.Has(RunModifier.NoAbilities)) abilities.Clear();
             eraRule.ResetRun();
+            events.ResetRun();
             if (Run.tutorial) abilities.Assign(AbilitySystem.SlotA, AbilityId.Pulse);
+            // звезда первой: от её класса зависят радиус, HP и rMin, которые читают остальные
+            star.ResetRun();
             RecomputeStats();
             Run.hp = Stats.starMaxHp;
             satellites.ResetRun();
@@ -172,10 +189,11 @@ namespace Perigee
             boss.ResetRun();
             crystals.ResetRun();
             combo.ResetRun();
-            star.ResetRun();
             director.ResetRun(Run.seed);
             cards.ResetRun(Run.seed + Rng.CardOffset);
             fx.ResetRun();
+            screenFx.ResetRun();
+            bossIntro.ResetRun();
             hints.ResetRun();
             banner.ResetRun();
             // фон в цвете эры; картинка эры за кольцами, если она задана
@@ -183,6 +201,7 @@ namespace Perigee
             backdrop.sprite = art.eraBackdrops[eraIndex].sprite;
             backdrop.enabled = backdrop.sprite != null;
             accumulator = 0f;
+            starting = true;
         }
 
         // модификаторы забега: у Дня один на дату, у испытания свои; в обучении их нет
@@ -201,6 +220,12 @@ namespace Perigee
                 platform.GameplayStop();
             }
             if (State != GameState.Playing && next == GameState.Playing) platform.GameplayStart();
+            if (next == GameState.Playing && starting)
+            {
+                starting = false;
+                screenFx.Warp();
+                star.Punch(config.startStarPunch, config.startStarPunchTime);
+            }
 
             State = next;
             // настройки открываются поверх меню и паузы и уходят вместе с ними
@@ -230,7 +255,13 @@ namespace Perigee
 
         public void RecomputeStats()
         {
-            Stats.Recompute(config, Era, Run.mods, Run.cardStacks, Save.Data.blueprints, abilities, satellites.Slinging, eraRule.Sailing);
+            Stats.Recompute(config, Era, star.Class, star.Bright, Run.mods, Run.cardStacks, Run.relicStacks, Save.Data.blueprints, abilities, satellites.Slinging, eraRule.Sailing);
+            // Солнечная буря: удар и нагрев сильнее, пока она идёт
+            if (events.Storm)
+            {
+                Stats.powerMul *= config.stormPowerMul;
+                Stats.heatMul *= config.stormHeatMul;
+            }
             armorRing.Refresh();
         }
 
@@ -329,7 +360,7 @@ namespace Perigee
         void Update()
         {
             // поле радиуса H целиком видно и в альбомной, и в портретной ориентации
-            cam.orthographicSize = config.H * Mathf.Max(1f, 1f / cam.aspect);
+            cam.orthographicSize = config.H * Mathf.Max(1f, 1f / cam.aspect) * fx.Zoom;
 
             if (pauseKey.WasPressedThisFrame()) TogglePause();
             if (State == GameState.Result && restartKey.WasPressedThisFrame()) StartRun();
@@ -337,6 +368,8 @@ namespace Perigee
             {
                 // симуляция стоит, поэтому празднование идёт по настоящему времени
                 victoryTimer -= Time.unscaledDeltaTime;
+                // осколки гибели босса доигрывают по настоящему времени в замедлении
+                fx.Tick(Time.unscaledDeltaTime * fx.TimeScale);
                 if (victoryTimer <= 0f) Finish(true);
             }
             // hit-stop: симуляция стоит, время за него не копится
@@ -347,7 +380,8 @@ namespace Perigee
             for (int i = 0; i < config.maxStepsPerFrame && accumulator >= step && State == GameState.Playing && !fx.HitStopped; i++)
             {
                 accumulator -= step;
-                Step(step);
+                // замедление укорачивает шаг: кадров столько же, время забега идёт медленнее
+                Step(step * fx.TimeScale);
             }
             // остаток сверх лимита шагов отбрасываем, иначе долг копится на медленных кадрах
             accumulator = Mathf.Min(accumulator, step);
@@ -361,6 +395,7 @@ namespace Perigee
             satellites.Tick(dt);
             abilities.Tick(dt);
             eraRule.Tick(dt);
+            events.Tick(dt);
             enemies.Tick(dt);
             boss.Tick(dt);
             enemies.Collide();
@@ -371,6 +406,8 @@ namespace Perigee
             // победа важнее поражения, поражение важнее экрана карточек
             if (State == GameState.Playing) star.Tick(dt);
             if (State == GameState.Playing) cards.Tick(dt);
+            // экран карточек важнее экрана реликвий: выбор реликвии ждёт шага, в котором игра идёт
+            relics.Tick(dt);
             fx.Tick(dt);
             if (Run.tutorial) hints.Tick(dt);
         }

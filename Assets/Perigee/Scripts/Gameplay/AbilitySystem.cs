@@ -18,6 +18,7 @@ namespace Perigee
         [SerializeField] SatelliteSystem satellites;
         [SerializeField] Fx fx;
         [SerializeField] AudioManager sfx;
+        [SerializeField] ScreenFx screenFx;
         [SerializeField] Visual pulseRing;
         [SerializeField] Visual reverseFx;
         [SerializeField] GameObject stasisFx;
@@ -37,8 +38,9 @@ namespace Perigee
         int offerCount;
         int offerSlot;
         InputAction[] keys;
-        // рост кольца ИМПУЛЬСА, 0..1
+        // рост кольца ИМПУЛЬСА, 0..1, и радиус, до которого оно растёт
         float wave;
+        float waveRadius;
         DOGetter<float> getWave;
         DOSetter<float> setWave;
         TweenCallback hideWave;
@@ -124,6 +126,7 @@ namespace Perigee
             if (id == AbilityId.Reverse) Reverse();
             // звуки способностей идут в SfxId подряд, в порядке AbilityId
             sfx.Play(SfxId.Reverse + a);
+            screenFx.Flash(config.abilityColors[a], config.abilityFlash, config.abilityFlashTime);
         }
 
         public bool Filled(int slot)
@@ -267,7 +270,8 @@ namespace Perigee
         // объекты эффектов видны, пока способность действует
         void ShowFx()
         {
-            bool stasis = Active(AbilityId.Stasis);
+            // и замирание ПЕСОЧНЫХ ЧАСОВ
+            bool stasis = loop.EnemyTimeScale < 1f;
             if (stasisFx.activeSelf != stasis) stasisFx.SetActive(stasis);
 
             bool dome = Active(AbilityId.Dome);
@@ -282,8 +286,15 @@ namespace Perigee
         // волна ИМПУЛЬСА без перезарядки: её же даром пускает ВТОРОЕ СОЛНЦЕ
         public void PulseWave()
         {
-            enemies.Pulse(config.pulseRadius, config.pulseDamage, config.pulsePush);
-            boss.Blast(Vector2.zero, config.pulseRadius, config.pulseDamage);
+            PulseWave(config.pulseRadius, config.pulseDamage);
+        }
+
+        // та же волна шире и сильнее (ПОСЛЕДНИЙ ВЗДОХ)
+        public void PulseWave(float radius, float damage)
+        {
+            waveRadius = radius;
+            enemies.Pulse(radius, damage, config.pulsePush);
+            boss.Blast(Vector2.zero, radius, damage);
             fx.Shake(config.pulseShakeAmp, config.pulseShakeTime);
 
             // кольцо только рисунок: урон уже нанесён
@@ -296,7 +307,7 @@ namespace Perigee
         void SetWave(float value)
         {
             wave = value;
-            pulseRing.SetSizeMul(value * config.pulseRadius);
+            pulseRing.SetSizeMul(value * waveRadius);
             pulseRing.SetAlpha(1f - value);
         }
 
@@ -311,8 +322,12 @@ namespace Perigee
             // спутник может сразу ударить того, кого только что прошёл
             enemies.ClearHitCooldowns();
             boss.ClearHitCooldowns();
+            TurnFx();
+        }
 
-            // кольцо со стрелками на внешней орбите: поворачивается в новую сторону и гаснет
+        // кольцо со стрелками на внешней орбите: поворачивается в новую сторону орбиты и гаснет (РЕВЕРС, Зеркало)
+        public void TurnFx()
+        {
             reverseFx.gameObject.SetActive(true);
             DOTween.Kill(reverseFx);
             turnDir = satellites.OrbitDir;

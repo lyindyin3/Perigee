@@ -60,8 +60,20 @@ namespace Perigee
         float shakeStart = float.NegativeInfinity;
         float shakeAmp;
         float shakeTime;
+        // замедление времени симуляции до настоящей секунды slowEnd
+        float slowScale = 1f;
+        float slowEnd;
+        // наезд камеры: сдвиг к точке и множитель размера кадра
+        Vector2 focus;
+        float zoom = 1f;
 
         public bool HitStopped => Time.unscaledTime < hitStopEnd;
+
+        // множитель шага симуляции (GameLoop.FxTimeScale): 1, пока нет замедления
+        public float TimeScale => Time.unscaledTime < slowEnd ? slowScale : 1f;
+
+        // множитель orthographicSize камеры
+        public float Zoom => zoom;
 
         void Awake()
         {
@@ -74,6 +86,12 @@ namespace Perigee
             for (int i = root.childCount - 1; i >= 0; i--) Destroy(root.GetChild(i).gameObject);
             Prewarm(shards, art.shard, config.shardPrewarm);
             Prewarm(sparks, art.spark, config.sparkPrewarm);
+
+            // замедление и наезд прошлого забега не переходят в новый
+            slowEnd = 0f;
+            DOTween.Kill(this);
+            focus = Vector2.zero;
+            zoom = 1f;
 
             numbers = new Popup[config.numberPool];
             nextNumber = 0;
@@ -100,6 +118,28 @@ namespace Perigee
             hitStopEnd = now + sec;
         }
 
+        // крит: hit-stop длиннее на sec, даже если идёт другой
+        public void ExtraStop(float sec)
+        {
+            float now = Time.unscaledTime;
+            hitStopEnd = Mathf.Max(hitStopEnd, now) + sec;
+        }
+
+        // время симуляции идёт со скоростью scale sec настоящих секунд
+        public void Slow(float scale, float sec)
+        {
+            slowScale = scale;
+            slowEnd = Time.unscaledTime + sec;
+        }
+
+        // камера за sec сдвигается на offset и меняет размер кадра в mul раз; (0, 1) = обратно
+        public void Focus(Vector2 offset, float mul, float sec)
+        {
+            DOTween.Kill(this);
+            DOTween.To(() => focus, v => focus = v, offset, sec).SetTarget(this).SetLink(gameObject);
+            DOTween.To(() => zoom, v => zoom = v, mul, sec).SetTarget(this).SetLink(gameObject);
+        }
+
         public void Shake(float amp, float dur)
         {
             if (!loop.Save.Data.settings.shake) return;
@@ -114,18 +154,29 @@ namespace Perigee
         // осколки: от точки удара или от убитого врага; gold = золотые (гибель элиты)
         public void Shards(Vector2 position, int amount, bool gold = false)
         {
-            Emit(shards, art.shard, position, amount, config.shardSpeed, gold);
+            Emit(shards, art.shard, position, amount, config.shardSpeed, gold, Random.Range(0f, 360f), 360f);
+        }
+
+        // осколки удара: конусом hitShardCone по направлению от хиттера к врагу
+        public void Shards(Vector2 position, int amount, Vector2 direction)
+        {
+            float cone = config.hitShardCone;
+            float start = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg - cone * 0.5f;
+            // по краям конуса тоже летят осколки: шаг делится на amount − 1
+            Emit(shards, art.shard, position, amount, config.shardSpeed, false, start, amount > 1 ? cone * amount / (amount - 1) : 0f);
         }
 
         // искры: удар не пробил броню; gold = золотые (появилась элита)
         public void Sparks(Vector2 position, int amount, bool gold = false)
         {
-            Emit(sparks, art.spark, position, amount, config.sparkSpeed, gold);
+            Emit(sparks, art.spark, position, amount, config.sparkSpeed, gold, Random.Range(0f, 360f), 360f);
         }
 
         // число урона: всплывает от position и гаснет
         public void Number(Vector2 position, float value, NumberKind kind)
         {
+            bool crit = kind == NumberKind.Crit;
+            if (crit) ExtraStop(config.critHitStop);
             if (!loop.Save.Data.settings.damageNumbers) return;
 
             Popup n = numbers[nextNumber];
@@ -133,7 +184,6 @@ namespace Perigee
 
             // десятые видны, только когда они есть: «3», «1.5»; крит с восклицательным знаком
             int tenths = Mathf.RoundToInt(value * Tenths);
-            bool crit = kind == NumberKind.Crit;
             if (tenths % Tenths == 0) n.text.SetText(crit ? "{0}!" : "{0}", tenths / Tenths);
             else n.text.SetText(crit ? "{0}.{1}!" : "{0}.{1}", tenths / Tenths, tenths % Tenths);
 
@@ -141,7 +191,10 @@ namespace Perigee
             // чем больше урон, тем крупнее число
             float scale = config.numberScale * (1f + config.numberScalePerDamage * Mathf.Min(value, config.numberScaleMaxDamage));
             if (crit) scale *= config.numberCritScale;
+            n.transform.DOKill();
             n.transform.localScale = n.baseScale * scale;
+            // крит подпрыгивает
+            if (crit) n.transform.DOPunchScale(n.transform.localScale * config.critNumberPunch, config.critNumberPunchTime).SetLink(n.text.gameObject);
 
             n.position = position + Vector2.right * Random.Range(-config.numberJitter, config.numberJitter);
             n.age = 0f;
@@ -182,19 +235,18 @@ namespace Perigee
             // тряска затухает к нулю
             float left = shakeTime - (Time.unscaledTime - shakeStart);
             Vector2 offset = left > 0f ? Random.insideUnitCircle * (shakeAmp * left / shakeTime) : Vector2.zero;
-            cam.localPosition = camBase + (Vector3)offset;
+            cam.localPosition = camBase + (Vector3)(focus + offset);
         }
 
-        void Emit(Pool pool, Visual prefab, Vector2 position, int amount, float speed, bool gold)
+        // разлёт поровну по дуге arc от угла start; зерно симуляции эффекты не трогают
+        void Emit(Pool pool, Visual prefab, Vector2 position, int amount, float speed, bool gold, float start, float arc)
         {
-            // разлёт поровну по кругу от случайного угла; зерно симуляции эффекты не трогают
-            float start = Random.Range(0f, 360f);
             for (int k = 0; k < amount; k++)
             {
                 if (pool.live == pool.items.Count) pool.items.Add(Create(prefab));
                 Piece p = pool.items[pool.live++];
 
-                float angle = start + k * 360f / amount;
+                float angle = start + k * arc / amount;
                 float rad = angle * Mathf.Deg2Rad;
                 p.position = position;
                 p.velocity = new Vector2(Mathf.Cos(rad), Mathf.Sin(rad)) * speed;

@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Perigee
 {
-    // Босс эры: Комета, Близнецы (две кометы), Колосс или Пульсар. Приходит на секунде loop.BossTime,
+    // Босс эры: Комета, Близнецы (две кометы), Колосс, Пульсар, Сеятель, Зеркало, Гравитон или Бездна. Приходит на секунде loop.BossTime,
     // победа над ним (над всеми его телами) заканчивает забег. В Бесконечном он приходит каждый цикл, а забег идёт дальше.
     public class BossSystem : MonoBehaviour
     {
@@ -11,6 +11,12 @@ namespace Perigee
         // второе тело Близнецов: средняя аномалия сдвинута на пол-оборота, эллипс развёрнут на 180°
         const float HalfTurn = 180f;
         const float FullTurn = 2f * Mathf.PI;
+        // обязательные части префаба Зеркала: два стража напротив друг друга
+        static readonly string[] GuardNames = { "Guard0", "Guard1" };
+        // фазы Бездны: ГЛАЗ, ЗАТМЕНИЕ, ПАСТЬ
+        const int Eye = 0;
+        const int Eclipse = 1;
+        const int Maw = 2;
 
         class Part
         {
@@ -49,9 +55,12 @@ namespace Perigee
         [SerializeField] CrystalSystem crystals;
         [SerializeField] Director director;
         [SerializeField] BannerView banner;
+        [SerializeField] RelicSystem relics;
         // линии орбит комет: вторая для второго из Близнецов
         [SerializeField] BossOrbitLine[] orbitLines;
         [SerializeField] Fx fx;
+        [SerializeField] ScreenFx screenFx;
+        [SerializeField] BossIntro intro;
         [SerializeField] AudioManager sfx;
         [SerializeField] Transform root;
 
@@ -81,6 +90,25 @@ namespace Perigee
         float waveAge;
         bool[] waveStunned;
         Visual wave;
+        // Зеркало и Гравитон: секунды до смены; мигание перед ней уже было
+        float flipTimer;
+        bool warned;
+        // Зеркало: стражи, их угол и направление, перезарядка касания на каждый страж и хиттер
+        Transform[] guards;
+        Vector2[] guardPositions;
+        float[][] guardCooldown;
+        float guardAngle;
+        int guardDir;
+        // Гравитон сейчас отталкиватель
+        bool repelling;
+        // Бездна: секунды неуязвимости при смене фазы
+        float shift;
+
+        // Бездна в фазе ЗАТМЕНИЕ срезает свет во тьме
+        public float LightCut => Alive && def.behavior == EnemyBehavior.Abyss && phase == Eclipse ? config.abyssLightCut : 0f;
+
+        // пока босс проявляется и пока Бездна меняет фазу, урон по нему не проходит
+        bool Invulnerable => age < config.bossFadeIn || shift > 0f;
 
         // жив хотя бы один из тел босса
         public bool Alive { get; private set; }
@@ -106,6 +134,10 @@ namespace Perigee
         {
             for (int p = 0; p < parts.Length; p++) parts[p] = new Part { line = orbitLines[p], hitCooldown = new float[satellites.MaxHitters] };
             waveStunned = new bool[config.maxSatellites];
+            guards = new Transform[GuardNames.Length];
+            guardPositions = new Vector2[GuardNames.Length];
+            guardCooldown = new float[GuardNames.Length][];
+            for (int g = 0; g < guards.Length; g++) guardCooldown[g] = new float[satellites.MaxHitters];
         }
 
         public void ResetRun()
@@ -135,6 +167,8 @@ namespace Perigee
                 wave = Instantiate(art.pulsarWave, root);
                 wave.gameObject.SetActive(false);
             }
+            if (def.behavior == EnemyBehavior.Mirror)
+                for (int g = 0; g < guards.Length; g++) guards[g] = parts[0].transform.Find(GuardNames[g]);
 
             arrivals = 0;
             Alive = false;
@@ -164,15 +198,16 @@ namespace Perigee
                 for (int k = 0; k < part.hitCooldown.Length; k++) part.hitCooldown[k] -= dt;
                 part.sawCooldown -= dt;
 
-                // поджог и ГОРИЗОНТ СОБЫТИЙ: босс теряет HP по времени врагов, без числа и вспышки
+                // поджог и ГОРИЗОНТ СОБЫТИЙ: босс теряет HP по времени врагов, без числа и вспышки; при смене фазы Бездны не теряет
                 float seared = 0f;
+                if (shift > 0f) part.burn = 0f;
                 if (part.burn > 0f)
                 {
                     float burning = Mathf.Min(part.burn, enemyDt);
                     part.burn -= burning;
                     seared += loop.Stats.burnDps * burning;
                 }
-                if (horizon && part.position.sqrMagnitude <= config.horizonRadius * config.horizonRadius) seared += config.horizonDps * enemyDt;
+                if (horizon && shift <= 0f && part.position.sqrMagnitude <= config.horizonRadius * config.horizonRadius) seared += config.horizonDps * enemyDt;
                 if (seared > 0f)
                 {
                     part.hp -= seared;
@@ -188,6 +223,10 @@ namespace Perigee
                 {
                     case EnemyBehavior.Colossus: Walk(part, enemyDt); break;
                     case EnemyBehavior.Pulsar: Swing(part, enemyDt); break;
+                    case EnemyBehavior.Sower: Sow(part, enemyDt); break;
+                    case EnemyBehavior.Mirror: Reflect(part, dt, enemyDt); break;
+                    case EnemyBehavior.Graviton: Bend(part, enemyDt); break;
+                    case EnemyBehavior.Abyss: Devour(part, dt, enemyDt); break;
                     default: Fly(part, dt, enemyDt); break;
                 }
                 Place(part);
@@ -197,9 +236,9 @@ namespace Perigee
 
         public void Collide()
         {
-            // пока босс проявляется, урон по нему не проходит
-            if (!Alive || age < config.bossFadeIn) return;
+            if (!Alive || Invulnerable) return;
 
+            if (def.behavior == EnemyBehavior.Mirror) Guard();
             Stats stats = loop.Stats;
             float reach = satellites.HitterRadius + def.radius;
             int hitters = satellites.HitterCount;
@@ -215,7 +254,7 @@ namespace Perigee
 
                     part.hitCooldown[k] = config.hitCooldown;
                     float damage = satellites.HitterDamage(k);
-                    bool crit = loop.Run.simRng.Range(0f, 1f) < stats.critChance;
+                    bool crit = loop.Run.simRng.Range(0f, 1f) < stats.CritChance(satellites.HitterHeat(k));
                     if (crit) damage *= stats.critMul;
                     // МОЛОТ: каждый крит навсегда сбивает часть брони
                     if (crit && stats.Has(StatId.Hammer)) armor = Mathf.Max(armor - config.hammerShred, 0f);
@@ -229,10 +268,12 @@ namespace Perigee
                         continue;
                     }
 
+                    // ОСКОЛОК КОМЕТЫ: каждый третий удар, который прошёл, сильнее
+                    damage += relics.Strike(k);
                     if (Hurt(part, damage, hitter, crit ? NumberKind.Crit : NumberKind.Normal)) break;
                     // РАСКАЛЁННЫЙ: горячий спутник поджигает, новый поджог начинает отсчёт заново
                     if (stats.Burn && satellites.HitterHeat(k) >= config.burnHeatMin) part.burn = config.burnTime;
-                    fx.Shards(hitter, config.hitShards);
+                    fx.Shards(hitter, config.hitShards, part.position - hitter);
                     fx.HitStop(config.hitStopTime);
                     sfx.Play(SfxId.Hit);
                 }
@@ -244,7 +285,7 @@ namespace Perigee
                 part.sawCooldown = stats.sawInterval;
                 if (Hurt(part, stats.sawDamage, point, NumberKind.Normal)) continue;
 
-                fx.Shards(point, config.hitShards);
+                fx.Shards(point, config.hitShards, part.position - point);
                 sfx.Play(SfxId.Hit);
             }
         }
@@ -258,7 +299,7 @@ namespace Perigee
         // волна из точки centre (ИМПУЛЬС, МАЯК, ЦЕПНАЯ РЕАКЦИЯ): урон без толчка, броня не спасает
         public void Blast(Vector2 centre, float radius, float damage)
         {
-            if (!Alive || age < config.bossFadeIn) return;
+            if (!Alive || Invulnerable) return;
 
             for (int p = 0; p < partCount; p++)
             {
@@ -299,6 +340,20 @@ namespace Perigee
             phase = 0;
             arrived = false;
             waving = false;
+            shift = 0f;
+            warned = false;
+            repelling = false;
+            guardAngle = 0f;
+            guardDir = 1;
+            for (int g = 0; g < guards.Length; g++) System.Array.Clear(guardCooldown[g], 0, guardCooldown[g].Length);
+            // первый залп и первая смена через полный срок после выхода на орбиту
+            switch (def.behavior)
+            {
+                case EnemyBehavior.Sower: fireTimer = config.sowerInterval; break;
+                case EnemyBehavior.Mirror: fireTimer = config.mirrorFireInterval; flipTimer = config.mirrorFlip; break;
+                case EnemyBehavior.Graviton: flipTimer = config.gravitonFlip; break;
+                case EnemyBehavior.Abyss: fireTimer = config.abyssArrowInterval; break;
+            }
             angle = loop.Run.simRng.Range(0f, 360f);
 
             bool comet = def.behavior == EnemyBehavior.Ellipse;
@@ -322,7 +377,7 @@ namespace Perigee
                     part.position = Orbit(part);
                     ShowOrbit(part);
                 }
-                // Колосс и Пульсар приходят с края поля
+                // остальные приходят с края поля
                 else part.position = Polar(angle, config.spawnRadius);
 
                 Place(part);
@@ -331,6 +386,7 @@ namespace Perigee
             }
 
             banner.Show(Strings.BossTitle(def.id), null, Color.white, config.bannerBossHold);
+            intro.Show(def.id, parts[0].position);
             sfx.Play(SfxId.BossIn);
             sfx.PlayMusic(loop.RunMusic);
         }
@@ -343,18 +399,24 @@ namespace Perigee
             crystals.Spawn(part.position, def.crystals);
             aliveParts--;
             bool endless = loop.Run.mode == RunMode.Endless;
-            if (aliveParts > 0 || endless)
+            if (aliveParts > 0)
             {
-                // бой идёт дальше (оставшийся из Близнецов летит быстрее, Бесконечный не кончается): гибель видна и слышна, как большое убийство
+                // первый из Близнецов: гибель как большое убийство и смена фазы (оставшийся летит быстрее)
                 fx.Shards(part.position, config.killShards * config.bigKillShardMul);
-                fx.Shake(config.bigKillShake, config.bigKillShakeTime);
                 sfx.Play(SfxId.Kill);
                 sfx.Play(SfxId.BigKill);
+                Phase();
+                return;
             }
-            if (aliveParts > 0) return;
 
+            // босс убит: замедление, белая вспышка, дождь осколков, тряска, вибрация
             Alive = false;
+            fx.Slow(config.bossKillSlow, config.bossKillSlowTime);
+            screenFx.Flash(Color.white, config.bossKillFlash, config.bossKillFlashTime);
+            fx.Shards(part.position, config.bossKillShards);
+            fx.Shake(config.bossKillShake, config.bossKillShakeTime);
             sfx.Play(SfxId.BossKill);
+            loop.Vibrate(config.vibrateBossKill);
             if (def.behavior == EnemyBehavior.Pulsar) wave.gameObject.SetActive(false);
             if (!endless)
             {
@@ -380,7 +442,8 @@ namespace Perigee
             if (passed > part.passes)
             {
                 part.passes = passed;
-                star.Damage(def.starDamage);
+                // Бездна в фазе ЗАТМЕНИЕ бьёт своим уроном
+                star.Damage(def.behavior == EnemyBehavior.Abyss ? config.abyssDiveDamage : def.starDamage);
                 part.phi += config.bossPhiStep;
                 ShowOrbit(part);
             }
@@ -392,14 +455,20 @@ namespace Perigee
         {
             get
             {
+                if (def.behavior == EnemyBehavior.Abyss) return config.abyssPeriod;
                 if (def.id != EnemyType.Twin) return config.bossPeriod;
                 return aliveParts == partCount ? config.twinPeriod : config.twinEnragedPeriod;
             }
         }
 
-        float SemiMajor => (config.bossPeriapsis + config.bossApoapsis) * 0.5f;
+        // эллипс кометы; у Бездны в фазе ЗАТМЕНИЕ свой
+        float Periapsis => def.behavior == EnemyBehavior.Abyss ? config.abyssPeriapsis : config.bossPeriapsis;
 
-        float Eccentricity => (config.bossApoapsis - config.bossPeriapsis) / (config.bossApoapsis + config.bossPeriapsis);
+        float Apoapsis => def.behavior == EnemyBehavior.Abyss ? config.abyssApoapsis : config.bossApoapsis;
+
+        float SemiMajor => (Periapsis + Apoapsis) * 0.5f;
+
+        float Eccentricity => (Apoapsis - Periapsis) / (Apoapsis + Periapsis);
 
         void ShowOrbit(Part part)
         {
@@ -433,7 +502,7 @@ namespace Perigee
         void Walk(Part part, float enemyDt)
         {
             float r = part.position.magnitude - def.speed * enemyDt;
-            if (r <= config.starRadius + def.radius)
+            if (r <= loop.Star.Radius + def.radius)
             {
                 star.Damage(def.starDamage);
                 angle += config.colossusBounceDeg;
@@ -447,7 +516,7 @@ namespace Perigee
             {
                 phase++;
                 armor -= config.colossusArmorStep;
-                sfx.Play(SfxId.BossPhase);
+                Phase();
                 for (int k = 0; k < config.colossusShed; k++)
                     enemies.Spawn(EnemyType.Swarmer, part.position + Polar(k * 360f / config.colossusShed, def.radius + config.colossusShedOffset), 1f);
             }
@@ -525,6 +594,215 @@ namespace Perigee
                 waveStunned[i] = true;
                 satellites.Stun(i);
             }
+        }
+
+        // выход с края прямо на свою орбиту, потом круг против часовой стрелки; true = уже на орбите
+        bool Approach(Part part, float radius, float deg, float enemyDt)
+        {
+            if (!arrived)
+            {
+                float r = Mathf.MoveTowards(part.position.magnitude, radius, def.speed * enemyDt);
+                part.position = Polar(angle, r);
+                arrived = r <= radius;
+                return false;
+            }
+
+            angle += deg * enemyDt;
+            part.position = Polar(angle, radius);
+            return true;
+        }
+
+        // залп веером к звезде: n врагов на радиусе r по обе стороны от угла centre, соседние через step градусов
+        void Fan(EnemyType type, int n, float step, float centre, float r, float speedMul)
+        {
+            float first = centre - (n - 1) * 0.5f * step;
+            for (int k = 0; k < n; k++) enemies.Spawn(type, Polar(first + k * step, r), speedMul);
+        }
+
+        // n врагов поровну по краю поля, без телеграфа
+        void Ring(EnemyType type, int n)
+        {
+            float start = loop.Run.simRng.Range(0f, 360f);
+            for (int k = 0; k < n; k++) enemies.Spawn(type, Polar(start + k * 360f / n, config.spawnRadius), 1f);
+        }
+
+        // Сеятель кружит и роняет Ульи со своей орбиты; раненый роняет чаще
+        void Sow(Part part, float enemyDt)
+        {
+            if (!Approach(part, config.sowerRadius, config.sowerDeg, enemyDt)) return;
+
+            fireTimer -= enemyDt;
+            if (fireTimer > 0f) return;
+            fireTimer += part.hp < maxHp * config.sowerFastHp ? config.sowerFastInterval : config.sowerInterval;
+            enemies.Spawn(EnemyType.Hive, part.position, config.sowerHiveSpeed);
+        }
+
+        // Зеркало кружит со стражами, стреляет и раз в mirrorFlip разворачивает орбиту игрока
+        void Reflect(Part part, float dt, float enemyDt)
+        {
+            for (int g = 0; g < guards.Length; g++)
+                for (int k = 0; k < guardCooldown[g].Length; k++) guardCooldown[g][k] -= dt;
+
+            bool orbiting = Approach(part, config.mirrorRadius, config.mirrorDeg, enemyDt);
+            guardAngle += guardDir * config.guardDeg * enemyDt;
+            for (int g = 0; g < guards.Length; g++)
+            {
+                Vector2 offset = Polar(guardAngle + g * HalfTurn, config.guardDistance);
+                guardPositions[g] = part.position + offset;
+                guards[g].localPosition = offset;
+            }
+            if (!orbiting) return;
+
+            fireTimer -= enemyDt;
+            if (fireTimer <= 0f)
+            {
+                fireTimer += config.mirrorFireInterval;
+                Fan(EnemyType.Bolt, config.mirrorBolts, config.mirrorFan, angle, config.mirrorRadius, 1f);
+            }
+
+            flipTimer -= enemyDt;
+            if (!warned && flipTimer <= config.bossWarn)
+            {
+                warned = true;
+                part.visual.Flash(config.bossWarnColor, config.bossWarn);
+            }
+            if (flipTimer > 0f) return;
+
+            flipTimer += config.mirrorFlip;
+            warned = false;
+            // разворот без бонуса РЕВЕРСА: только направление орбиты и кольцо со стрелками
+            satellites.Reverse();
+            abilities.TurnFx();
+            guardDir = -guardDir;
+        }
+
+        // страж Зеркала: касание спутника его не ранит, а греет спутник и роняет орбиту; тени проходят насквозь
+        void Guard()
+        {
+            float reach = satellites.HitterRadius + config.guardRadius;
+            for (int g = 0; g < guards.Length; g++)
+            {
+                for (int k = 0; k < satellites.Count; k++)
+                {
+                    if (!satellites.HitterActive(k) || guardCooldown[g][k] > 0f) continue;
+                    Vector2 hitter = satellites.HitterPosition(k);
+                    if ((hitter - guardPositions[g]).sqrMagnitude > reach * reach) continue;
+
+                    guardCooldown[g][k] = config.hitCooldown;
+                    satellites.Warm(k, config.guardHeat);
+                    satellites.Knock(config.guardKnock);
+                    fx.Sparks(hitter, config.clinkSparks);
+                    fx.HitStop(config.clinkHitStop);
+                    sfx.Play(SfxId.Clink);
+                }
+            }
+        }
+
+        // Гравитон дрейфует колодцем; раз в gravitonFlip на gravitonRepel становится отталкивателем и в этот миг даёт залп
+        void Bend(Part part, float enemyDt)
+        {
+            bool orbiting = Approach(part, config.gravitonRadius, config.gravitonDeg, enemyDt);
+            satellites.Gravity(part.position, config.gravitonWellRadius, repelling ? -config.gravitonBend : config.gravitonBend);
+            if (!orbiting) return;
+
+            flipTimer -= enemyDt;
+            if (!repelling && !warned && flipTimer <= config.bossWarn)
+            {
+                warned = true;
+                part.visual.Flash(config.bossWarnColor, config.bossWarn);
+            }
+            if (flipTimer > 0f) return;
+
+            repelling = !repelling;
+            warned = false;
+            flipTimer += repelling ? config.gravitonRepel : config.gravitonFlip;
+            if (repelling) Fan(EnemyType.Bolt, config.gravitonBolts, config.gravitonFan, angle, config.gravitonRadius, 1f);
+        }
+
+        // Бездна: ГЛАЗ кружит и пускает Стрелы, ЗАТМЕНИЕ ныряет кометой, ПАСТЬ ползёт к звезде колодцем
+        void Devour(Part part, float dt, float enemyDt)
+        {
+            if (shift > 0f)
+            {
+                shift -= enemyDt;
+                return;
+            }
+            float[] thresholds = config.abyssPhaseHp;
+            if (phase < thresholds.Length && part.hp < maxHp * thresholds[phase])
+            {
+                Shift(part);
+                return;
+            }
+
+            switch (phase)
+            {
+                case Eye:
+                    if (!Approach(part, config.abyssRadius, config.abyssDeg, enemyDt)) return;
+                    fireTimer -= enemyDt;
+                    if (fireTimer > 0f) return;
+                    fireTimer += config.abyssArrowInterval;
+                    Fan(EnemyType.Arrow, config.abyssArrows, config.abyssArrowFan, angle, config.abyssRadius, config.abyssArrowSpeed);
+                    return;
+
+                case Eclipse:
+                    Fly(part, dt, enemyDt);
+                    fireTimer -= enemyDt;
+                    if (fireTimer > 0f) return;
+                    fireTimer += config.abyssPhantomInterval;
+                    Ring(EnemyType.Phantom, config.abyssPhantoms);
+                    return;
+
+                default:
+                    satellites.Gravity(part.position, config.abyssWellRadius, config.abyssBend);
+                    // укус: звезда теряет много, Бездна отлетает назад по тому же лучу
+                    float r = part.position.magnitude - config.abyssWalkSpeed * enemyDt;
+                    if (r <= loop.Star.Radius + def.radius)
+                    {
+                        star.Damage(config.abyssBiteDamage);
+                        r = config.abyssBounceRadius;
+                    }
+                    part.position = Polar(angle, r);
+                    fireTimer -= enemyDt;
+                    if (fireTimer > 0f) return;
+                    fireTimer += config.abyssSwarmInterval;
+                    Ring(EnemyType.Swarmer, config.abyssSwarm);
+                    return;
+            }
+        }
+
+        // смена фазы босса (пороги Колосса, первый из Близнецов, фазы Бездны): белая вспышка экрана, тряска, звук
+        void Phase()
+        {
+            screenFx.Flash(Color.white, config.bossPhaseFlash, config.bossPhaseFlashTime);
+            fx.Shake(config.bossPhaseShake, config.bossPhaseShakeTime);
+            sfx.Play(SfxId.BossPhase);
+        }
+
+        // смена фазы Бездны: замирает неуязвимой, вспыхивает, экран трясётся, баннер называет фазу
+        void Shift(Part part)
+        {
+            phase++;
+            shift = config.abyssShift;
+            angle = Mathf.Atan2(part.position.y, part.position.x) * Mathf.Rad2Deg;
+            part.visual.Flash(config.bossWarnColor, config.abyssShift);
+            banner.Show(Strings.AbyssPhase[phase], null, Color.white, config.bannerBossHold);
+            Phase();
+            if (phase == Eclipse)
+            {
+                armor = config.abyssEclipseArmor;
+                fireTimer = config.abyssPhantomInterval;
+                // эллипс начинается с апоцентра там, где стоит Бездна: при E = π точка лежит на угле phi + 180°
+                part.mean = Mathf.PI;
+                part.phi = angle + HalfTurn;
+                part.passes = 0;
+                part.position = Orbit(part);
+                ShowOrbit(part);
+                return;
+            }
+
+            armor = 0f;
+            fireTimer = config.abyssSwarmInterval;
+            part.line.Hide();
         }
 
         void Place(Part part)

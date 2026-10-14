@@ -116,7 +116,7 @@ namespace Perigee
             // чем быстрее кружат спутники, тем выше гул
             float sum = 0f;
             for (int i = 0; i < satellites.Count; i++) sum += satellites.AngularSpeed(satellites.OrbitRadius(i));
-            drone.pitch = Mathf.Lerp(config.dronePitchMin, config.dronePitchMax, sum / satellites.Count / satellites.AngularSpeed(config.rMin));
+            drone.pitch = Mathf.Lerp(config.dronePitchMin, config.dronePitchMax, sum / satellites.Count / satellites.AngularSpeed(loop.Star.Class.rMin));
         }
     }
 }

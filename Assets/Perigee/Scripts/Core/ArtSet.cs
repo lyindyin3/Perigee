@@ -28,6 +28,15 @@ namespace Perigee
         public Sprite rays;
     }
 
+    // класс звезды: значок для плиток меню и аура (декор-ребёнок звезды в забеге; пусто = без ауры)
+    [Serializable]
+    public class StarClassArt
+    {
+        public string label;
+        public Sprite icon;
+        public Visual aura;
+    }
+
     // Картинки, которые код создаёт или назначает сам. Чисел здесь нет: они в GameConfig.
     [CreateAssetMenu(fileName = "ArtSet", menuName = "Perigee/ArtSet")]
     public class ArtSet : ScriptableObject
@@ -45,6 +54,8 @@ namespace Perigee
         public Visual crystal;
         [Tooltip("Нить между спутниками в резонансе с подписью «×2»")]
         public ResonanceThread resonanceThread;
+        [Tooltip("Классы звёзд, по порядку StarClassId: значок на плитках класса и аура вокруг звезды в забеге")]
+        public StarClassArt[] starClasses;
 
         [Header("Враги")]
         [Tooltip("Префабы врагов и боссов, по порядку EnemyType")]
@@ -81,6 +92,8 @@ namespace Perigee
         public Sprite abilityFrame;
         [Tooltip("Рамка реликвии на экране выбора")]
         public Sprite relicFrame;
+        [Tooltip("Иконки реликвий, по порядку RelicId: экран реликвий и ряд в HUD")]
+        public SpriteSlot[] relicIcons;
 
         [Header("Меню")]
         [Tooltip("Иконки чертежей в Мастерской, по порядку BlueprintId")]
@@ -93,6 +106,10 @@ namespace Perigee
         public SpriteSlot[] eraBackdrops;
         [Tooltip("Картинка звезды в эре; пустая запись = картинка облика звезды")]
         public SpriteSlot[] eraStarSprites;
+        [Tooltip("Аномалия-колодец (эра 7): тянет орбиту, врагов и кристаллы")]
+        public Visual anomalyWell;
+        [Tooltip("Аномалия-отталкиватель (эра 7): толкает орбиту и врагов")]
+        public Visual anomalyRepulsor;
 
         // русские имена типов врагов для подписей в инспекторе, по порядку EnemyType
         static readonly string[] EnemyNames =
@@ -121,6 +138,10 @@ namespace Perigee
             starSkins = Fit(starSkins, skins.Length - firstStar);
             for (int i = 0; i < starSkins.Length; i++) starSkins[i].label = Label(skins[firstStar + i], Strings.SkinTitle[firstStar + i]);
 
+            string[] classes = Enum.GetNames(typeof(StarClassId));
+            starClasses = Fit(starClasses, classes.Length);
+            for (int i = 0; i < classes.Length; i++) starClasses[i].label = Label(classes[i], Strings.ClassTitle[i]);
+
             string[] enemyTypes = Enum.GetNames(typeof(EnemyType));
             enemies = Fit(enemies, enemyTypes.Length);
             enemyIcons = Fit(enemyIcons, enemyTypes.Length);
@@ -135,6 +156,7 @@ namespace Perigee
             Name(blueprintIcons = Fit(blueprintIcons, Strings.BlueprintTitle.Length), typeof(BlueprintId), Strings.BlueprintTitle);
             Name(cardFrames = Fit(cardFrames, FrameNames.Length), typeof(CardColor), FrameNames);
             Name(affixIcons = Fit(affixIcons, AffixNames.Length), typeof(EliteAffix), AffixNames);
+            Name(relicIcons = Fit(relicIcons, Strings.RelicTitle.Length), typeof(RelicId), Strings.RelicTitle);
 
             int eras = Strings.EraTitle.Length;
             eraIcons = Fit(eraIcons, eras);

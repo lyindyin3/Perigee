@@ -23,6 +23,7 @@ namespace Perigee
         [SerializeField] StarController star;
         [SerializeField] ComboSystem combo;
         [SerializeField] AudioManager sfx;
+        [SerializeField] ScreenFx screenFx;
         [SerializeField] Transform root;
 
         // живые кристаллы лежат в начале массива: [0, count), за ними запас выключенных: [count, created)
@@ -138,7 +139,7 @@ namespace Perigee
                     // тонет только кристалл, который не тянет магнит; дойдя до звезды, пропадает
                     float r = c.position.magnitude;
                     float next = r - config.crystalSink * dt;
-                    if (next <= config.starRadius)
+                    if (next <= loop.Star.Radius)
                     {
                         Remove(i);
                         continue;
@@ -159,6 +160,7 @@ namespace Perigee
                     c.picked = true;
                     c.age = 0f;
                     sfx.Play(SfxId.Crystal);
+                    screenFx.CrystalFly(c.position);
                     continue;
                 }
                 Place(c, life);
@@ -172,6 +174,17 @@ namespace Perigee
             run.crystalsPicked++;
             float stacks = loop.Stats.Sum(StatId.TideHeal);
             if (stacks > 0f && run.crystalsPicked % config.tideEvery == 0) star.Heal(config.tideHeal * stacks);
+        }
+
+        // колодец аномалии: лежащие кристаллы в круге radius сдвигаются к centre на step
+        public void Pull(Vector2 centre, float radius, float step)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                Crystal c = pool[i];
+                if (c.picked || (c.position - centre).sqrMagnitude > radius * radius) continue;
+                c.position = Vector2.MoveTowards(c.position, centre, step);
+            }
         }
 
         // ответ Nearest, когда кристаллов рядом нет

@@ -17,21 +17,48 @@ namespace Perigee
             public Visual visual;
             public Transform transform;
             public HeatArc heatArc;
+            // следы облика (декор, их может не быть) и их цвета из префаба: с нагревом они краснеют
+            public TrailRenderer[] trails;
+            public Color[] trailStart;
+            public Color[] trailEnd;
+            // место Body в префабе: от него тело дрожит при сильном нагреве
+            public Transform body;
+            public Vector3 bodyHome;
             // тень ЭХА: своя у каждого спутника
             public Visual echo;
             public Transform echoTransform;
             public Vector2 echoPosition;
             public Vector2 position;
             public float angle;
+            // радиус своего кольца и гравитационный сдвиг от него; летит спутник на r = кольцо + сдвиг
+            public float ring;
+            public float offset;
             public float r;
             public float heat;
             public float stun;
             public float fade;
+            // за сколько секунд проявляется: на старте забега дольше, чем новый спутник
+            public float fadeTime;
             public bool resonant;
             // звук перегрева уже был; снова прозвучит, когда спутник остынет
             public bool overheatHeard;
             // секунды замедления после удара по Студню
             public float slow;
+            // в облаке Туманности: по прошлому шагу и по позапрошлому
+            public bool fog;
+            public bool fogged;
+            // секунды окна КОНДЕНСАТА и гравиманёвра, множитель манёвра
+            public float condensate;
+            public float assist;
+            public float assistMul;
+        }
+
+        // источник притяжения на один шаг: колодец (bend > 0) или отталкиватель (bend < 0)
+        struct Source
+        {
+            public Vector2 centre;
+            public float radius;
+            public float bend;
         }
 
         [SerializeField] GameConfig config;
@@ -41,6 +68,7 @@ namespace Perigee
         [SerializeField] AbilitySystem abilities;
         [SerializeField] EnemySystem enemies;
         [SerializeField] AudioManager sfx;
+        [SerializeField] Fx fx;
         [SerializeField] Transform root;
 
         // по одной нити на каждую пару спутников в резонансе
@@ -63,6 +91,9 @@ namespace Perigee
         float reverseTimer;
         // орбита в этом шаге идёт вверх или вниз (ИНЕРЦИЯ)
         bool shifting;
+        // источники притяжения, поставленные в прошлом шаге: [0, sourceCount)
+        Source[] sources;
+        int sourceCount;
 
         void Awake()
         {
@@ -73,6 +104,7 @@ namespace Perigee
             int pairs = satellites.Length * (satellites.Length - 1) / 2;
             threadStart = new Vector2[pairs];
             threadEnd = new Vector2[pairs];
+            sources = new Source[config.maxGravitySources];
         }
 
         public void ResetRun()
@@ -88,6 +120,16 @@ namespace Perigee
                 s.visual = Instantiate(skin, root);
                 s.transform = s.visual.transform;
                 s.heatArc = s.visual.GetComponentInChildren<HeatArc>();
+                s.trails = s.visual.GetComponentsInChildren<TrailRenderer>();
+                s.trailStart = new Color[s.trails.Length];
+                s.trailEnd = new Color[s.trails.Length];
+                for (int t = 0; t < s.trails.Length; t++)
+                {
+                    s.trailStart[t] = s.trails[t].startColor;
+                    s.trailEnd[t] = s.trails[t].endColor;
+                }
+                s.body = s.visual.Body.transform;
+                s.bodyHome = s.body.localPosition;
                 s.visual.gameObject.SetActive(false);
                 s.echo = Instantiate(art.echo, root);
                 s.echoTransform = s.echo.transform;
@@ -104,14 +146,16 @@ namespace Perigee
             reverseTimer = 0f;
             threadTimer = 0f;
             threadCount = 0;
+            sourceCount = 0;
             resonating = false;
             echoing = false;
             // до первого удержания окна ПРАЩИ нет
             sinceRelease = float.PositiveInfinity;
             count = 0;
-            Launch(config.satStartAngle, 0f);
+            // на старте спутники проявляются вместе с разгоном
+            Launch(config.satStartAngle, config.startSatFadeIn);
             // чертёж ПАРА: забег начинается с двумя спутниками
-            if (loop.Stats.extraSatellites > 0) Launch(config.satStartAngle + Opposite, 0f);
+            if (loop.Stats.extraSatellites > 0) Launch(config.satStartAngle + Opposite, config.startSatFadeIn);
         }
 
         public void Tick(float dt)
@@ -144,10 +188,16 @@ namespace Perigee
             for (int i = 0; i < count; i++)
             {
                 Satellite s = satellites[i];
-                s.r = Mathf.Min(baseR + i * config.ringGap, config.satMaxRadius);
+                s.ring = Mathf.Min(baseR + i * config.ringGap, config.satMaxRadius);
+                // притяжение лун, аномалий и боссов гнёт орбиту; СТАБИЛИЗАТОР держит её ровной
+                float bend = loop.Stats.Has(StatId.Stabilizer) ? 0f : Bend(s);
+                s.offset = Mathf.MoveTowards(s.offset, Mathf.Clamp(bend, -config.gravMaxOffset, config.gravMaxOffset), config.gravOffsetSpeed * dt);
+                s.r = Mathf.Clamp(s.ring + s.offset, loop.Star.Radius + config.gravStarGap, config.satMaxRadius);
                 // Студень: после удара по нему спутник какое-то время кружит медленнее
                 float spin = s.slow > 0f ? config.jellySlow : 1f;
                 s.slow -= dt;
+                s.condensate -= dt;
+                s.assist -= dt;
                 s.angle = Mathf.Repeat(s.angle + orbitDir * AngularSpeed(s.r) * spin * dt, 360f);
                 s.fade = Mathf.Max(s.fade - dt, 0f);
                 Heat(s, dt);
@@ -155,17 +205,63 @@ namespace Perigee
             }
 
             Resonate(dt);
+            // источники ставят заново в каждом шаге
+            sourceCount = 0;
+        }
+
+        // сумма притяжений источников, в круг которых попал спутник: колодец тянет орбиту к себе, отталкиватель от себя
+        float Bend(Satellite s)
+        {
+            float sum = 0f;
+            for (int k = 0; k < sourceCount; k++)
+            {
+                Source g = sources[k];
+                float d = (s.position - g.centre).magnitude;
+                if (d > g.radius) continue;
+                sum += g.bend * (1f - d / g.radius) * Mathf.Sign(g.centre.magnitude - s.ring);
+            }
+            return sum;
+        }
+
+        // источник притяжения на следующий шаг: bend > 0 = колодец, bend < 0 = отталкиватель
+        public void Gravity(Vector2 centre, float radius, float bend)
+        {
+            if (sourceCount == sources.Length) return;
+            sources[sourceCount++] = new Source { centre = centre, radius = radius, bend = bend };
+        }
+
+        // спутник i в облаке Туманности: в следующем шаге он остывает вместо нагрева
+        public void Fog(int i)
+        {
+            satellites[i].fog = true;
+        }
+
+        // гравиманёвр у луны: золотая вспышка и окно удара; ГРАВИМАНЁВР делает его сильнее и дольше
+        public void Assist(int i)
+        {
+            Satellite s = satellites[i];
+            bool card = loop.Stats.Has(StatId.GravAssist);
+            s.assist = card ? config.gravAssistTime : config.moonAssistTime;
+            s.assistMul = card ? config.gravAssistMul : config.moonAssistMul;
+            s.visual.Flash(config.assistFlashColor, config.assistFlashTime);
+            sfx.Play(SfxId.GravAssist);
+        }
+
+        // страж Зеркала: орбита сразу падает к звезде
+        public void Knock(float amount)
+        {
+            baseR = Mathf.Max(baseR - amount, RestRadius);
         }
 
         public float AngularSpeed(float r)
         {
-            return 360f / config.tMin * Mathf.Pow(config.rMin / r, loop.Era.kExp) * loop.Stats.spinMul;
+            return 360f / config.tMin * Mathf.Pow(loop.Star.Class.rMin / r, loop.Era.kExp) * loop.Stats.spinMul;
         }
 
         public int Count => count;
 
         // радиус, на который спутник падает без удержания; «Высокая орбита» держит его дальше от звезды
-        float RestRadius => loop.Run.Has(RunModifier.HighOrbit) ? config.highOrbitMin : config.rMin;
+        float RestRadius => loop.Run.Has(RunModifier.HighOrbit) ? config.highOrbitMin : loop.Star.Class.rMin;
 
         // больше спутников не станет: четвёртый даёт только чертёж КВАДРИГА
         public int Cap => config.satelliteCap + loop.Stats.addSatBonus;
@@ -219,11 +315,16 @@ namespace Perigee
         {
             // ИНЕРЦИЯ: пока орбита идёт вверх или вниз, удар сильнее
             float hitMul = shifting ? loop.Stats.hitMul * (1f + loop.Stats.Sum(StatId.Inertia)) : loop.Stats.hitMul;
+            // ПОСЛЕДНИЙ СВЕТ: звезда почти погасла
+            if (loop.Stats.Has(StatId.LastLight) && loop.Run.hp < loop.Stats.starMaxHp * config.lastLightHp) hitMul *= config.lastLightMul;
             // тень бьёт долей удара своего спутника без резонанса
             if (k >= count) return Power(satellites[k - count].r) * hitMul * config.echoDamageMul;
 
             Satellite s = satellites[k];
             float damage = Power(s.r) * hitMul;
+            // гравиманёвр у луны и КОНДЕНСАТ после облака: окна самого спутника, тени они не достаются
+            if (s.assist > 0f) damage *= s.assistMul;
+            if (s.condensate > 0f && loop.Stats.Has(StatId.Condensate)) damage *= config.condensateMul;
             // ЖАР-ПТИЦА: горячий спутник бьёт сильнее; тень холодная, ей множитель не достаётся
             if (loop.Stats.Firebird && s.heat >= config.firebirdHeat) damage *= config.firebirdMul;
             return s.resonant ? damage * loop.Stats.resonanceMul : damage;
@@ -246,7 +347,8 @@ namespace Perigee
         // удар спутника k по Студню: спутник замедляется; тень не замедляется
         public void Slow(int k)
         {
-            if (k < count) satellites[k].slow = config.jellyTime;
+            // ГЛАДКИЙ КОРПУС: Студень не замедляет
+            if (k < count && !loop.Stats.Has(StatId.Smooth)) satellites[k].slow = config.jellyTime;
         }
 
         // удар по Отбойнику: орбита сразу подскакивает наружу
@@ -271,13 +373,16 @@ namespace Perigee
             Stats stats = loop.Stats;
             s.stun = stats.stunTime;
             sfx.Play(SfxId.Stun);
+            // пар: серебряные искры
+            fx.Sparks(s.position, config.stunSteamSparks);
+            loop.Vibrate(config.vibrateStun);
             if (stats.Has(StatId.Overload)) enemies.QueueBlast(s.position, stats.overloadRadius, stats.overloadDamage);
         }
 
         public float Power(float r)
         {
             float far = config.powerFar + loop.Stats.powerFarBonus;
-            float power = Mathf.Lerp(config.powerNear, far, Mathf.InverseLerp(config.rMin, config.powerFarRadius, r)) * loop.Stats.powerMul;
+            float power = Mathf.Lerp(config.powerNear, far, Mathf.InverseLerp(loop.Star.Class.rMin, config.powerFarRadius, r)) * loop.Stats.powerMul;
             return Mathf.Max(power, config.powerFloor);
         }
 
@@ -349,11 +454,18 @@ namespace Perigee
         {
             Satellite s = satellites[count];
             s.angle = angle;
-            s.r = Mathf.Min(baseR + count * config.ringGap, config.satMaxRadius);
+            s.ring = Mathf.Min(baseR + count * config.ringGap, config.satMaxRadius);
+            s.r = s.ring;
+            s.offset = 0f;
+            s.fog = false;
+            s.fogged = false;
+            s.condensate = 0f;
+            s.assist = 0f;
             s.heat = 0f;
             s.stun = 0f;
             s.slow = 0f;
             s.fade = fade;
+            s.fadeTime = fade;
             s.resonant = false;
             count++;
 
@@ -371,8 +483,13 @@ namespace Perigee
                 return;
             }
 
-            if (s.r <= config.heatZoneMax) s.heat += config.heatRate * loop.Stats.heatMul * dt;
+            // облако Туманности остужает вместо нагрева; КОНДЕНСАТ открывается, когда спутник из него вышел
+            if (s.fogged && !s.fog) s.condensate = config.condensateTime;
+            s.fogged = s.fog;
+            if (s.fog) s.heat -= config.nebulaCool * dt;
+            else if (s.r <= config.heatZoneMax) s.heat += config.heatRate * loop.Stats.heatMul * dt;
             else if (s.r >= config.coolZoneMin) s.heat -= config.coolRate * dt;
+            s.fog = false;
             Overheat(s);
         }
 
@@ -422,8 +539,12 @@ namespace Perigee
             for (int i = used; i < threads.Count; i++) threads[i].gameObject.SetActive(false);
             threadCount = used;
 
-            // звук только в момент, когда резонанс возник
-            if (used > 0 && !resonating) sfx.Play(SfxId.Resonance);
+            // звук и золотые искры посреди нити только в момент, когда резонанс возник
+            if (used > 0 && !resonating)
+            {
+                sfx.Play(SfxId.Resonance);
+                fx.Sparks((threadStart[0] + threadEnd[0]) * 0.5f, config.resonanceSparks, true);
+            }
             resonating = used > 0;
         }
 
@@ -448,9 +569,16 @@ namespace Perigee
             if (s.stun > 0f) s.visual.Tint(config.stunTint);
             else s.visual.Untint();
             // появление: прозрачность идёт за таймером fade
-            s.visual.SetAlpha(1f - s.fade / config.satFadeIn);
+            s.visual.SetAlpha(s.fade > 0f ? 1f - s.fade / s.fadeTime : 1f);
 
             s.heatArc.Draw(s.heat, loop.Run.time);
+            // след краснеет с нагревом; от heatJitterFrom тело дрожит
+            for (int t = 0; t < s.trails.Length; t++)
+            {
+                s.trails[t].startColor = Heated(s.trailStart[t], s.heat);
+                s.trails[t].endColor = Heated(s.trailEnd[t], s.heat);
+            }
+            s.body.localPosition = s.heat >= config.heatJitterFrom ? s.bodyHome + (Vector3)(Random.insideUnitCircle * config.heatJitter) : s.bodyHome;
 
             // тень видна, пока бьёт: ЭХО действует, а её спутник не оглушён и уже появился
             bool echo = echoing && s.stun <= 0f && s.fade <= 0f;
@@ -462,6 +590,14 @@ namespace Perigee
             s.echoPosition = new Vector2(Mathf.Cos(lag) * s.r, Mathf.Sin(lag) * s.r);
             s.echoTransform.localPosition = s.echoPosition;
             s.echo.SetSizeMul(loop.Stats.satRadiusMul);
+        }
+
+        // цвет следа к красному по нагреву; прозрачность остаётся своя
+        Color Heated(Color color, float heat)
+        {
+            Color hot = Color.Lerp(color, config.heatTrailColor, heat);
+            hot.a = color.a;
+            return hot;
         }
 
         // круги попаданий в Scene view

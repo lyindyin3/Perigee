@@ -21,6 +21,12 @@ namespace Perigee
         float flash;
         DOGetter<float> getFlash;
         DOSetter<float> setFlash;
+        // толчок: масштаб поверх SetSizeMul раздувается на punch·sin(πt) и возвращается
+        Vector2 size = Vector2.one;
+        float punch;
+        float punchT;
+        DOGetter<float> getPunch;
+        DOSetter<float> setPunch;
 
         public SpriteRenderer Body => body;
 
@@ -34,6 +40,12 @@ namespace Perigee
             {
                 flash = value;
                 Apply();
+            };
+            getPunch = () => punchT;
+            setPunch = value =>
+            {
+                punchT = value;
+                Scale();
             };
         }
 
@@ -81,7 +93,23 @@ namespace Perigee
 
         public void SetSizeMul(float x, float y)
         {
-            transform.localScale = new Vector3(baseScale.x * x, baseScale.y * y, baseScale.z);
+            size = new Vector2(x, y);
+            Scale();
+        }
+
+        // объект на миг раздувается на долю amount и за sec возвращается к своему размеру
+        public void Punch(float amount, float sec)
+        {
+            punch = amount;
+            DOTween.Kill(transform);
+            setPunch(0f);
+            DOTween.To(getPunch, setPunch, 1f, sec).SetEase(Ease.Linear).SetTarget(transform).SetLink(gameObject);
+        }
+
+        void Scale()
+        {
+            float m = 1f + punch * Mathf.Sin(punchT * Mathf.PI);
+            transform.localScale = new Vector3(baseScale.x * size.x * m, baseScale.y * size.y * m, baseScale.z);
         }
 
         void Apply()

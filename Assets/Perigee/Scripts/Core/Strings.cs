@@ -158,8 +158,35 @@ namespace Perigee
         public static string Workshop => Loc.Pick("МАСТЕРСКАЯ", "WORKSHOP");
         // вкладки Мастерской по порядку
         public static string[] WorkshopTab => Loc.Pick(WorkshopTabRu, WorkshopTabEn);
-        static readonly string[] WorkshopTabRu = { "ЧЕРТЕЖИ", "СПОСОБНОСТИ", "ОБЛИК" };
-        static readonly string[] WorkshopTabEn = { "BLUEPRINTS", "ABILITIES", "SKINS" };
+        static readonly string[] WorkshopTabRu = { "ЧЕРТЕЖИ", "СПОСОБНОСТИ", "ОБЛИК", "ЗВЁЗДЫ" };
+        static readonly string[] WorkshopTabEn = { "BLUEPRINTS", "ABILITIES", "SKINS", "STARS" };
+
+        // классы звёзд, по порядку StarClassId
+        public static string[] ClassTitle => Loc.Pick(ClassTitleRu, ClassTitleEn);
+        static readonly string[] ClassTitleRu = { "ЖЁЛТЫЙ КАРЛИК", "КРАСНЫЙ ГИГАНТ", "БЕЛЫЙ КАРЛИК", "НЕЙТРОННАЯ ЗВЕЗДА", "ЦЕФЕИДА" };
+        static readonly string[] ClassTitleEn = { "YELLOW DWARF", "RED GIANT", "WHITE DWARF", "NEUTRON STAR", "CEPHEID" };
+        public static string[] ClassText => Loc.Pick(ClassTextRu, ClassTextEn);
+        static readonly string[] ClassTextRu =
+        {
+            "Обычная звезда. Ничего лишнего.",
+            "Большая и крепкая. Враги у поверхности горят, спутник медленнее.",
+            "Маленькая и хрупкая. Спутник быстрый и злой, но греется сильнее.",
+            "Каждые 10 с сама бьёт волной. Опыта нужно больше.",
+            "Дышит: 6 с светит и лечит, 6 с тускнеет и бьёт сильнее.",
+        };
+        static readonly string[] ClassTextEn =
+        {
+            "A plain star. Nothing extra.",
+            "Big and tough. Enemies burn near the surface, the satellite is slower.",
+            "Small and fragile. The satellite is fast and fierce but heats up more.",
+            "Strikes with a wave by itself every 10 s. Needs more XP.",
+            "Breathes: 6 s bright and healing, 6 s dim and hitting harder.",
+        };
+        // {0} = HP, {1} = радиус звезды
+        public static string ClassStatsFormat => Loc.Pick("HP {0} · радиус {1:0.##}", "HP {0} · radius {1:0.##}");
+        // значок уровня в HUD у Цефеиды: яркая и тусклая фаза
+        public static string BreathBright => "☀";
+        public static string BreathDim => "☾";
         // по порядку BlueprintBranch
         public static string[] BranchTitle => Loc.Pick(BranchTitleRu, BranchTitleEn);
         static readonly string[] BranchTitleRu = { "ЗВЕЗДА", "УДАР", "ОРБИТА", "КРИСТАЛЛЫ" };
@@ -187,7 +214,6 @@ namespace Perigee
         public static string Retry => Loc.Pick("ЕЩЁ РАЗ", "RETRY");
         public static string TimeFormat => Loc.Pick("Время {0}", "Time {0}");
         public static string RecordGapFormat => Loc.Pick("До рекорда не хватило {0} с", "{0} s short of your best");
-        public static string NewRecord => Loc.Pick("Новый рекорд!", "New best!");
         // пыль забега по частям: {0} = кристаллы, {1} = множитель эры и чертежей, {2} = пыль за них
         public static string DustCrystalsFormat => Loc.Pick("Кристаллы {0} ×{1:0.##}: +{2}", "Crystals {0} ×{1:0.##}: +{2}");
         public static string DustVictoryFormat => Loc.Pick("Победа: +{0}", "Victory: +{0}");
@@ -204,6 +230,7 @@ namespace Perigee
         public static string UnlockedEraFormat => Loc.Pick("Открыто: эра {0}", "Unlocked: era {0}");
         public static string UnlockedEndless => Loc.Pick("Открыто: режим БЕСКОНЕЧНЫЙ", "Unlocked: ENDLESS mode");
         public static string UnlockedSkinFormat => Loc.Pick("Открыто: облик «{0}»", "Unlocked: skin «{0}»");
+        public static string UnlockedClassFormat => Loc.Pick("Открыто: класс «{0}»", "Unlocked: class «{0}»");
 
         // кнопка с рекламой называет награду и говорит, что это реклама
         public static string ReviveTitle => Loc.Pick("ЗВЕЗДА ГАСНЕТ", "THE STAR IS FADING");
@@ -243,9 +270,37 @@ namespace Perigee
                 case EnemyType.Twin: return Loc.Pick("БЛИЗНЕЦЫ", "TWINS");
                 case EnemyType.Colossus: return Loc.Pick("КОЛОСС", "COLOSSUS");
                 case EnemyType.Pulsar: return Loc.Pick("ПУЛЬСАР", "PULSAR");
+                case EnemyType.Sower: return Loc.Pick("СЕЯТЕЛЬ", "SOWER");
+                case EnemyType.Mirror: return Loc.Pick("ЗЕРКАЛО", "MIRROR");
+                case EnemyType.Graviton: return Loc.Pick("ГРАВИТОН", "GRAVITON");
+                case EnemyType.Abyss: return Loc.Pick("БЕЗДНА", "ABYSS");
                 default: return Loc.Pick("КОМЕТА", "COMET");
             }
         }
+
+        // подпись босса: под именем при его приходе (и в бестиарии)
+        public static string BossTip(EnemyType boss)
+        {
+            switch (boss)
+            {
+                case EnemyType.Twin: return Loc.Pick("Ныряют по очереди; оставшийся злее", "They dive in turns; the survivor gets angrier");
+                case EnemyType.Colossus: return Loc.Pick("В броне, на каждой четверти HP сбрасывает рой", "Armored; sheds a swarm at every quarter of HP");
+                case EnemyType.Pulsar: return Loc.Pick("Стреляет и бьёт волной — держи спутник дальше от кольца", "Shoots and sends a wave — keep your satellite away from the ring");
+                case EnemyType.Sower: return Loc.Pick("Роняет Ульи — лови их на дальней орбите", "Drops Hives — catch them on a far orbit");
+                case EnemyType.Mirror: return Loc.Pick("Стражи отталкивают спутник, а само оно разворачивает орбиту", "Its guards push your satellite away, and it reverses your orbit");
+                case EnemyType.Graviton: return Loc.Pick("Тянет орбиту к себе, потом отталкивает", "Pulls your orbit in, then pushes it away");
+                case EnemyType.Abyss: return Loc.Pick("Три фазы. В последней сама идёт к звезде", "Three phases. In the last it walks to the star");
+                default: return Loc.Pick("Падает к звезде по эллипсу — бей у перигея", "Falls to the star on an ellipse — strike at perigee");
+            }
+        }
+
+        // «НОВЫЙ РЕКОРД»: штамп на итогах
+        public static string RecordStamp => Loc.Pick("НОВЫЙ РЕКОРД", "NEW RECORD");
+
+        // фазы Бездны: баннер при смене, по порядку фаз
+        public static string[] AbyssPhase => Loc.Pick(AbyssPhaseRu, AbyssPhaseEn);
+        static readonly string[] AbyssPhaseRu = { "ГЛАЗ", "ЗАТМЕНИЕ", "ПАСТЬ" };
+        static readonly string[] AbyssPhaseEn = { "THE EYE", "ECLIPSE", "THE MAW" };
 
         // по порядку config.eras
         public static string[] EraTitle => Loc.Pick(EraTitleRu, EraTitleEn);
@@ -733,6 +788,78 @@ namespace Perigee
             "",
             "",
         };
+
+        // реликвии, по порядку RelicId;   = неразрывный пробел между числом и «с»
+        public static string RelicPickTitle => Loc.Pick("ВЫБЕРИ РЕЛИКВИЮ", "CHOOSE A RELIC");
+        public static string[] RelicTitle => Loc.Pick(RelicTitleRu, RelicTitleEn);
+        static readonly string[] RelicTitleRu =
+        {
+            "ОСКОЛОК КОМЕТЫ", "ЛИНЗА", "СЕРДЦЕВИНА", "КОМПАС", "ХРОНОМЕТР", "ЩИТ ПРЕДКОВ", "ПЕСОЧНЫЕ ЧАСЫ", "ГРАВИЛИНЗА",
+            "КРИСТАЛЛ ЖИЗНИ", "ЛЕДЯНОЕ ЯДРО", "СОПЛО", "ТРОФЕЙ", "ЛАВРОВЫЙ ВЕНОК", "ПОСЛЕДНИЙ ВЗДОХ", "ШИПЫ", "ПЕРО ЖАР-ПТИЦЫ",
+        };
+        static readonly string[] RelicTitleEn =
+        {
+            "COMET SHARD", "LENS", "HEARTWOOD", "COMPASS", "CHRONOMETER", "AEGIS", "HOURGLASS", "GRAVITY LENS",
+            "LIFE CRYSTAL", "ICE CORE", "NOZZLE", "TROPHY", "LAUREL", "LAST BREATH", "THORNS", "FIREBIRD FEATHER",
+        };
+        public static string[] RelicText => Loc.Pick(RelicTextRu, RelicTextEn);
+        static readonly string[] RelicTextRu =
+        {
+            "Каждый 3-й удар спутника: +2 урона",
+            "Крит +8% и бьёт ×2.5",
+            "Макс. HP звезды +20 и лечение 20",
+            "Кристаллы живут вдвое дольше, притяжение +0.5",
+            "Перезарядка способностей ×0.85",
+            "Раз в 20 с удар по звезде гасится",
+            "Каждые 30 с враги замирают на 2 с",
+            "Спутник крупнее ×1.15",
+            "Каждые 25 кристаллов лечат 2 HP",
+            "Нагрев ×0.8",
+            "Выход и падение ×1.2",
+            "Пыль за забег ×1.2",
+            "Комбо держится на 1 с дольше",
+            "Когда HP впервые ниже 25%: мощная волна",
+            "Враги у звезды теряют 1 HP/с",
+            "Убийство горячим спутником: +2 кристалла",
+        };
+        static readonly string[] RelicTextEn =
+        {
+            "Every 3rd satellite hit: +2 damage",
+            "Crit +8% and hits ×2.5",
+            "Star max HP +20 and heal 20",
+            "Crystals last twice as long, magnet +0.5",
+            "Ability cooldown ×0.85",
+            "Once every 20 s a star hit is blocked",
+            "Every 30 s enemies freeze for 2 s",
+            "Satellite larger ×1.15",
+            "Every 25 crystals heal 2 HP",
+            "Heat ×0.8",
+            "Rise and fall ×1.2",
+            "Stardust for the run ×1.2",
+            "Combo lasts 1 s longer",
+            "When HP first drops below 25%: a mighty wave",
+            "Enemies near the star lose 1 HP/s",
+            "Kill with a hot satellite: +2 crystals",
+        };
+        public static string HeraldBanner => Loc.Pick("Вестник несёт реликвию", "The Herald carries a relic");
+        public static string DustRelicsFormat => Loc.Pick("Реликвии: +{0}", "Relics: +{0}");
+
+        // события забега, по порядку RunEventType; баннер = «имя: текст»
+        public static string[] EventTitle => Loc.Pick(EventTitleRu, EventTitleEn);
+        static readonly string[] EventTitleRu = { "Метеорный дождь", "Золотая комета", "Солнечная буря", "Кристальный прилив", "Нашествие", "Затмение" };
+        static readonly string[] EventTitleEn = { "Meteor shower", "Golden comet", "Solar storm", "Crystal tide", "Invasion", "Eclipse" };
+        public static string[] EventText => Loc.Pick(EventTextRu, EventTextEn);
+        static readonly string[] EventTextRu =
+        {
+            "Сбивай метеоры — в них кристаллы", "Успей сбить — 40 кристаллов", "Удар ×1.5, нагрев ×1.5", "Кристаллов вдвое больше",
+            "Рой со всех сторон", "Видно только у орбиты",
+        };
+        static readonly string[] EventTextEn =
+        {
+            "Shoot the meteors — they hold crystals", "Hit it in time — 40 crystals", "Hit ×1.5, heat ×1.5", "Twice the crystals",
+            "Swarm from every side", "You only see near the orbit",
+        };
+        public const string EventBannerFormat = "{0}: {1}";
 
         const char PipOn = '●';
         const char PipOff = '○';

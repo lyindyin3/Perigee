@@ -64,6 +64,11 @@ namespace Perigee
             readyRing.enabled = ready;
             cooling.SetActive(!ready);
 
+            // нажатие и готовность: кнопка подпрыгивает
+            Transform root = button.transform;
+            root.DOKill(true);
+            root.DOPunchScale(Vector3.one * (ready ? config.abilityReadyPunch : config.abilityPressPunch), config.abilityPunchTime).SetLink(gameObject);
+
             Transform ring = readyRing.transform;
             ring.DOKill();
             ring.localScale = Vector3.one;

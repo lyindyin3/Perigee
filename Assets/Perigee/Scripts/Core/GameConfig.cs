@@ -82,7 +82,7 @@ namespace Perigee
         public SpawnGroup[] groups;
     }
 
-    public enum EraRule { None, Flares, Heavy, Vortex }
+    public enum EraRule { None, Flares, Heavy, Vortex, Nebula, Moons, Anomalies, Darkness }
 
     [Serializable]
     public class EraDef
@@ -147,6 +147,46 @@ namespace Perigee
 
     // классы звёзд (GDD 8.6): бит в SaveData.starClassesOwned
     public enum StarClassId { Yellow, RedGiant, WhiteDwarf, Neutron, Cepheid }
+
+    // черта класса: Блеск, Автоимпульс, Дыхание (Шипы Красного гиганта = стат Thorns в mods)
+    public enum StarTrait { None, Glint, AutoPulse, Breath }
+
+    // реликвии (GDD 6.7): по порядку идут ArtSet.relicIcons, строки в Strings и RunState.relicStacks
+    public enum RelicId
+    {
+        CometShard, Lens, Heartwood, Compass, Chronometer, Aegis, Hourglass, GravLens, LifeCrystal, IceCore, Nozzle, Trophy, Laurel,
+        LastBreath, Thorns, Feather
+    }
+
+    // Реликвия: сильное свойство до конца забега, действует через Stats, как карточка. Запись i списка relics = RelicId i
+    [Serializable]
+    public class RelicDef
+    {
+        public RelicId id;
+        public int maxStacks;
+        public StatMod[] mods;
+    }
+
+    // события забега (GDD 5.2): по порядку идут строки в Strings
+    public enum RunEventType { MeteorShower, GoldenComet, Storm, CrystalTide, Invasion, Eclipse }
+
+    // Класс звезды (GDD 8.6): выбирается перед забегом. Запись i списка starClasses = StarClassId i
+    [Serializable]
+    public class StarClassDef
+    {
+        public StarClassId id;
+        public float starRadius;
+        public int maxHp;
+        public float rMin;
+        public StatMod[] mods;
+        public StarTrait trait;
+        // умножает цвет тела звезды вместе с цветом эры
+        public Color tint;
+        // цена в пыли; 0 = не продаётся
+        public int price;
+        // номер эры с единицы: класс даётся за первую победу в ней
+        public int eraWin;
+    }
 
     [Serializable]
     public struct StatMod
@@ -271,8 +311,6 @@ namespace Perigee
         public bool debugUnlockAll;
 
         [Title("Мир")]
-        public float starRadius = 1f;
-        public float starMaxHp = 120f;
         public float starLowHpFraction = 0.3f;
         // ВТОРОЕ СОЛНЦЕ: доля HP, с которой звезда вспыхивает вместо гибели
         public float secondSunHp = 0.25f;
@@ -289,7 +327,6 @@ namespace Perigee
         public int maxStepsPerFrame = 4;
 
         [Title("Спутники")]
-        public float rMin = 1.35f;
         public float ringMax = 6.2f;
         public float satMaxRadius = 6.2f;
         public float ringGap = 0.8f;
@@ -408,6 +445,19 @@ namespace Perigee
             Evolution(CardId.Guillotine, StatId.Guillotine, CardId.Execute, CardId.Pierce),
             Evolution(CardId.LivingStar, StatId.LivingStar, CardId.StarPlating, CardId.Photosphere),
             Evolution(CardId.Reactor, StatId.Reactor, CardId.Overload, CardId.Coolant),
+            // R4: карточки эр 5–8
+            Card(CardId.Condensate, CardColor.Strike, CardRarity.Common, 1, StatId.Condensate, 1f, StatId.HeatMul, 1.1f, 5),
+            Card(CardId.SmoothHull, CardColor.Orbit, CardRarity.Common, 1, StatId.Smooth, 1f, StatId.PowerMul, 0.95f, 5),
+            Card(CardId.CloudSeed, CardColor.Star, CardRarity.Rare, 1, StatId.CloudSeed, 1f, StatId.SpinMul, 0.92f, 5),
+            Card(CardId.GravAssist, CardColor.Orbit, CardRarity.Common, 1, StatId.GravAssist, 1f, StatId.HeatMul, 1.1f, 6),
+            Card(CardId.Sapper, CardColor.Strike, CardRarity.Common, 1, StatId.Sapper, 1f, StatId.SpinMul, 0.95f, 6),
+            Card(CardId.Tidal, CardColor.Star, CardRarity.Rare, 1, StatId.Tidal, 1f, StatId.CrystalLifeMul, 0.8f, 6),
+            Card(CardId.Stabilizer, CardColor.Orbit, CardRarity.Common, 1, StatId.Stabilizer, 1f, StatId.PowerMul, 0.95f, 7),
+            Card(CardId.Lock, CardColor.Strike, CardRarity.Common, 1, StatId.Lock, 1f, StatId.SpinMul, 0.95f, 7),
+            Card(CardId.Singularity, CardColor.Star, CardRarity.Rare, 1, StatId.Singularity, 1f, StatId.StarMaxHp, -10f, 7),
+            Card(CardId.Lantern, CardColor.Orbit, CardRarity.Common, 2, StatId.Lantern, 1.5f, StatId.SpinMul, 0.95f, 8),
+            Card(CardId.NightSight, CardColor.Star, CardRarity.Common, 1, StatId.NightSight, 1f, StatId.XpPerCrystalMul, 0.9f, 8),
+            Card(CardId.LastLight, CardColor.Strike, CardRarity.Rare, 1, StatId.LastLight, 1f, StatId.StarMaxHp, -10f, 8),
         };
 
         [Title("Эффекты карточек")]
@@ -448,6 +498,20 @@ namespace Perigee
         // ПЕРЕГРУЗКА: взрыв у оглушённого спутника
         public float overloadRadius = 1.5f;
         public float overloadDamage = 3f;
+        // КОНДЕНСАТ: окно после выхода спутника из облака
+        public float condensateTime = 2f;
+        public float condensateMul = 1.5f;
+        // ЗАСЕВ: лишние кристаллы за убийство в облаке
+        public int cloudSeedCrystals = 2;
+        // САПЁР: во сколько раз сильнее взрыв Мины
+        public float sapperMineMul = 2f;
+        // ПРИЛИВНЫЕ СИЛЫ: урон у луны; СИНГУЛЯРНОСТЬ: урон в колодце аномалии
+        public float tidalRadius = 1.2f;
+        public float tidalDps = 2f;
+        public float singularityDps = 2f;
+        // ПОСЛЕДНИЙ СВЕТ: доля HP звезды, ниже которой удар сильнее
+        public float lastLightHp = 0.3f;
+        public float lastLightMul = 1.4f;
 
         [Title("Эволюции")]
         public float stringSawMul = 3f;
@@ -478,6 +542,68 @@ namespace Perigee
         public float comboPunchTime = 0.15f;
         public float comboShake = 12f;
         public float comboBreakTime = 0.3f;
+
+        [Title("Реликвии")]
+        public int relicChoices = 3;
+        public RelicDef[] relics =
+        {
+            Relic(RelicId.CometShard, 1, new StatMod(StatId.ThirdHit, 2f)),
+            Relic(RelicId.Lens, 1, new StatMod(StatId.CritChance, 0.08f), new StatMod(StatId.CritMulBonus, 0.5f)),
+            Relic(RelicId.Heartwood, 3, new StatMod(StatId.StarMaxHp, 20f)),
+            Relic(RelicId.Compass, 1, new StatMod(StatId.CrystalLifeMul, 2f), new StatMod(StatId.MagnetRadius, 0.5f)),
+            Relic(RelicId.Chronometer, 2, new StatMod(StatId.AbilityCooldownMul, 0.85f)),
+            Relic(RelicId.Aegis, 1, new StatMod(StatId.Aegis, 1f)),
+            Relic(RelicId.Hourglass, 1, new StatMod(StatId.AutoStasis, 1f)),
+            Relic(RelicId.GravLens, 2, new StatMod(StatId.SatRadiusMul, 1.15f)),
+            Relic(RelicId.LifeCrystal, 3, new StatMod(StatId.TideHeal, 1f)),
+            Relic(RelicId.IceCore, 2, new StatMod(StatId.HeatMul, 0.8f)),
+            Relic(RelicId.Nozzle, 2, new StatMod(StatId.RadialSpeedMul, 1.2f)),
+            Relic(RelicId.Trophy, 1, new StatMod(StatId.DustMul, 1.2f)),
+            Relic(RelicId.Laurel, 1, new StatMod(StatId.ComboWindow, 1f)),
+            Relic(RelicId.LastBreath, 1, new StatMod(StatId.LastBreath, 1f)),
+            Relic(RelicId.Thorns, 2, new StatMod(StatId.Thorns, 1f)),
+            Relic(RelicId.Feather, 1, new StatMod(StatId.Feather, 1f)),
+        };
+        // реликвий не осталось: вместо выбора столько пыли
+        public int relicNoneDust = 50;
+        public float bannerRelicHold = 2f;
+        // ОСКОЛОК КОМЕТЫ: каждый такой по счёту удар спутника, который прошёл, сильнее
+        public int thirdHitEvery = 3;
+        // ЩИТ ПРЕДКОВ: первый удар по звезде после стольких секунд без гашения гасится
+        public float aegisInterval = 20f;
+        public Color aegisFlashColor = Color.white;
+        // ПЕСОЧНЫЕ ЧАСЫ: раз в столько секунд враги на столько секунд замедляются, как под СТАЗИСОМ
+        public float autoStasisInterval = 30f;
+        public float autoStasisTime = 2f;
+        // ПОСЛЕДНИЙ ВЗДОХ: доля HP и волна
+        public float lastBreathHp = 0.25f;
+        public float lastBreathRadius = 4f;
+        public float lastBreathDamage = 3f;
+        // ПЕРО ЖАР-ПТИЦЫ: убийство спутником с таким нагревом даёт ещё кристаллы
+        public float featherHeat = 0.7f;
+        public int featherCrystals = 2;
+
+        [Title("Вестник и события")]
+        // Вестник: секунда в цикле (в Бесконечном + endlessLoopTime за каждый цикл)
+        public float heraldTime = 95f;
+        public float bannerHeraldHold = 2.5f;
+        public float[] eventTimes = { 70f, 130f };
+        public float eventChance = 0.6f;
+        public float bannerEventHold = 2.5f;
+        public int meteorCount = 10;
+        public float meteorInterval = 0.5f;
+        // все метеоры входят в пределах ± стольких градусов от одного угла
+        public float meteorSpread = 40f;
+        public float goldCometTime = 7f;
+        public float stormTime = 8f;
+        public float stormPowerMul = 1.5f;
+        public float stormHeatMul = 1.5f;
+        public float tideTime = 10f;
+        public int tideCrystalMul = 2;
+        public int invasionCount = 30;
+        public float invasionSpeedMul = 0.7f;
+        public float eclipseTime = 8f;
+        public float eclipseLight = 2.5f;
 
         [Title("Поля у врагов")]
         // сколько областей EnemySystem.Field за один шаг
@@ -554,6 +680,11 @@ namespace Perigee
             new EnemyDef { id = EnemyType.Bumper, radius = 0.34f, hp = 3f, speed = 0.8f, armor = 0f, starDamage = 10f, crystals = 3, behavior = EnemyBehavior.Straight, faceStar = true, prewarm = 8, kickHitter = true },
             new EnemyDef { id = EnemyType.Blinker, radius = 0.24f, hp = 2f, speed = 1.1f, armor = 0f, starDamage = 8f, crystals = 3, behavior = EnemyBehavior.Blink, faceStar = true, prewarm = 8, blinkInterval = 1.6f, blinkDeg = 35f },
             new EnemyDef { id = EnemyType.Eclipser, radius = 0.45f, hp = 6f, speed = 0.5f, armor = 1f, starDamage = 18f, crystals = 6, behavior = EnemyBehavior.Straight, faceStar = true, prewarm = 4, lightCut = 0.8f },
+            // боссы эр 5–8; speed = как быстро они выходят на свою орбиту
+            new EnemyDef { id = EnemyType.Sower, radius = 0.9f, hp = 260f, speed = 0.8f, armor = 0f, starDamage = 0f, crystals = 40, behavior = EnemyBehavior.Sower, faceStar = false, prewarm = 0 },
+            new EnemyDef { id = EnemyType.Mirror, radius = 0.8f, hp = 240f, speed = 0.8f, armor = 1.5f, starDamage = 0f, crystals = 40, behavior = EnemyBehavior.Mirror, faceStar = false, prewarm = 0 },
+            new EnemyDef { id = EnemyType.Graviton, radius = 1f, hp = 300f, speed = 0.8f, armor = 0f, starDamage = 0f, crystals = 40, behavior = EnemyBehavior.Graviton, faceStar = false, prewarm = 0 },
+            new EnemyDef { id = EnemyType.Abyss, radius = 1.3f, hp = 700f, speed = 0.8f, armor = 0f, starDamage = 0f, crystals = 0, behavior = EnemyBehavior.Abyss, faceStar = false, prewarm = 0 },
             // объекты событий: Метеор отдаёт meteorCrystals, только когда его разбил спутник
             new EnemyDef { id = EnemyType.Meteor, radius = 0.22f, hp = 1f, speed = 4f, armor = 0f, starDamage = 3f, crystals = 0, behavior = EnemyBehavior.Chord, faceStar = false, prewarm = 10 },
             new EnemyDef { id = EnemyType.GoldComet, radius = 0.4f, hp = 6f, speed = 2f, armor = 0f, starDamage = 0f, crystals = 40, behavior = EnemyBehavior.Chord, faceStar = false, prewarm = 1 },
@@ -638,6 +769,56 @@ namespace Perigee
         public float crystalSink = 0.35f;
         // Чёрная дыра: градусы в секунду, на которые закручивается путь врагов
         public float vortexDeg = 14f;
+        // гравитационный сдвиг орбиты (луны, аномалии, Гравитон, Бездна): предел, скорость, зазор до поверхности звезды
+        public float gravMaxOffset = 1f;
+        public float gravOffsetSpeed = 2f;
+        public float gravStarGap = 0.25f;
+        // сколько источников притяжения за один шаг
+        public int maxGravitySources = 8;
+        // Туманность: облака кружат вокруг звезды; спутник в облаке остывает, враги в нём вязнут
+        public float nebulaRadius = 1.3f;
+        public float[] nebulaOrbits = { 2.2f, 3.6f, 5f };
+        public float[] nebulaDeg = { 8f, -6f, 5f };
+        public float[] nebulaStart = { 0f, 120f, 240f };
+        public float nebulaCool = 0.6f;
+        public float nebulaSlow = 0.6f;
+        // Газовый гигант: луны (направление 1 = против часовой стрелки), их притяжение и гравиманёвр
+        public float moonSize = 0.5f;
+        public float[] moonOrbits = { 3f, 5f };
+        public float[] moonPeriods = { 20f, 32f };
+        public int[] moonDirs = { 1, -1 };
+        public float moonWellRadius = 1.4f;
+        public float moonBend = 0.4f;
+        public float moonPullRadius = 1.8f;
+        public float moonPull = 0.8f;
+        public float moonAssistRadius = 0.9f;
+        public float moonAssistTime = 1.5f;
+        public float moonAssistMul = 1.5f;
+        // манёвр у одной луны одним спутником не чаще раза в столько секунд
+        public float moonAssistCooldown = 1.5f;
+        public float gravAssistTime = 2.5f;
+        public float gravAssistMul = 2f;
+        public Color assistFlashColor = new Color32(0xE3, 0xB2, 0x3C, 0xFF);
+        public float assistFlashTime = 0.3f;
+        // Аномалия: колодцы и отталкиватели
+        public float anomalyFirst = 10f;
+        public float anomalyInterval = 9f;
+        public float anomalyMinR = 2.2f;
+        public float anomalyMaxR = 5.2f;
+        public int anomalyMax = 2;
+        public float anomalyWarn = 1f;
+        public float anomalyLife = 7f;
+        public float anomalyFade = 0.5f;
+        public float anomalyRadius = 2f;
+        public float anomalyBend = 0.7f;
+        public float anomalyPull = 1.2f;
+        public float anomalyCrystalPull = 2f;
+        // Сердце Тьмы: радиус света вокруг орбиты
+        public float lightMin = 1.8f;
+        public float lightBase = 2.6f;
+        public float lightAround = 1.2f;
+        public float lightLerp = 4f;
+        public float nightSightAlpha = 0.65f;
 
         [Title("Боссы")]
         public float bossTime = 180f;
@@ -676,6 +857,65 @@ namespace Perigee
         public float pulsarWaveBand = 0.1f;
         public Color pulsarWarnTint = new Color32(0xEF, 0xE4, 0xC8, 0xFF);
         public float pulsarWarnHz = 4f;
+        // Сеятель: орбита, Ульи с неё; ниже доли HP чаще
+        public float sowerRadius = 5f;
+        public float sowerDeg = 15f;
+        public float sowerInterval = 4f;
+        public float sowerFastInterval = 3f;
+        public float sowerFastHp = 0.5f;
+        public float sowerHiveSpeed = 1.2f;
+        // Зеркало: орбита, стражи, разворот орбиты игрока, залпы
+        public float mirrorRadius = 4.2f;
+        public float mirrorDeg = 20f;
+        public float guardRadius = 0.25f;
+        public float guardDistance = 1.1f;
+        public float guardDeg = 180f;
+        public float guardHeat = 0.3f;
+        public float guardKnock = 1f;
+        public float mirrorFlip = 10f;
+        public float mirrorFireInterval = 5f;
+        public int mirrorBolts = 2;
+        // угол между соседними Снарядами залпа
+        public float mirrorFan = 20f;
+        // Зеркало и Гравитон мигают за столько секунд до смены
+        public float bossWarn = 1f;
+        public Color bossWarnColor = new Color32(0xEF, 0xE4, 0xC8, 0xFF);
+        // Гравитон: колодец, на время отталкиватель; в миг смены залп
+        public float gravitonRadius = 4.6f;
+        public float gravitonDeg = 8f;
+        public float gravitonWellRadius = 2.6f;
+        public float gravitonBend = 1f;
+        public float gravitonFlip = 8f;
+        public float gravitonRepel = 3f;
+        public int gravitonBolts = 5;
+        public float gravitonFan = 12f;
+        // Бездна: пороги фаз, неуязвимость при смене
+        public float[] abyssPhaseHp = { 0.66f, 0.33f };
+        public float abyssShift = 1.5f;
+        // фаза 1 ГЛАЗ: орбита и Стрелы к звезде
+        public float abyssRadius = 5.2f;
+        public float abyssDeg = 12f;
+        public float abyssArrowInterval = 3f;
+        public int abyssArrows = 3;
+        public float abyssArrowFan = 15f;
+        public float abyssArrowSpeed = 0.8f;
+        // фаза 2 ЗАТМЕНИЕ: броня, меньше света, эллипс кометы, Призраки
+        public float abyssEclipseArmor = 1.5f;
+        public float abyssLightCut = 1f;
+        public float abyssPeriapsis = 2.2f;
+        public float abyssApoapsis = 5.5f;
+        public float abyssPeriod = 7f;
+        public float abyssDiveDamage = 10f;
+        public float abyssPhantomInterval = 8f;
+        public int abyssPhantoms = 4;
+        // фаза 3 ПАСТЬ: колодец, шаг к звезде, укус и отскок, Рой
+        public float abyssWellRadius = 3f;
+        public float abyssBend = 1f;
+        public float abyssWalkSpeed = 0.15f;
+        public float abyssBiteDamage = 40f;
+        public float abyssBounceRadius = 5f;
+        public float abyssSwarmInterval = 5f;
+        public int abyssSwarm = 8;
 
         [Title("Эффекты")]
         public float hitStopTime = 0.04f;
@@ -728,6 +968,114 @@ namespace Perigee
         public int bigKillShardMul = 2;
         public float bigKillShake = 0.06f;
         public float bigKillShakeTime = 0.08f;
+
+        [Title("Эффекты R4")]
+        // приход босса: камера сдвигается к нему на долю пути и приближается, время замедляется, крупное имя с подписью
+        public float bossCamShift = 0.3f;
+        public float bossZoom = 0.85f;
+        public float bossCamTime = 0.4f;
+        public float bossIntroSlow = 0.3f;
+        public float bossIntroSlowTime = 0.8f;
+        public float bossIntroHold = 1.6f;
+        public float bossIntroFade = 0.25f;
+        // гибель босса
+        public float bossKillSlow = 0.25f;
+        public float bossKillSlowTime = 0.8f;
+        public float bossKillFlash = 0.6f;
+        public float bossKillFlashTime = 0.4f;
+        public int bossKillShards = 30;
+        public float bossKillShake = 0.3f;
+        public float bossKillShakeTime = 0.4f;
+        // смена фазы босса
+        public float bossPhaseFlash = 0.3f;
+        public float bossPhaseFlashTime = 0.4f;
+        public float bossPhaseShake = 0.15f;
+        public float bossPhaseShakeTime = 0.3f;
+        // старт забега: разгон, толчок звезды, проявление спутников
+        public float warpFrom = 0.2f;
+        public float warpTo = 1.6f;
+        public float warpTime = 0.8f;
+        public float startStarPunch = 0.15f;
+        public float startStarPunchTime = 0.3f;
+        public float startSatFadeIn = 0.6f;
+        // кольцо нового уровня; экран карточек ждёт его
+        public float levelUpRingRadius = 6.5f;
+        public float levelUpRingTime = 0.5f;
+        // экран карточек: вылет снизу по очереди с переворотом, пульс редкой каймы, блик эволюции, улёт выбранной
+        public float cardInStagger = 0.07f;
+        public float cardInTime = 0.3f;
+        public float cardInOffset = 600f;
+        public float rareRimMinAlpha = 0.45f;
+        public float rareRimPulseTime = 0.6f;
+        public float shineInterval = 1.5f;
+        public float shineTime = 0.5f;
+        public float cardPickPunch = 0.12f;
+        public float cardPickPunchTime = 0.15f;
+        public float cardFlyTime = 0.35f;
+        public float cardFlyScale = 0.2f;
+        public float cardDropTime = 0.25f;
+        public float cardDropOffset = 150f;
+        // способности: вспышка экрана цветом способности (по порядку AbilityId), толчок кнопки
+        public Color[] abilityColors =
+        {
+            new Color32(0xEF, 0xE4, 0xC8, 0xFF), new Color32(0xE3, 0xB2, 0x3C, 0xFF), new Color32(0xEF, 0xE4, 0xC8, 0xFF), new Color32(0xB9, 0xBD, 0xC2, 0xFF),
+            new Color32(0xB9, 0xBD, 0xC2, 0xFF), new Color32(0xD6, 0x28, 0x1F, 0xFF), new Color32(0xE3, 0xB2, 0x3C, 0xFF),
+        };
+        public float abilityFlash = 0.15f;
+        public float abilityFlashTime = 0.3f;
+        public float abilityPressPunch = 0.15f;
+        public float abilityReadyPunch = 0.15f;
+        public float abilityPunchTime = 0.2f;
+        // удар по звезде: толчок и красное кольцо
+        public float starHitPunch = 0.08f;
+        public float starHitPunchTime = 0.15f;
+        public float starHitRingGrow = 1.2f;
+        public float starHitRingTime = 0.3f;
+        // красная виньетка: ниже первой доли HP слабая, ниже второй сильная
+        public float vignetteLowHp = 0.3f;
+        public float vignetteLowAlpha = 0.35f;
+        public float vignetteCriticalHp = 0.15f;
+        public float vignetteCriticalAlpha = 0.55f;
+        public float vignetteHz = 1.5f;
+        // осколки удара летят конусом от хиттера к врагу, градусы
+        public float hitShardCone = 70f;
+        // кристалл летит к счётчику пыли дугой (высота дуги в пикселях холста)
+        public float crystalFlyTime = 0.45f;
+        public float crystalFlyArc = 150f;
+        // нагрев: след краснеет, тело дрожит от порога; оглушение выпускает пар
+        public Color heatTrailColor = new Color32(0xD6, 0x28, 0x1F, 0xFF);
+        public float heatJitterFrom = 0.8f;
+        public float heatJitter = 0.02f;
+        public int stunSteamSparks = 6;
+        public int resonanceSparks = 8;
+        public int eliteShardMul = 2;
+        // крит: добавка к hit-stop и прыжок числа
+        public float critHitStop = 0.02f;
+        public float critNumberPunch = 0.6f;
+        public float critNumberPunchTime = 0.2f;
+        // комбо: новая ступень красит счётчик золотом и края экрана
+        public float comboTierFlash = 0.1f;
+        public float comboTierFlashTime = 0.3f;
+        public float evoScreenFlash = 0.25f;
+        public float evoScreenFlashTime = 0.4f;
+        // меню: нажатие, покупка, панели, счёт пыли
+        public float menuPressScale = 0.92f;
+        public float menuPressTime = 0.15f;
+        public float menuBuyPunch = 0.15f;
+        public float menuBuyPunchTime = 0.25f;
+        public float panelSlide = 40f;
+        public float panelFade = 0.25f;
+        public float dustCountTime = 0.6f;
+        // итоги: строки по одной, штамп рекорда
+        public float resultLineDelay = 0.12f;
+        public float stampFrom = 2f;
+        public float stampAngle = -8f;
+        public float stampTime = 0.3f;
+        // вибрация, мс
+        public int vibrateStarHit = 40;
+        public int vibrateStun = 30;
+        public int vibrateEliteKill = 20;
+        public int vibrateBossKill = 150;
 
         [Title("Полоски HUD")]
         public float barGhostDelay = 0.35f;
@@ -939,11 +1287,11 @@ namespace Perigee
                     At(172f, Of(EnemyType.Arrow, 4, AngleMode.Even), Of(EnemyType.Phantom, 6, AngleMode.Even), Of(EnemyType.Swarmer, 8)),
                 },
             },
-            // эры 5–8: правило и свой босс приходят в M19, до того в них Комета
+            // эры 5–8
             new EraDef
             {
                 kExp = 1f, spinMul = 1.1f, hpMul = 2.6f, countMul = 1.55f, ambientInterval = 2.9f, dustMul = 2.1f, riseMul = 1f, fallMul = 1f,
-                rule = EraRule.None, boss = EnemyType.Boss, herald = EnemyType.Jelly, eliteChance = 0.06f, music = MusicId.Chapter3, victoryDust = 300, firstWinDust = 1000,
+                rule = EraRule.Nebula, boss = EnemyType.Sower, herald = EnemyType.Jelly, eliteChance = 0.06f, music = MusicId.Chapter3, victoryDust = 300, firstWinDust = 1000,
                 background = new Color32(0x0D, 0x0A, 0x12, 0xFF), starTint = new Color32(0xE8, 0xD2, 0xFF, 0xFF), raysTint = new Color32(0xE8, 0xD2, 0xFF, 0xFF),
                 opening = new[]
                 {
@@ -976,7 +1324,7 @@ namespace Perigee
             new EraDef
             {
                 kExp = 0.95f, spinMul = 1.1f, hpMul = 2.9f, countMul = 1.6f, ambientInterval = 2.8f, dustMul = 2.4f, riseMul = 1f, fallMul = 1f,
-                rule = EraRule.None, boss = EnemyType.Boss, herald = EnemyType.Bumper, eliteChance = 0.08f, music = MusicId.Chapter3, victoryDust = 350, firstWinDust = 1200,
+                rule = EraRule.Moons, boss = EnemyType.Mirror, herald = EnemyType.Bumper, eliteChance = 0.08f, music = MusicId.Chapter3, victoryDust = 350, firstWinDust = 1200,
                 background = new Color32(0x10, 0x0C, 0x07, 0xFF), starTint = new Color32(0xFF, 0xD9, 0xA0, 0xFF), raysTint = new Color32(0xFF, 0xD9, 0xA0, 0xFF),
                 opening = new[]
                 {
@@ -1009,7 +1357,7 @@ namespace Perigee
             new EraDef
             {
                 kExp = 1f, spinMul = 1.15f, hpMul = 3.2f, countMul = 1.65f, ambientInterval = 2.7f, dustMul = 2.7f, riseMul = 1f, fallMul = 1f,
-                rule = EraRule.None, boss = EnemyType.Boss, herald = EnemyType.Blinker, eliteChance = 0.1f, music = MusicId.Chapter4, victoryDust = 400, firstWinDust = 1400,
+                rule = EraRule.Anomalies, boss = EnemyType.Graviton, herald = EnemyType.Blinker, eliteChance = 0.1f, music = MusicId.Chapter4, victoryDust = 400, firstWinDust = 1400,
                 background = new Color32(0x06, 0x10, 0x0E, 0xFF), starTint = new Color32(0xC8, 0xFF, 0xF0, 0xFF), raysTint = new Color32(0xC8, 0xFF, 0xF0, 0xFF),
                 opening = new[]
                 {
@@ -1042,7 +1390,7 @@ namespace Perigee
             new EraDef
             {
                 kExp = 1f, spinMul = 1.15f, hpMul = 3.5f, countMul = 1.7f, ambientInterval = 2.6f, dustMul = 3f, riseMul = 1f, fallMul = 1f,
-                rule = EraRule.None, boss = EnemyType.Boss, herald = EnemyType.Eclipser, eliteChance = 0.12f, music = MusicId.Chapter4, victoryDust = 500, firstWinDust = 2000,
+                rule = EraRule.Darkness, boss = EnemyType.Abyss, herald = EnemyType.Eclipser, eliteChance = 0.12f, music = MusicId.Chapter4, victoryDust = 500, firstWinDust = 2000,
                 background = new Color32(0x00, 0x00, 0x00, 0xFF), starTint = Color.white, raysTint = new Color32(0xD6, 0x28, 0x1F, 0xFF),
                 opening = new[]
                 {
@@ -1176,6 +1524,48 @@ namespace Perigee
 
         [Title("Облик")]
         [TableList]
+        [Title("Классы звёзд")]
+        // радиус, HP и rMin звезды берутся из класса забега; обучение всегда ЖЁЛТЫЙ КАРЛИК
+        public StarClassDef[] starClasses =
+        {
+            new StarClassDef { id = StarClassId.Yellow, starRadius = 1f, maxHp = 120, rMin = 1.35f, mods = new StatMod[0], tint = Color.white },
+            new StarClassDef
+            {
+                id = StarClassId.RedGiant, starRadius = 1.35f, maxHp = 190, rMin = 1.7f, tint = new Color32(0xFF, 0x8A, 0x6A, 0xFF), eraWin = 2,
+                mods = new[] { new StatMod(StatId.SpinMul, 0.9f), new StatMod(StatId.StarDamageMul, 0.85f), new StatMod(StatId.Thorns, 1f) },
+            },
+            new StarClassDef
+            {
+                id = StarClassId.WhiteDwarf, starRadius = 0.7f, maxHp = 80, rMin = 1f, trait = StarTrait.Glint, tint = new Color32(0xDD, 0xE8, 0xFF, 0xFF), eraWin = 4,
+                mods = new[] { new StatMod(StatId.SpinMul, 1.2f), new StatMod(StatId.PowerMul, 1.15f), new StatMod(StatId.HeatMul, 1.25f) },
+            },
+            new StarClassDef
+            {
+                id = StarClassId.Neutron, starRadius = 0.8f, maxHp = 110, rMin = 1.2f, trait = StarTrait.AutoPulse, tint = new Color32(0xB9, 0xBD, 0xC2, 0xFF), eraWin = 6,
+                mods = new[] { new StatMod(StatId.XpNeedMul, 1.1f) },
+            },
+            new StarClassDef { id = StarClassId.Cepheid, starRadius = 1f, maxHp = 130, rMin = 1.35f, mods = new StatMod[0], trait = StarTrait.Breath, tint = new Color32(0xFF, 0xE7, 0xA0, 0xFF), price = 1500 },
+        };
+        // ШИПЫ: враги ближе радиуса звезды + thornsGap теряют thornsDps HP/с за каждый стак
+        public float thornsGap = 0.6f;
+        public float thornsDps = 1f;
+        // Блеск (Белый карлик): шанс крита выше у спутника с нагревом от glintHeat
+        public float glintCrit = 0.1f;
+        public float glintHeat = 0.5f;
+        // Автоимпульс (Нейтронная): волна от звезды; Рой и Стрелы гибнут, остальные получают урон, без отброса
+        public float autoPulseInterval = 10f;
+        public float autoPulseRadius = 2.4f;
+        public float autoPulseDamage = 1.5f;
+        // Дыхание (Цефеида): цикл breathCycle, первые breathBright секунд яркая фаза, потом тусклая
+        public float breathCycle = 12f;
+        public float breathBright = 6f;
+        // яркая фаза: радиус звезды растёт за breathGrowTime, лечение и удар спутников меняются
+        public float breathRadiusMul = 1.25f;
+        public float breathGrowTime = 0.5f;
+        public float breathRegen = 1f;
+        public float breathBrightPower = 0.9f;
+        public float breathDimPower = 1.3f;
+
         public SkinDef[] skins =
         {
             new SkinDef { id = SkinId.Romb, kind = SkinKind.Satellite },
@@ -1206,6 +1596,11 @@ namespace Perigee
         static CardDef Evolution(CardId id, StatId plus, CardId sourceA, CardId sourceB)
         {
             return new CardDef { id = id, color = CardColor.Evolution, rarity = CardRarity.Rare, maxStacks = 1, plus = new StatMod(plus, 1f), sourceA = sourceA, sourceB = sourceB };
+        }
+
+        static RelicDef Relic(RelicId id, int maxStacks, params StatMod[] mods)
+        {
+            return new RelicDef { id = id, maxStacks = maxStacks, mods = mods };
         }
 
         static SpawnEvent At(float time, params SpawnGroup[] groups)

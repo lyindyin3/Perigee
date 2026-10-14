@@ -32,7 +32,7 @@ namespace Perigee
 
             float far = config.powerFar + loop.Stats.powerFarBonus;
             float t = (config.powerNear - armor / loop.Stats.powerMul) / (config.powerNear - far);
-            visual.SetSizeMul(config.rMin + Mathf.Clamp01(t) * (config.powerFarRadius - config.rMin));
+            visual.SetSizeMul(loop.Star.Class.rMin + Mathf.Clamp01(t) * (config.powerFarRadius - loop.Star.Class.rMin));
         }
     }
 }

@@ -1,13 +1,22 @@
 using System.Globalization;
+using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace Perigee
 {
-    // Меню: главная панель, экран эр с режимами, испытания и Мастерская (чертежи, способности, облик). Видна одна панель.
+    // Меню: главная панель, экран эр с режимами и классами звёзд, испытания и Мастерская (чертежи, способности, облик, звёзды). Видна одна панель.
     public class MenuView : MonoBehaviour
     {
+        // счётчик пыли, который досчитывает до нового значения
+        class DustCounter
+        {
+            public TMP_Text text;
+            // -1 = ещё не показан: первое значение встаёт сразу
+            public int shown = -1;
+        }
+
         [SerializeField] GameConfig config;
         [SerializeField] ArtSet art;
         [SerializeField] GameLoop loop;
@@ -49,6 +58,9 @@ namespace Perigee
         [SerializeField] TMP_Text dailyBonus;
         [SerializeField] TMP_Text dailyBest;
         [SerializeField] TMP_Text startLabel;
+        // ряд классов звёзд под эрами, по порядку StarClassId, и текст выбранного класса под ним
+        [SerializeField] ClassTile[] classTiles;
+        [SerializeField] TMP_Text classText;
 
         // испытания: строки по индексу в config.challenges
         [SerializeField] TMP_Text challengesHeader;
@@ -75,6 +87,8 @@ namespace Perigee
         [SerializeField] TMP_Text[] skinKindLabels;
         // плитки обликов, по индексу в config.skins
         [SerializeField] SkinTile[] skinTiles;
+        // вкладка ЗВЁЗДЫ: плитки классов, по порядку StarClassId
+        [SerializeField] ClassTile[] classShopTiles;
 
         // выбранная эра: номер в config.eras
         int era;
@@ -82,11 +96,74 @@ namespace Perigee
         int mode;
         // выбранный узел дерева: индекс в config.blueprints
         int node;
+        // панели меню: прозрачность и место, куда они въезжают
+        GameObject[] panels;
+        CanvasGroup[] panelGroups;
+        Vector2[] panelHomes;
+        DustCounter mainCounter;
+        DustCounter shopCounter;
+        // купленное в этом кадре прыгает само, толчок нажатия его не перебивает
+        Transform bought;
+        int boughtFrame = -1;
 
         void Awake()
         {
+            panels = new[] { mainPanel, erasPanel, challengesPanel, workshopPanel };
+            panelGroups = new CanvasGroup[panels.Length];
+            panelHomes = new Vector2[panels.Length];
+            for (int i = 0; i < panels.Length; i++)
+            {
+                panelGroups[i] = panels[i].GetComponent<CanvasGroup>();
+                panelHomes[i] = ((RectTransform)panels[i].transform).anchoredPosition;
+            }
+            mainCounter = new DustCounter { text = mainDust };
+            shopCounter = new DustCounter { text = dustText };
+
+            // любая кнопка меню при нажатии сжимается и возвращается к своему размеру
+            Button[] buttons = GetComponentsInChildren<Button>(true);
+            for (int i = 0; i < buttons.Length; i++)
+            {
+                Transform t = buttons[i].transform;
+                Vector3 size = t.localScale;
+                buttons[i].onClick.AddListener(() => Press(t, size));
+            }
+
             Loc.Changed += Localize;
             Localize();
+        }
+
+        void Press(Transform t, Vector3 size)
+        {
+            if (t == bought && Time.frameCount == boughtFrame) return;
+            t.DOKill(true);
+            t.localScale = size * config.menuPressScale;
+            t.DOScale(size, config.menuPressTime).SetLink(gameObject);
+        }
+
+        // покупка: купленное подпрыгивает
+        void Bought(Transform t)
+        {
+            bought = t;
+            boughtFrame = Time.frameCount;
+            t.DOKill(true);
+            t.DOPunchScale(Vector3.one * config.menuBuyPunch, config.menuBuyPunchTime).SetLink(gameObject);
+        }
+
+        // пыль досчитывает до нового значения
+        void Count(DustCounter counter, int value)
+        {
+            DOTween.Kill(counter);
+            if (counter.shown < 0)
+            {
+                counter.shown = value;
+                counter.text.text = string.Format(Strings.DustFormat, value);
+                return;
+            }
+            DOTween.To(() => counter.shown, v =>
+            {
+                counter.shown = v;
+                counter.text.text = string.Format(Strings.DustFormat, v);
+            }, value, config.dustCountTime).SetTarget(counter).SetLink(gameObject);
         }
 
         void OnDestroy()
@@ -118,6 +195,8 @@ namespace Perigee
 
         void OnEnable()
         {
+            // меню открылось заново: главная панель въезжает
+            mainPanel.SetActive(false);
             Main();
         }
 
@@ -140,6 +219,24 @@ namespace Perigee
             var last = (RunMode)data.lastMode;
             bool known = last == RunMode.Daily || last == RunMode.Endless && loop.Progress.EndlessOpen;
             ShowMode(known ? data.lastMode : (int)RunMode.Run);
+            ShowClasses();
+        }
+
+        // вызывают плитки классов на экране эр, номер класса задан в сцене; выбор сохраняется
+        public void SelectClass(int i)
+        {
+            sfx.Play(SfxId.UiClick);
+            loop.Shop.Select((StarClassId)i);
+            ShowClasses();
+        }
+
+        // вызывают плитки вкладки ЗВЁЗДЫ, номер класса задан в сцене
+        public void BuyClass(int i)
+        {
+            loop.Shop.Buy(config.starClasses[i]);
+            sfx.Play(SfxId.Buy);
+            Bought(classShopTiles[i].transform);
+            Refresh();
         }
 
         // вызывают кнопки вкладок режимов, номер RunMode задан в сцене
@@ -233,7 +330,7 @@ namespace Perigee
             SaveData data = loop.Save.Data;
             // пока обучение не пройдено, в меню только ИГРАТЬ
             for (int i = 0; i < lateButtons.Length; i++) lateButtons[i].SetActive(data.tutorialDone);
-            mainDust.text = string.Format(Strings.DustFormat, data.dust);
+            Count(mainCounter, data.dust);
             float best = 0f;
             for (int i = 0; i < data.bestTimes.Length; i++) best = Mathf.Max(best, data.bestTimes[i]);
             statsLine.text = string.Format(Strings.StatsFormat, data.runs, Strings.Clock(best));
@@ -265,6 +362,7 @@ namespace Perigee
         {
             loop.Blueprints.Buy(node);
             sfx.Play(SfxId.Buy);
+            Bought(nodes[node].transform);
             Refresh();
         }
 
@@ -273,6 +371,7 @@ namespace Perigee
         {
             loop.Shop.Buy(config.abilities[i]);
             sfx.Play(SfxId.Buy);
+            Bought(abilityRows[i].transform);
             Refresh();
         }
 
@@ -289,16 +388,29 @@ namespace Perigee
             {
                 loop.Shop.Buy(def);
                 sfx.Play(SfxId.Buy);
+                Bought(skinTiles[i].transform);
             }
             Refresh();
         }
 
+        // видна одна панель; открытая заново въезжает сбоку и проявляется
         void Show(GameObject panel)
         {
-            mainPanel.SetActive(panel == mainPanel);
-            erasPanel.SetActive(panel == erasPanel);
-            challengesPanel.SetActive(panel == challengesPanel);
-            workshopPanel.SetActive(panel == workshopPanel);
+            for (int i = 0; i < panels.Length; i++)
+            {
+                bool show = panels[i] == panel;
+                bool opened = show && !panels[i].activeSelf;
+                panels[i].SetActive(show);
+                if (!opened) continue;
+
+                var rect = (RectTransform)panels[i].transform;
+                rect.DOKill();
+                rect.anchoredPosition = panelHomes[i] + Vector2.right * config.panelSlide;
+                rect.DOAnchorPos(panelHomes[i], config.panelFade).SetLink(gameObject);
+                panelGroups[i].DOKill();
+                panelGroups[i].alpha = 0f;
+                panelGroups[i].DOFade(1f, config.panelFade).SetLink(gameObject);
+            }
         }
 
         // карточки эр: рекорд у каждой эры свой и зависит от вкладки (Забег или Бесконечный)
@@ -330,10 +442,11 @@ namespace Perigee
         // вся Мастерская заново: покупка меняет пыль, а с ней и то, что можно купить на других вкладках
         void Refresh()
         {
-            dustText.text = string.Format(Strings.DustFormat, loop.Save.Data.dust);
+            Count(shopCounter, loop.Save.Data.dust);
             ShowBlueprints();
             ShowAbilities();
             ShowSkins();
+            ShowClassShop();
         }
 
         void ShowBlueprints()
@@ -392,6 +505,36 @@ namespace Perigee
                 int k = Shop.ArtIndex(def.id);
                 if (def.kind == SkinKind.Satellite) skinTiles[i].Show(art.satelliteSkins[k].prefab.Body, name, state, active);
                 else skinTiles[i].Show(art.starSkins[k], name, state, active);
+            }
+        }
+
+        // условие закрытого класса: победа в эре или цена
+        static string ClassLock(StarClassDef def)
+        {
+            return def.eraWin > 0 ? string.Format(Strings.EraWinFormat, def.eraWin) : string.Format(Strings.PriceFormat, def.price);
+        }
+
+        void ShowClasses()
+        {
+            Shop shop = loop.Shop;
+            StarClassId selected = shop.StarClass;
+            for (int i = 0; i < classTiles.Length; i++)
+            {
+                StarClassDef def = config.starClasses[i];
+                classTiles[i].ShowPick(art.starClasses[i].icon, def.tint, Strings.ClassTitle[i], !shop.Owned(def.id), ClassLock(def), def.id == selected);
+            }
+            classText.text = Strings.ClassText[(int)selected];
+        }
+
+        void ShowClassShop()
+        {
+            Shop shop = loop.Shop;
+            for (int i = 0; i < classShopTiles.Length; i++)
+            {
+                StarClassDef def = config.starClasses[i];
+                string state = shop.Owned(def.id) ? Strings.Owned : def.eraWin > 0 ? ClassLock(def) : string.Format(Strings.BuyFormat, def.price);
+                string stats = string.Format(CultureInfo.InvariantCulture, Strings.ClassStatsFormat, def.maxHp, def.starRadius);
+                classShopTiles[i].ShowShop(art.starClasses[i].icon, def.tint, Strings.ClassTitle[i], Strings.ClassText[i], stats, state, shop.CanBuy(def));
             }
         }
     }

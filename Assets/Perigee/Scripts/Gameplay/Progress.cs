@@ -67,6 +67,7 @@ namespace Perigee
             run.unlockedEra = 0;
             run.unlockedEndless = false;
             run.unlockedSkins = 0;
+            run.unlockedClasses = 0;
 
             run.dustMul = def.dustMul * stats.dustMul;
             run.dustCrystals = Mathf.RoundToInt(run.dust * run.dustMul);
@@ -83,7 +84,7 @@ namespace Perigee
                 run.dustReward = challenge.rewardDust;
                 if (challenge.hasSkin) Give(run, challenge.rewardSkin);
             }
-            run.earned = run.dustCrystals + run.dustVictory + run.dustFirstWin + run.dustBosses + run.dustReward;
+            run.earned = run.dustCrystals + run.dustVictory + run.dustFirstWin + run.dustBosses + run.dustReward + run.dustRelics;
             // первый за дату дневной забег удваивает пыль
             run.dailyDoubled = run.mode == RunMode.Daily && data.dailyBonusDate != run.seed;
             if (run.dailyDoubled)
@@ -123,7 +124,14 @@ namespace Perigee
                 SkinDef[] skins = config.skins;
                 for (int i = 0; i < skins.Length; i++)
                     if (skins[i].eraWin == era + 1) Give(run, skins[i].id);
+
+                // и класс звезды, если он за эту эру
+                StarClassDef[] classes = config.starClasses;
+                for (int i = 0; i < classes.Length; i++)
+                    if (classes[i].eraWin == era + 1) Give(run, classes[i].id);
             }
+            // победа этим классом в любом режиме
+            if (run.victory) data.classesWon |= 1 << (int)run.starClass;
 
             data.runs++;
             if (!run.victory) data.defeats++;
@@ -149,6 +157,14 @@ namespace Perigee
         {
             int bit = 1 << (int)id;
             if ((save.Data.skinsOwned & bit) == 0) run.unlockedSkins |= bit;
+            shop.Give(id);
+        }
+
+        // класс в награду; на итогах он попадёт в «Открыто», если его ещё не было
+        void Give(RunState run, StarClassId id)
+        {
+            int bit = 1 << (int)id;
+            if ((save.Data.starClassesOwned & bit) == 0) run.unlockedClasses |= bit;
             shop.Give(id);
         }
     }

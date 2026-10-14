@@ -13,8 +13,6 @@ MonoBehaviour:
   m_Name: GameConfig
   m_EditorClassIdentifier: Assembly-CSharp::Perigee.GameConfig
   debugUnlockAll: 0
-  starRadius: 1
-  starMaxHp: 120
   starLowHpFraction: 0.3
   secondSunHp: 0.25
   starHitFlashColor: {r: 0.8392157, g: 0.15686275, b: 0.12156863, a: 1}
@@ -26,7 +24,6 @@ MonoBehaviour:
   simHz: 60
   maxFrameDelta: 0.1
   maxStepsPerFrame: 4
-  rMin: 1.35
   ringMax: 6.2
   satMaxRadius: 6.2
   ringGap: 0.8
@@ -654,6 +651,162 @@ MonoBehaviour:
       value: 0
     sourceA: 35
     sourceB: 14
+  - id: 36
+    color: 1
+    rarity: 0
+    era: 5
+    maxStacks: 1
+    plus:
+      stat: 47
+      value: 1
+    minus:
+      stat: 3
+      value: 1.1
+    sourceA: 0
+    sourceB: 0
+  - id: 37
+    color: 0
+    rarity: 0
+    era: 5
+    maxStacks: 1
+    plus:
+      stat: 48
+      value: 1
+    minus:
+      stat: 0
+      value: 0.95
+    sourceA: 0
+    sourceB: 0
+  - id: 38
+    color: 2
+    rarity: 1
+    era: 5
+    maxStacks: 1
+    plus:
+      stat: 49
+      value: 1
+    minus:
+      stat: 4
+      value: 0.92
+    sourceA: 0
+    sourceB: 0
+  - id: 39
+    color: 0
+    rarity: 0
+    era: 6
+    maxStacks: 1
+    plus:
+      stat: 50
+      value: 1
+    minus:
+      stat: 3
+      value: 1.1
+    sourceA: 0
+    sourceB: 0
+  - id: 40
+    color: 1
+    rarity: 0
+    era: 6
+    maxStacks: 1
+    plus:
+      stat: 51
+      value: 1
+    minus:
+      stat: 4
+      value: 0.95
+    sourceA: 0
+    sourceB: 0
+  - id: 41
+    color: 2
+    rarity: 1
+    era: 6
+    maxStacks: 1
+    plus:
+      stat: 52
+      value: 1
+    minus:
+      stat: 8
+      value: 0.8
+    sourceA: 0
+    sourceB: 0
+  - id: 42
+    color: 0
+    rarity: 0
+    era: 7
+    maxStacks: 1
+    plus:
+      stat: 53
+      value: 1
+    minus:
+      stat: 0
+      value: 0.95
+    sourceA: 0
+    sourceB: 0
+  - id: 43
+    color: 1
+    rarity: 0
+    era: 7
+    maxStacks: 1
+    plus:
+      stat: 54
+      value: 1
+    minus:
+      stat: 4
+      value: 0.95
+    sourceA: 0
+    sourceB: 0
+  - id: 44
+    color: 2
+    rarity: 1
+    era: 7
+    maxStacks: 1
+    plus:
+      stat: 55
+      value: 1
+    minus:
+      stat: 18
+      value: -10
+    sourceA: 0
+    sourceB: 0
+  - id: 45
+    color: 0
+    rarity: 0
+    era: 8
+    maxStacks: 2
+    plus:
+      stat: 56
+      value: 1.5
+    minus:
+      stat: 4
+      value: 0.95
+    sourceA: 0
+    sourceB: 0
+  - id: 46
+    color: 2
+    rarity: 0
+    era: 8
+    maxStacks: 1
+    plus:
+      stat: 57
+      value: 1
+    minus:
+      stat: 12
+      value: 0.9
+    sourceA: 0
+    sourceB: 0
+  - id: 47
+    color: 1
+    rarity: 1
+    era: 8
+    maxStacks: 1
+    plus:
+      stat: 58
+      value: 1
+    minus:
+      stat: 18
+      value: -10
+    sourceA: 0
+    sourceB: 0
   critMul: 2
   executeFraction: 0.25
   sawWidth: 0.08
@@ -684,6 +837,15 @@ MonoBehaviour:
   tideHeal: 2
   overloadRadius: 1.5
   overloadDamage: 3
+  condensateTime: 2
+  condensateMul: 1.5
+  cloudSeedCrystals: 2
+  sapperMineMul: 2
+  tidalRadius: 1.2
+  tidalDps: 2
+  singularityDps: 2
+  lastLightHp: 0.3
+  lastLightMul: 1.4
   stringSawMul: 3
   stringSawInterval: 0.15
   wildfireBurnDps: 2
@@ -712,6 +874,124 @@ MonoBehaviour:
   comboPunchTime: 0.15
   comboShake: 12
   comboBreakTime: 0.3
+  relicChoices: 3
+  relics:
+  - id: 0
+    maxStacks: 1
+    mods:
+    - stat: 67
+      value: 2
+  - id: 1
+    maxStacks: 1
+    mods:
+    - stat: 23
+      value: 0.08
+    - stat: 68
+      value: 0.5
+  - id: 2
+    maxStacks: 3
+    mods:
+    - stat: 18
+      value: 20
+  - id: 3
+    maxStacks: 1
+    mods:
+    - stat: 8
+      value: 2
+    - stat: 16
+      value: 0.5
+  - id: 4
+    maxStacks: 2
+    mods:
+    - stat: 10
+      value: 0.85
+  - id: 5
+    maxStacks: 1
+    mods:
+    - stat: 69
+      value: 1
+  - id: 6
+    maxStacks: 1
+    mods:
+    - stat: 70
+      value: 1
+  - id: 7
+    maxStacks: 2
+    mods:
+    - stat: 7
+      value: 1.15
+  - id: 8
+    maxStacks: 3
+    mods:
+    - stat: 44
+      value: 1
+  - id: 9
+    maxStacks: 2
+    mods:
+    - stat: 3
+      value: 0.8
+  - id: 10
+    maxStacks: 2
+    mods:
+    - stat: 1
+      value: 1.2
+  - id: 11
+    maxStacks: 1
+    mods:
+    - stat: 15
+      value: 1.2
+  - id: 12
+    maxStacks: 1
+    mods:
+    - stat: 71
+      value: 1
+  - id: 13
+    maxStacks: 1
+    mods:
+    - stat: 72
+      value: 1
+  - id: 14
+    maxStacks: 2
+    mods:
+    - stat: 73
+      value: 1
+  - id: 15
+    maxStacks: 1
+    mods:
+    - stat: 74
+      value: 1
+  relicNoneDust: 50
+  bannerRelicHold: 2
+  thirdHitEvery: 3
+  aegisInterval: 20
+  aegisFlashColor: {r: 1, g: 1, b: 1, a: 1}
+  autoStasisInterval: 30
+  autoStasisTime: 2
+  lastBreathHp: 0.25
+  lastBreathRadius: 4
+  lastBreathDamage: 3
+  featherHeat: 0.7
+  featherCrystals: 2
+  heraldTime: 95
+  bannerHeraldHold: 2.5
+  eventTimes:
+  - 70
+  - 130
+  eventChance: 0.6
+  bannerEventHold: 2.5
+  meteorCount: 10
+  meteorInterval: 0.5
+  meteorSpread: 40
+  goldCometTime: 7
+  stormTime: 8
+  stormPowerMul: 1.5
+  stormHeatMul: 1.5
+  tideTime: 10
+  tideCrystalMul: 2
+  invasionCount: 30
+  invasionSpeedMul: 0.7
+  eclipseTime: 8
+  eclipseLight: 2.5
   maxFields: 32
   beaconInterval: 8
   beaconStackMul: 0.7
@@ -1346,6 +1626,102 @@ MonoBehaviour:
     lightCut: 0
     blinkInterval: 0
     blinkDeg: 0
+  - id: 22
+    radius: 0.9
+    hp: 260
+    speed: 0.8
+    armor: 0
+    starDamage: 0
+    crystals: 40
+    behavior: 12
+    faceStar: 0
+    prewarm: 0
+    splitCount: 0
+    heatOnHit: 0
+    shieldHits: 0
+    phaseOn: 0
+    phaseOff: 0
+    seekRadius: 0
+    orbitRadius: 0
+    orbitDeg: 0
+    orbitInSpeed: 0
+    slowHitter: 0
+    kickHitter: 0
+    lightCut: 0
+    blinkInterval: 0
+    blinkDeg: 0
+  - id: 23
+    radius: 0.8
+    hp: 240
+    speed: 0.8
+    armor: 1.5
+    starDamage: 0
+    crystals: 40
+    behavior: 13
+    faceStar: 0
+    prewarm: 0
+    splitCount: 0
+    heatOnHit: 0
+    shieldHits: 0
+    phaseOn: 0
+    phaseOff: 0
+    seekRadius: 0
+    orbitRadius: 0
+    orbitDeg: 0
+    orbitInSpeed: 0
+    slowHitter: 0
+    kickHitter: 0
+    lightCut: 0
+    blinkInterval: 0
+    blinkDeg: 0
+  - id: 24
+    radius: 1
+    hp: 300
+    speed: 0.8
+    armor: 0
+    starDamage: 0
+    crystals: 40
+    behavior: 14
+    faceStar: 0
+    prewarm: 0
+    splitCount: 0
+    heatOnHit: 0
+    shieldHits: 0
+    phaseOn: 0
+    phaseOff: 0
+    seekRadius: 0
+    orbitRadius: 0
+    orbitDeg: 0
+    orbitInSpeed: 0
+    slowHitter: 0
+    kickHitter: 0
+    lightCut: 0
+    blinkInterval: 0
+    blinkDeg: 0
+  - id: 25
+    radius: 1.3
+    hp: 700
+    speed: 0.8
+    armor: 0
+    starDamage: 0
+    crystals: 0
+    behavior: 15
+    faceStar: 0
+    prewarm: 0
+    splitCount: 0
+    heatOnHit: 0
+    shieldHits: 0
+    phaseOn: 0
+    phaseOff: 0
+    seekRadius: 0
+    orbitRadius: 0
+    orbitDeg: 0
+    orbitInSpeed: 0
+    slowHitter: 0
+    kickHitter: 0
+    lightCut: 0
+    blinkInterval: 0
+    blinkDeg: 0
   parasiteAttachOffset: 0.15
   parasiteDrainBase: 1.5
   parasiteDrainGrowth: 0.4
@@ -1407,6 +1783,62 @@ MonoBehaviour:
   flareWarnHz: 3
   crystalSink: 0.35
   vortexDeg: 14
+  gravMaxOffset: 1
+  gravOffsetSpeed: 2
+  gravStarGap: 0.25
+  maxGravitySources: 8
+  nebulaRadius: 1.3
+  nebulaOrbits:
+  - 2.2
+  - 3.6
+  - 5
+  nebulaDeg:
+  - 8
+  - -6
+  - 5
+  nebulaStart:
+  - 0
+  - 120
+  - 240
+  nebulaCool: 0.6
+  nebulaSlow: 0.6
+  moonSize: 0.5
+  moonOrbits:
+  - 3
+  - 5
+  moonPeriods:
+  - 20
+  - 32
+  moonDirs: 01000000ffffffff
+  moonWellRadius: 1.4
+  moonBend: 0.4
+  moonPullRadius: 1.8
+  moonPull: 0.8
+  moonAssistRadius: 0.9
+  moonAssistTime: 1.5
+  moonAssistMul: 1.5
+  moonAssistCooldown: 1.5
+  gravAssistTime: 2.5
+  gravAssistMul: 2
+  assistFlashColor: {r: 0.8901961, g: 0.69803923, b: 0.23529412, a: 1}
+  assistFlashTime: 0.3
+  anomalyFirst: 10
+  anomalyInterval: 9
+  anomalyMinR: 2.2
+  anomalyMaxR: 5.2
+  anomalyMax: 2
+  anomalyWarn: 1
+  anomalyLife: 7
+  anomalyFade: 0.5
+  anomalyRadius: 2
+  anomalyBend: 0.7
+  anomalyPull: 1.2
+  anomalyCrystalPull: 2
+  lightMin: 1.8
+  lightBase: 2.6
+  lightAround: 1.2
+  lightLerp: 4
+  nightSightAlpha: 0.65
   bossTime: 180
   bossFadeIn: 0.5
   bossPeriapsis: 1.8
@@ -1442,6 +1874,58 @@ MonoBehaviour:
   pulsarWaveBand: 0.1
   pulsarWarnTint: {r: 0.9372549, g: 0.89411765, b: 0.78431374, a: 1}
   pulsarWarnHz: 4
+  sowerRadius: 5
+  sowerDeg: 15
+  sowerInterval: 4
+  sowerFastInterval: 3
+  sowerFastHp: 0.5
+  sowerHiveSpeed: 1.2
+  mirrorRadius: 4.2
+  mirrorDeg: 20
+  guardRadius: 0.25
+  guardDistance: 1.1
+  guardDeg: 180
+  guardHeat: 0.3
+  guardKnock: 1
+  mirrorFlip: 10
+  mirrorFireInterval: 5
+  mirrorBolts: 2
+  mirrorFan: 20
+  bossWarn: 1
+  bossWarnColor: {r: 0.9372549, g: 0.89411765, b: 0.78431374, a: 1}
+  gravitonRadius: 4.6
+  gravitonDeg: 8
+  gravitonWellRadius: 2.6
+  gravitonBend: 1
+  gravitonFlip: 8
+  gravitonRepel: 3
+  gravitonBolts: 5
+  gravitonFan: 12
+  abyssPhaseHp:
+  - 0.66
+  - 0.33
+  abyssShift: 1.5
+  abyssRadius: 5.2
+  abyssDeg: 12
+  abyssArrowInterval: 3
+  abyssArrows: 3
+  abyssArrowFan: 15
+  abyssArrowSpeed: 0.8
+  abyssEclipseArmor: 1.5
+  abyssLightCut: 1
+  abyssPeriapsis: 2.2
+  abyssApoapsis: 5.5
+  abyssPeriod: 7
+  abyssDiveDamage: 10
+  abyssPhantomInterval: 8
+  abyssPhantoms: 4
+  abyssWellRadius: 3
+  abyssBend: 1
+  abyssWalkSpeed: 0.15
+  abyssBiteDamage: 40
+  abyssBounceRadius: 5
+  abyssSwarmInterval: 5
+  abyssSwarm: 8
   hitStopTime: 0.04
   clinkHitStop: 0.02
   hitStopMinInterval: 0.25
@@ -1490,6 +1974,98 @@ MonoBehaviour:
   bigKillShardMul: 2
   bigKillShake: 0.06
   bigKillShakeTime: 0.08
+  bossCamShift: 0.3
+  bossZoom: 0.85
+  bossCamTime: 0.4
+  bossIntroSlow: 0.3
+  bossIntroSlowTime: 0.8
+  bossIntroHold: 1.6
+  bossIntroFade: 0.25
+  bossKillSlow: 0.25
+  bossKillSlowTime: 0.8
+  bossKillFlash: 0.6
+  bossKillFlashTime: 0.4
+  bossKillShards: 30
+  bossKillShake: 0.3
+  bossKillShakeTime: 0.4
+  bossPhaseFlash: 0.3
+  bossPhaseFlashTime: 0.4
+  bossPhaseShake: 0.15
+  bossPhaseShakeTime: 0.3
+  warpFrom: 0.2
+  warpTo: 1.6
+  warpTime: 0.8
+  startStarPunch: 0.15
+  startStarPunchTime: 0.3
+  startSatFadeIn: 0.6
+  levelUpRingRadius: 6.5
+  levelUpRingTime: 0.5
+  cardInStagger: 0.07
+  cardInTime: 0.3
+  cardInOffset: 600
+  rareRimMinAlpha: 0.45
+  rareRimPulseTime: 0.6
+  shineInterval: 1.5
+  shineTime: 0.5
+  cardPickPunch: 0.12
+  cardPickPunchTime: 0.15
+  cardFlyTime: 0.35
+  cardFlyScale: 0.2
+  cardDropTime: 0.25
+  cardDropOffset: 150
+  abilityColors:
+  - {r: 0.9372549, g: 0.89411765, b: 0.78431374, a: 1}
+  - {r: 0.8901961, g: 0.69803923, b: 0.23529412, a: 1}
+  - {r: 0.9372549, g: 0.89411765, b: 0.78431374, a: 1}
+  - {r: 0.7254902, g: 0.7411765, b: 0.7607843, a: 1}
+  - {r: 0.7254902, g: 0.7411765, b: 0.7607843, a: 1}
+  - {r: 0.8392157, g: 0.15686275, b: 0.12156863, a: 1}
+  - {r: 0.8901961, g: 0.69803923, b: 0.23529412, a: 1}
+  abilityFlash: 0.15
+  abilityFlashTime: 0.3
+  abilityPressPunch: 0.15
+  abilityReadyPunch: 0.15
+  abilityPunchTime: 0.2
+  starHitPunch: 0.08
+  starHitPunchTime: 0.15
+  starHitRingGrow: 1.2
+  starHitRingTime: 0.3
+  vignetteLowHp: 0.3
+  vignetteLowAlpha: 0.35
+  vignetteCriticalHp: 0.15
+  vignetteCriticalAlpha: 0.55
+  vignetteHz: 1.5
+  hitShardCone: 70
+  crystalFlyTime: 0.45
+  crystalFlyArc: 150
+  heatTrailColor: {r: 0.8392157, g: 0.15686275, b: 0.12156863, a: 1}
+  heatJitterFrom: 0.8
+  heatJitter: 0.02
+  stunSteamSparks: 6
+  resonanceSparks: 8
+  eliteShardMul: 2
+  critHitStop: 0.02
+  critNumberPunch: 0.6
+  critNumberPunchTime: 0.2
+  comboTierFlash: 0.1
+  comboTierFlashTime: 0.3
+  evoScreenFlash: 0.25
+  evoScreenFlashTime: 0.4
+  menuPressScale: 0.92
+  menuPressTime: 0.15
+  menuBuyPunch: 0.15
+  menuBuyPunchTime: 0.25
+  panelSlide: 40
+  panelFade: 0.25
+  dustCountTime: 0.6
+  resultLineDelay: 0.12
+  stampFrom: 2
+  stampAngle: -8
+  stampTime: 0.3
+  vibrateStarHit: 40
+  vibrateStun: 30
+  vibrateEliteKill: 20
+  vibrateBossKill: 150
   barGhostDelay: 0.35
   barGhostTime: 0.4
   barPunch: 6
@@ -2633,8 +3209,8 @@ MonoBehaviour:
     dustMul: 2.1
     riseMul: 1
     fallMul: 1
-    rule: 0
-    boss: 7
+    rule: 4
+    boss: 22
     herald: 17
     eliteChance: 0.06
     music: 3
@@ -2923,8 +3499,8 @@ MonoBehaviour:
     dustMul: 2.4
     riseMul: 1
     fallMul: 1
-    rule: 0
-    boss: 7
+    rule: 5
+    boss: 23
     herald: 19
     eliteChance: 0.08
     music: 3
@@ -3225,8 +3801,8 @@ MonoBehaviour:
     dustMul: 2.7
     riseMul: 1
     fallMul: 1
-    rule: 0
-    boss: 7
+    rule: 6
+    boss: 24
     herald: 20
     eliteChance: 0.1
     music: 4
@@ -3527,8 +4103,8 @@ MonoBehaviour:
     dustMul: 3
     riseMul: 1
     fallMul: 1
-    rule: 0
-    boss: 7
+    rule: 7
+    boss: 25
     herald: 21
     eliteChance: 0.12
     music: 4
@@ -4153,6 +4729,80 @@ MonoBehaviour:
   - costs: 3200000064000000c80000009001000020030000
   - costs: 3200000064000000c80000009001000020030000
   - costs: 2800000050000000a0000000
+  starClasses:
+  - id: 0
+    starRadius: 1
+    maxHp: 120
+    rMin: 1.35
+    mods: []
+    trait: 0
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    price: 0
+    eraWin: 0
+  - id: 1
+    starRadius: 1.35
+    maxHp: 190
+    rMin: 1.7
+    mods:
+    - stat: 4
+      value: 0.9
+    - stat: 14
+      value: 0.85
+    - stat: 73
+      value: 1
+    trait: 0
+    tint: {r: 1, g: 0.5411765, b: 0.41568628, a: 1}
+    price: 0
+    eraWin: 2
+  - id: 2
+    starRadius: 0.7
+    maxHp: 80
+    rMin: 1
+    mods:
+    - stat: 4
+      value: 1.2
+    - stat: 0
+      value: 1.15
+    - stat: 3
+      value: 1.25
+    trait: 1
+    tint: {r: 0.8666667, g: 0.9098039, b: 1, a: 1}
+    price: 0
+    eraWin: 4
+  - id: 3
+    starRadius: 0.8
+    maxHp: 110
+    rMin: 1.2
+    mods:
+    - stat: 13
+      value: 1.1
+    trait: 2
+    tint: {r: 0.7254902, g: 0.7411765, b: 0.7607843, a: 1}
+    price: 0
+    eraWin: 6
+  - id: 4
+    starRadius: 1
+    maxHp: 130
+    rMin: 1.35
+    mods: []
+    trait: 3
+    tint: {r: 1, g: 0.90588236, b: 0.627451, a: 1}
+    price: 1500
+    eraWin: 0
+  thornsGap: 0.6
+  thornsDps: 1
+  glintCrit: 0.1
+  glintHeat: 0.5
+  autoPulseInterval: 10
+  autoPulseRadius: 2.4
+  autoPulseDamage: 1.5
+  breathCycle: 12
+  breathBright: 6
+  breathRadiusMul: 1.25
+  breathGrowTime: 0.5
+  breathRegen: 1
+  breathBrightPower: 0.9
+  breathDimPower: 1.3
   skins:
   - id: 0
     kind: 0

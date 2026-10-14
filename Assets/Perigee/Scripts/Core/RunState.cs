@@ -30,6 +30,8 @@ namespace Perigee
         public RunModifier mods;
         // номер в config.challenges; имеет смысл только в режиме Challenge
         public int challenge;
+        // класс звезды забега; ставит GameLoop после Reset
+        public StarClassId starClass;
         // hp выставляет GameLoop после пересчёта Stats: максимум зависит от чертежей
         public float hp;
         public float time;
@@ -43,6 +45,10 @@ namespace Perigee
         public int bossKills;
         // стаки по индексу карточки в config.cards
         public int[] cardStacks;
+        // стаки по индексу реликвии в config.relics
+        public int[] relicStacks;
+        // пыль вместо реликвии, когда их не осталось
+        public int dustRelics;
         public Rng simRng;
         // первый забег: вступление-обучение и подсказки; ставит GameLoop после Reset
         public bool tutorial;
@@ -83,6 +89,8 @@ namespace Perigee
         public int unlockedEra;
         public bool unlockedEndless;
         public int unlockedSkins;
+        // классы звёзд (бит на StarClassId)
+        public int unlockedClasses;
 
         public bool Has(RunModifier modifier)
         {
@@ -100,6 +108,8 @@ namespace Perigee
             cycle = 0;
             bossKills = 0;
             cardStacks = new int[config.cards.Length];
+            relicStacks = new int[config.relics.Length];
+            dustRelics = 0;
             simRng = new Rng(runSeed + Rng.SimOffset);
             tutorial = false;
             revived = false;
