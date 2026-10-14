@@ -159,7 +159,10 @@ namespace Perigee
                 eligible[pick] = eligible[k];
                 eligible[k] = index;
                 offer[k] = index;
+                // предложенная реликвия видна в Атласе
+                loop.Save.Data.seenRelics |= 1 << (int)relics[index].id;
             }
+            loop.Save.Save();
             loop.SetState(GameState.CardPick);
             view.Show();
         }

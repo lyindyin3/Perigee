@@ -387,6 +387,9 @@ namespace Perigee
 
             banner.Show(Strings.BossTitle(def.id), null, Color.white, config.bannerBossHold);
             intro.Show(def.id, parts[0].position);
+            // босс в бестиарии Атласа
+            loop.Save.Data.seenEnemies |= 1 << (int)def.id;
+            loop.Save.Save();
             sfx.Play(SfxId.BossIn);
             sfx.PlayMusic(loop.RunMusic);
         }

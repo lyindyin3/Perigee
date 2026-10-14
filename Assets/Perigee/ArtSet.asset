@@ -400,6 +400,99 @@ MonoBehaviour:
     sprite: {fileID: 21300000, guid: 2b9ed6036ae877d499d298b04aab4c33, type: 3}
   - label: "Choice \u2014 \u0412\u042B\u0411\u041E\u0420"
     sprite: {fileID: 21300000, guid: 2b9ed6036ae877d499d298b04aab4c33, type: 3}
+  achievementIcons:
+  - label: "FirstLight \u2014 \u041F\u0415\u0420\u0412\u042B\u0419 \u0421\u0412\u0415\u0422"
+    sprite: {fileID: 21300000, guid: 5b670c98ee268ae47b11ed3d47691b90, type: 3}
+  - label: "RedDawn \u2014 \u041A\u0420\u0410\u0421\u041D\u042B\u0419 \u0420\u0410\u0421\u0421\u0412\u0415\u0422"
+    sprite: {fileID: 21300000, guid: 5b670c98ee268ae47b11ed3d47691b90, type: 3}
+  - label: "UnderPressure \u2014 \u041F\u041E\u0414 \u0422\u042F\u0416\u0415\u0421\u0422\u042C\u042E"
+    sprite: {fileID: 21300000, guid: 5b670c98ee268ae47b11ed3d47691b90, type: 3}
+  - label: "Horizon \u2014 \u0413\u041E\u0420\u0418\u0417\u041E\u041D\u0422"
+    sprite: {fileID: 21300000, guid: 5b670c98ee268ae47b11ed3d47691b90, type: 3}
+  - label: "ThroughFog \u2014 \u0421\u041A\u0412\u041E\u0417\u042C \u0422\u0423\u041C\u0410\u041D"
+    sprite: {fileID: 21300000, guid: 5b670c98ee268ae47b11ed3d47691b90, type: 3}
+  - label: "MoonDance \u2014 \u041B\u0423\u041D\u041D\u042B\u0419 \u0422\u0410\u041D\u0415\u0426"
+    sprite: {fileID: 21300000, guid: 5b670c98ee268ae47b11ed3d47691b90, type: 3}
+  - label: "Fracture \u2014 \u0418\u0417\u041B\u041E\u041C"
+    sprite: {fileID: 21300000, guid: 5b670c98ee268ae47b11ed3d47691b90, type: 3}
+  - label: "LastDawn \u2014 \u041F\u041E\u0421\u041B\u0415\u0414\u041D\u0418\u0419
+      \u0420\u0410\u0421\u0421\u0412\u0415\u0422"
+    sprite: {fileID: 21300000, guid: 5b670c98ee268ae47b11ed3d47691b90, type: 3}
+  - label: "Hunter \u2014 \u041E\u0425\u041E\u0422\u041D\u0418\u041A"
+    sprite: {fileID: 21300000, guid: 5b670c98ee268ae47b11ed3d47691b90, type: 3}
+  - label: "Exterminator \u2014 \u0418\u0421\u0422\u0420\u0415\u0411\u0418\u0422\u0415\u041B\u042C"
+    sprite: {fileID: 21300000, guid: 5b670c98ee268ae47b11ed3d47691b90, type: 3}
+  - label: "DarkStorm \u2014 \u0413\u0420\u041E\u0417\u0410 \u0422\u042C\u041C\u042B"
+    sprite: {fileID: 21300000, guid: 5b670c98ee268ae47b11ed3d47691b90, type: 3}
+  - label: "Streak \u2014 \u0421\u0415\u0420\u0418\u042F"
+    sprite: {fileID: 21300000, guid: 5b670c98ee268ae47b11ed3d47691b90, type: 3}
+  - label: "Avalanche \u2014 \u041B\u0410\u0412\u0418\u041D\u0410"
+    sprite: {fileID: 21300000, guid: 5b670c98ee268ae47b11ed3d47691b90, type: 3}
+  - label: "LightningChain \u2014 \u0426\u0415\u041F\u042C \u041C\u041E\u041B\u041D\u0418\u0419"
+    sprite: {fileID: 21300000, guid: 5b670c98ee268ae47b11ed3d47691b90, type: 3}
+  - label: "Evolution \u2014 \u042D\u0412\u041E\u041B\u042E\u0426\u0418\u042F"
+    sprite: {fileID: 21300000, guid: 5b670c98ee268ae47b11ed3d47691b90, type: 3}
+  - label: "TwoEvolutions \u2014 \u0414\u0412\u0415 \u042D\u0412\u041E\u041B\u042E\u0426\u0418\u0418"
+    sprite: {fileID: 21300000, guid: 5b670c98ee268ae47b11ed3d47691b90, type: 3}
+  - label: "AllEvolutions \u2014 \u0412\u0421\u0415 \u042D\u0412\u041E\u041B\u042E\u0426\u0418\u0418"
+    sprite: {fileID: 21300000, guid: 5b670c98ee268ae47b11ed3d47691b90, type: 3}
+  - label: "Keeper \u2014 \u0425\u0420\u0410\u041D\u0418\u0422\u0415\u041B\u042C"
+    sprite: {fileID: 21300000, guid: 5b670c98ee268ae47b11ed3d47691b90, type: 3}
+  - label: "Reliquary \u2014 \u0420\u0415\u041B\u0418\u041A\u0412\u0410\u0420\u0418\u0419"
+    sprite: {fileID: 21300000, guid: 5b670c98ee268ae47b11ed3d47691b90, type: 3}
+  - label: "Intercept \u2014 \u041F\u0415\u0420\u0415\u0425\u0412\u0410\u0422"
+    sprite: {fileID: 21300000, guid: 5b670c98ee268ae47b11ed3d47691b90, type: 3}
+  - label: "EliteHunt \u2014 \u041E\u0425\u041E\u0422\u0410 \u041D\u0410 \u042D\u041B\u0418\u0422\u0423"
+    sprite: {fileID: 21300000, guid: 5b670c98ee268ae47b11ed3d47691b90, type: 3}
+  - label: "Giant \u2014 \u0413\u0418\u0413\u0410\u041D\u0422"
+    sprite: {fileID: 21300000, guid: 5b670c98ee268ae47b11ed3d47691b90, type: 3}
+  - label: "Dwarf \u2014 \u041A\u0410\u0420\u041B\u0418\u041A"
+    sprite: {fileID: 21300000, guid: 5b670c98ee268ae47b11ed3d47691b90, type: 3}
+  - label: "Neutron \u2014 \u041D\u0415\u0419\u0422\u0420\u041E\u041D"
+    sprite: {fileID: 21300000, guid: 5b670c98ee268ae47b11ed3d47691b90, type: 3}
+  - label: "Cepheid \u2014 \u0426\u0415\u0424\u0415\u0418\u0414\u0410"
+    sprite: {fileID: 21300000, guid: 5b670c98ee268ae47b11ed3d47691b90, type: 3}
+  - label: "Untouchable \u2014 \u041D\u0415\u041F\u0420\u0418\u041A\u041E\u0421\u041D\u041E\u0412\u0415\u041D\u041D\u042B\u0419"
+    sprite: {fileID: 21300000, guid: 5b670c98ee268ae47b11ed3d47691b90, type: 3}
+  - label: "QuietVictory \u2014 \u0422\u0418\u0425\u0410\u042F \u041F\u041E\u0411\u0415\u0414\u0410"
+    sprite: {fileID: 21300000, guid: 5b670c98ee268ae47b11ed3d47691b90, type: 3}
+  - label: "Lone \u2014 \u041E\u0414\u0418\u041D \u0412 \u041F\u041E\u041B\u0415"
+    sprite: {fileID: 21300000, guid: 5b670c98ee268ae47b11ed3d47691b90, type: 3}
+  - label: "Four \u2014 \u0427\u0415\u0422\u0412\u0401\u0420\u041A\u0410"
+    sprite: {fileID: 21300000, guid: 5b670c98ee268ae47b11ed3d47691b90, type: 3}
+  - label: "Eternity \u2014 \u0412\u0415\u0427\u041D\u041E\u0421\u0422\u042C"
+    sprite: {fileID: 21300000, guid: 5b670c98ee268ae47b11ed3d47691b90, type: 3}
+  - label: "BossCycle \u2014 \u0426\u0418\u041A\u041B \u0411\u041E\u0421\u0421\u041E\u0412"
+    sprite: {fileID: 21300000, guid: 5b670c98ee268ae47b11ed3d47691b90, type: 3}
+  - label: "Tested \u2014 \u0418\u0421\u041F\u042B\u0422\u0410\u041D\u041D\u042B\u0419"
+    sprite: {fileID: 21300000, guid: 5b670c98ee268ae47b11ed3d47691b90, type: 3}
+  - label: "Persistence \u2014 \u041F\u041E\u0421\u0422\u041E\u042F\u041D\u0421\u0422\u0412\u041E"
+    sprite: {fileID: 21300000, guid: 5b670c98ee268ae47b11ed3d47691b90, type: 3}
+  - label: "Engineer \u2014 \u0418\u041D\u0416\u0415\u041D\u0415\u0420"
+    sprite: {fileID: 21300000, guid: 5b670c98ee268ae47b11ed3d47691b90, type: 3}
+  - label: "AtlasComplete \u2014 \u0410\u0422\u041B\u0410\u0421 \u0417\u0410\u041F\u041E\u041B\u041D\u0415\u041D"
+    sprite: {fileID: 21300000, guid: 5b670c98ee268ae47b11ed3d47691b90, type: 3}
+  - label: "GoldDigger \u2014 \u0417\u041E\u041B\u041E\u0422\u041E\u0418\u0421\u041A\u0410\u0422\u0415\u041B\u042C"
+    sprite: {fileID: 21300000, guid: 5b670c98ee268ae47b11ed3d47691b90, type: 3}
+  atlasPictures:
+  - label: "1 \u0423\u0414\u0415\u0420\u0416\u0410\u041D\u0418\u0415"
+    sprite: {fileID: 21300000, guid: 4d9a5d8be3e34c446bdb6f1eae9f932e, type: 3}
+  - label: "2 \u0421\u0418\u041B\u0410 \u0423\u0414\u0410\u0420\u0410"
+    sprite: {fileID: 21300000, guid: ed470b70804955348a84cc116cd7ecfe, type: 3}
+  - label: "3 \u041D\u0410\u0413\u0420\u0415\u0412"
+    sprite: {fileID: 21300000, guid: 2895d2b133b192e458106ea0e8341b82, type: 3}
+  - label: "4 \u0411\u0420\u041E\u041D\u042F"
+    sprite: {fileID: 21300000, guid: efdf04229d09e104b9f32b10fc13fa2e, type: 3}
+  - label: "5 \u0420\u0415\u0417\u041E\u041D\u0410\u041D\u0421"
+    sprite: {fileID: 21300000, guid: 371e9ea31a672c64c991ef43fcb253e0, type: 3}
+  - label: "6 \u041A\u0410\u0420\u0422\u041E\u0427\u041A\u0418"
+    sprite: {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
+  - label: "7 \u042D\u0412\u041E\u041B\u042E\u0426\u0418\u0418"
+    sprite: {fileID: 21300000, guid: f20af9d1964599748b60fb8398549322, type: 3}
+  - label: "8 \u0421\u041F\u041E\u0421\u041E\u0411\u041D\u041E\u0421\u0422\u0418"
+    sprite: {fileID: 21300000, guid: 6ffd6324143cea845b2c38c49ec4bd7c, type: 3}
+  - label: "9 \u041A\u041E\u041C\u0411\u041E \u0418 \u0420\u0415\u041B\u0418\u041A\u0412\u0418\u0418"
+    sprite: {fileID: 21300000, guid: ba739edc94f26684da93ea2abf4e955d, type: 3}
   eraIcons:
   - label: "1 \u0421\u041E\u041B\u041D\u0426\u0415"
     sprite: {fileID: 21300000, guid: e1ec8a52b79b31b439a6f2fcff121b76, type: 3}

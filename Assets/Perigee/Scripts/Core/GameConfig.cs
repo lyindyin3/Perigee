@@ -303,6 +303,38 @@ namespace Perigee
         public bool hasSkin;
     }
 
+    // достижения (GDD 8.7): бит в SaveData.achievements, по порядку идут ArtSet.achievementIcons и строки в Strings
+    public enum AchievementId
+    {
+        FirstLight, RedDawn, UnderPressure, Horizon, ThroughFog, MoonDance, Fracture, LastDawn, Hunter, Exterminator, DarkStorm, Streak,
+        Avalanche, LightningChain, Evolution, TwoEvolutions, AllEvolutions, Keeper, Reliquary, Intercept, EliteHunt, Giant, Dwarf, Neutron,
+        Cepheid, Untouchable, QuietVictory, Lone, Four, Eternity, BossCycle, Tested, Persistence, Engineer, AtlasComplete, GoldDigger
+    }
+
+    // что проверяет достижение: победа в эре, счётчики сохранения или то, что было в одном забеге
+    public enum AchKind
+    {
+        EraWin, Kills, Combo, RunEvolutions, AllEvolutions, RunRelics, HeraldKills, EliteKills, ClassWin, Flawless, NoAbilities,
+        OneSatellite, Satellites, EndlessTime, EndlessBosses, Challenges, DailyPlayed, Blueprints, Atlas, GoldComets
+    }
+
+    [Serializable]
+    public class AchievementDef
+    {
+        public AchievementId id;
+        public AchKind kind;
+        public int target;
+        public int dust;
+    }
+
+    // плитка бестиария: тип и номер эры с единицы, где он встречается впервые
+    [Serializable]
+    public class BestiaryEntry
+    {
+        public EnemyType type;
+        public int era;
+    }
+
     [CreateAssetMenu(fileName = "GameConfig", menuName = "Perigee/GameConfig")]
     public class GameConfig : ScriptableObject
     {
@@ -1580,6 +1612,71 @@ namespace Perigee
             new SkinDef { id = SkinId.Motor, kind = SkinKind.Star, eraWin = 3 },
         };
 
+        [Title("Достижения")]
+        // запись i = AchievementId i; target по виду: номер эры, StarClassId, секунды или порог счётчика
+        [TableList]
+        public AchievementDef[] achievements =
+        {
+            Ach(AchievementId.FirstLight, AchKind.EraWin, 1, 50),
+            Ach(AchievementId.RedDawn, AchKind.EraWin, 2, 80),
+            Ach(AchievementId.UnderPressure, AchKind.EraWin, 3, 110),
+            Ach(AchievementId.Horizon, AchKind.EraWin, 4, 140),
+            Ach(AchievementId.ThroughFog, AchKind.EraWin, 5, 170),
+            Ach(AchievementId.MoonDance, AchKind.EraWin, 6, 200),
+            Ach(AchievementId.Fracture, AchKind.EraWin, 7, 230),
+            Ach(AchievementId.LastDawn, AchKind.EraWin, 8, 400),
+            Ach(AchievementId.Hunter, AchKind.Kills, 500, 50),
+            Ach(AchievementId.Exterminator, AchKind.Kills, 5000, 150),
+            Ach(AchievementId.DarkStorm, AchKind.Kills, 25000, 400),
+            Ach(AchievementId.Streak, AchKind.Combo, 25, 50),
+            Ach(AchievementId.Avalanche, AchKind.Combo, 50, 120),
+            Ach(AchievementId.LightningChain, AchKind.Combo, 100, 300),
+            Ach(AchievementId.Evolution, AchKind.RunEvolutions, 1, 60),
+            Ach(AchievementId.TwoEvolutions, AchKind.RunEvolutions, 2, 200),
+            Ach(AchievementId.AllEvolutions, AchKind.AllEvolutions, 8, 400),
+            Ach(AchievementId.Keeper, AchKind.RunRelics, 3, 80),
+            Ach(AchievementId.Reliquary, AchKind.RunRelics, 5, 250),
+            Ach(AchievementId.Intercept, AchKind.HeraldKills, 10, 100),
+            Ach(AchievementId.EliteHunt, AchKind.EliteKills, 100, 150),
+            Ach(AchievementId.Giant, AchKind.ClassWin, (int)StarClassId.RedGiant, 100),
+            Ach(AchievementId.Dwarf, AchKind.ClassWin, (int)StarClassId.WhiteDwarf, 100),
+            Ach(AchievementId.Neutron, AchKind.ClassWin, (int)StarClassId.Neutron, 100),
+            Ach(AchievementId.Cepheid, AchKind.ClassWin, (int)StarClassId.Cepheid, 100),
+            Ach(AchievementId.Untouchable, AchKind.Flawless, 0, 300),
+            Ach(AchievementId.QuietVictory, AchKind.NoAbilities, 0, 150),
+            Ach(AchievementId.Lone, AchKind.OneSatellite, 0, 150),
+            Ach(AchievementId.Four, AchKind.Satellites, 4, 80),
+            Ach(AchievementId.Eternity, AchKind.EndlessTime, 600, 200),
+            Ach(AchievementId.BossCycle, AchKind.EndlessBosses, 5, 250),
+            Ach(AchievementId.Tested, AchKind.Challenges, 8, 300),
+            Ach(AchievementId.Persistence, AchKind.DailyPlayed, 7, 150),
+            Ach(AchievementId.Engineer, AchKind.Blueprints, 16, 300),
+            Ach(AchievementId.AtlasComplete, AchKind.Atlas, 26, 200),
+            Ach(AchievementId.GoldDigger, AchKind.GoldComets, 5, 100),
+        };
+        // тост достижения: въезд сверху, показ, уход; toastSlide = на сколько пикселей он выше своего места до въезда
+        public float toastIn = 0.25f;
+        public float toastHold = 2.5f;
+        public float toastOut = 0.25f;
+        public float toastSlide = 160f;
+        // строка невыполненного достижения: прозрачность значка
+        public float achDimAlpha = 0.35f;
+
+        [Title("Атлас")]
+        // бестиарий: плитки по порядку (18 врагов, потом 8 боссов) и эра, в которой тип встречается впервые
+        [TableList]
+        public BestiaryEntry[] bestiary =
+        {
+            Beast(EnemyType.Swarmer, 1), Beast(EnemyType.Arrow, 1), Beast(EnemyType.Bolt, 1), Beast(EnemyType.Bastion, 1), Beast(EnemyType.Parasite, 1),
+            Beast(EnemyType.Shooter, 1), Beast(EnemyType.Hive, 1), Beast(EnemyType.Splitter, 2), Beast(EnemyType.Torch, 2), Beast(EnemyType.Orbiter, 3),
+            Beast(EnemyType.Shielder, 3), Beast(EnemyType.Devourer, 4), Beast(EnemyType.Phantom, 4), Beast(EnemyType.Jelly, 5), Beast(EnemyType.Mine, 6),
+            Beast(EnemyType.Bumper, 6), Beast(EnemyType.Blinker, 7), Beast(EnemyType.Eclipser, 8),
+            Beast(EnemyType.Boss, 1), Beast(EnemyType.Twin, 2), Beast(EnemyType.Colossus, 3), Beast(EnemyType.Pulsar, 4), Beast(EnemyType.Sower, 5),
+            Beast(EnemyType.Mirror, 6), Beast(EnemyType.Graviton, 7), Beast(EnemyType.Abyss, 8),
+        };
+        // ОСНОВЫ: свайп короче этого (пиксели экрана) страницу не листает
+        public float atlasSwipe = 80f;
+
         // узел дерева, у которого все уровни дают одно и то же
         static BlueprintDef Node(BlueprintId id, BlueprintBranch branch, int tier, StatId stat, float value, params int[] costs)
         {
@@ -1596,6 +1693,16 @@ namespace Perigee
         static CardDef Evolution(CardId id, StatId plus, CardId sourceA, CardId sourceB)
         {
             return new CardDef { id = id, color = CardColor.Evolution, rarity = CardRarity.Rare, maxStacks = 1, plus = new StatMod(plus, 1f), sourceA = sourceA, sourceB = sourceB };
+        }
+
+        static AchievementDef Ach(AchievementId id, AchKind kind, int target, int dust)
+        {
+            return new AchievementDef { id = id, kind = kind, target = target, dust = dust };
+        }
+
+        static BestiaryEntry Beast(EnemyType type, int era)
+        {
+            return new BestiaryEntry { type = type, era = era };
         }
 
         static RelicDef Relic(RelicId id, int maxStacks, params StatMod[] mods)

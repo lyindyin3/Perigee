@@ -845,11 +845,17 @@ namespace Perigee
         // Рою, Снаряду и объектам событий она не нужна: у них пустая строка.
         void Meet(EnemyType type)
         {
-            if (loop.Run.tutorial || loop.Run.mode == RunMode.Daily || Strings.EnemyTip[(int)type].Length == 0) return;
-
             SaveData data = loop.Save.Data;
             int bit = 1 << (int)type;
             if ((data.seenEnemies & bit) != 0) return;
+            // тип без подсказки (Рой, Снаряд) попадает в бестиарий сразу и без баннера
+            if (Strings.EnemyTip[(int)type].Length == 0)
+            {
+                data.seenEnemies |= bit;
+                loop.Save.Save();
+                return;
+            }
+            if (loop.Run.tutorial || loop.Run.mode == RunMode.Daily) return;
 
             data.seenEnemies |= bit;
             loop.Save.Save();
@@ -916,6 +922,10 @@ namespace Perigee
             // Кристальный прилив умножает всё, что выпало
             crystals.Spawn(e.position, ((elite ? drop * config.eliteCrystalMul : drop) + e.eaten + seeded + feather) * events.CrystalMul);
             if (e.herald) relics.Herald();
+            // счётчики достижений
+            if (elite) loop.Run.eliteKills++;
+            if (e.herald) loop.Run.heraldKills++;
+            if (e.def.id == EnemyType.GoldComet) loop.Run.goldComets++;
             // большой враг: осколков больше и экран вздрагивает; у элиты осколки золотые и их вдвое больше
             bool big = e.radius >= config.bigRadius;
             int shards = big ? config.killShards * config.bigKillShardMul : config.killShards;

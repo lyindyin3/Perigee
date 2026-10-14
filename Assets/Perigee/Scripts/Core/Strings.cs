@@ -865,6 +865,114 @@ namespace Perigee
         const char PipOff = '○';
 
         // точки стаков: закрашенных filled из max; при max 0 предела нет, видны только взятые
+        // имена врагов и боссов, по порядку EnemyType: бестиарий Атласа
+        public static string[] EnemyName => Loc.Pick(EnemyNameRu, EnemyNameEn);
+        static readonly string[] EnemyNameRu =
+        {
+            "Рой", "Стрела", "Снаряд", "Бастион", "Паразит", "Стрелок", "Улей", "Комета", "Дробитель", "Факел", "Кружащий", "Щитник",
+            "Пожиратель", "Призрак", "Близнецы", "Колосс", "Пульсар", "Студень", "Мина", "Отбойник", "Прыгун", "Затмитель", "Сеятель",
+            "Зеркало", "Гравитон", "Бездна", "Метеор", "Золотая комета",
+        };
+        static readonly string[] EnemyNameEn =
+        {
+            "Swarm", "Arrow", "Bolt", "Bastion", "Parasite", "Shooter", "Hive", "Comet", "Splitter", "Torch", "Orbiter", "Shielder",
+            "Devourer", "Phantom", "Twins", "Colossus", "Pulsar", "Jelly", "Mine", "Bumper", "Blinker", "Eclipser", "Sower",
+            "Mirror", "Graviton", "Abyss", "Meteor", "Golden Comet",
+        };
+
+        // Атлас
+        public static string Atlas => Loc.Pick("АТЛАС", "ATLAS");
+        // вкладки Атласа по порядку
+        public static string[] AtlasTab => Loc.Pick(AtlasTabRu, AtlasTabEn);
+        static readonly string[] AtlasTabRu = { "ОСНОВЫ", "БЕСТИАРИЙ", "КАРТОЧКИ", "СПОСОБНОСТИ" };
+        static readonly string[] AtlasTabEn = { "BASICS", "BESTIARY", "CARDS", "ABILITIES" };
+        // {0} = номер страницы, {1} = сколько их; так же «12 / 25» у достижений
+        public static string CountFormat => "{0} / {1}";
+        public static string PagePrev => "‹";
+        public static string PageNext => "›";
+        public static string Unknown => "???";
+        public static string CardBack => "?";
+        // {0} = HP, {1} = скорость, {2} = броня (базовые значения)
+        public static string BestiaryStatsFormat => Loc.Pick("HP {0:0.##} · скорость {1:0.##} · броня {2:0.##}", "HP {0:0.##} · speed {1:0.##} · armor {2:0.##}");
+        // страницы ОСНОВЫ
+        public static string[] AtlasPageTitle => Loc.Pick(AtlasPageTitleRu, AtlasPageTitleEn);
+        static readonly string[] AtlasPageTitleRu = { "УДЕРЖАНИЕ", "СИЛА УДАРА", "НАГРЕВ", "БРОНЯ", "РЕЗОНАНС", "КАРТОЧКИ", "ЭВОЛЮЦИИ", "СПОСОБНОСТИ", "КОМБО И РЕЛИКВИИ" };
+        static readonly string[] AtlasPageTitleEn = { "HOLD", "STRIKE POWER", "HEAT", "ARMOR", "RESONANCE", "CARDS", "EVOLUTIONS", "ABILITIES", "COMBO AND RELICS" };
+        public static string[] AtlasPageText => Loc.Pick(AtlasPageTextRu, AtlasPageTextEn);
+        static readonly string[] AtlasPageTextRu =
+        {
+            "Держи палец (или пробел) — спутник уходит от звезды. Отпусти — он падает обратно. Больше ничего нажимать не нужно.",
+            "У звезды спутник быстрый и бьёт сильно. На дальней орбите он медленный и слабее, зато достаёт врагов, пока они далеко.",
+            "У звезды спутник греется: красная дуга вокруг него — это жар. Полная дуга — оглушение на секунду. Дальние орбиты остужают.",
+            "Серебряное кольцо — граница брони. Внутри него удар пробивает броню, снаружи даёт «0».",
+            "Два спутника рядом соединяются золотой нитью и бьют вдвое сильнее. Новый спутник даёт карточка НОВЫЙ СПУТНИК.",
+            "Кристаллы дают опыт. Полная полоска — выбор карточки. У каждой карточки есть плюс и минус: выбирай под свою игру.",
+            "Две карточки на максимуме сливаются в эволюцию — она сильнее обеих. Рецепты — во вкладке КАРТОЧКИ.",
+            "Две кнопки внизу справа. Первую выбираешь перед забегом, вторую дают на 3-м уровне. После нажатия идёт перезарядка.",
+            "Убивай без пауз — растёт комбо, и кристаллы дороже. Вестник в середине забега несёт реликвию — сильный бонус до конца забега.",
+        };
+        static readonly string[] AtlasPageTextEn =
+        {
+            "Hold your finger (or space) — the satellite moves away from the star. Let go — it falls back. That's all you need to press.",
+            "Near the star the satellite is fast and hits hard. On a far orbit it is slower and weaker, but reaches enemies while they are far away.",
+            "Near the star the satellite heats up: the red arc around it is heat. A full arc stuns it for a second. Far orbits cool it down.",
+            "The silver ring is the armor line. Inside it a hit pierces armor, outside it deals «0».",
+            "Two satellites close together link with a golden thread and hit twice as hard. The NEW SATELLITE card gives you another one.",
+            "Crystals give experience. A full bar means a card choice. Every card has a plus and a minus: pick what suits your play.",
+            "Two maxed cards merge into an evolution — stronger than both. Recipes are in the CARDS tab.",
+            "Two buttons at the bottom right. You pick the first before a run, the second comes at level 3. After a press it recharges.",
+            "Kill without pauses — the combo grows and crystals are worth more. The Herald brings a relic mid-run — a strong bonus until the run ends.",
+        };
+
+        // достижения
+        public static string Achievements => Loc.Pick("ДОСТИЖЕНИЯ", "ACHIEVEMENTS");
+        public static string AchToastFormat => Loc.Pick("Достижение: {0}", "Achievement: {0}");
+        public static string AchDustFormat => Loc.Pick("+{0} пыли", "+{0} stardust");
+        // отметка выполненного достижения
+        public static string AchDone => "★";
+        // по порядку AchievementId
+        public static string[] AchTitle => Loc.Pick(AchTitleRu, AchTitleEn);
+        static readonly string[] AchTitleRu =
+        {
+            "ПЕРВЫЙ СВЕТ", "КРАСНЫЙ РАССВЕТ", "ПОД ТЯЖЕСТЬЮ", "ГОРИЗОНТ", "СКВОЗЬ ТУМАН", "ЛУННЫЙ ТАНЕЦ", "ИЗЛОМ", "ПОСЛЕДНИЙ РАССВЕТ",
+            "ОХОТНИК", "ИСТРЕБИТЕЛЬ", "ГРОЗА ТЬМЫ", "СЕРИЯ", "ЛАВИНА", "ЦЕПЬ МОЛНИЙ", "ЭВОЛЮЦИЯ", "ДВЕ ЭВОЛЮЦИИ", "ВСЕ ЭВОЛЮЦИИ",
+            "ХРАНИТЕЛЬ", "РЕЛИКВАРИЙ", "ПЕРЕХВАТ", "ОХОТА НА ЭЛИТУ", "ГИГАНТ", "КАРЛИК", "НЕЙТРОН", "ЦЕФЕИДА", "НЕПРИКОСНОВЕННЫЙ",
+            "ТИХАЯ ПОБЕДА", "ОДИН В ПОЛЕ", "ЧЕТВЁРКА", "ВЕЧНОСТЬ", "ЦИКЛ БОССОВ", "ИСПЫТАННЫЙ", "ПОСТОЯНСТВО", "ИНЖЕНЕР", "АТЛАС ЗАПОЛНЕН",
+            "ЗОЛОТОИСКАТЕЛЬ",
+        };
+        static readonly string[] AchTitleEn =
+        {
+            "FIRST LIGHT", "RED DAWN", "UNDER PRESSURE", "HORIZON", "THROUGH THE FOG", "MOON DANCE", "FRACTURE", "LAST DAWN",
+            "HUNTER", "EXTERMINATOR", "DARK STORM", "STREAK", "AVALANCHE", "CHAIN LIGHTNING", "EVOLUTION", "TWO EVOLUTIONS", "ALL EVOLUTIONS",
+            "KEEPER", "RELIQUARY", "INTERCEPT", "ELITE HUNT", "GIANT", "DWARF", "NEUTRON", "CEPHEID", "UNTOUCHABLE",
+            "QUIET VICTORY", "LONE STAR", "FOURSOME", "ETERNITY", "BOSS CYCLE", "TESTED", "PERSISTENCE", "ENGINEER", "ATLAS COMPLETE",
+            "GOLD DIGGER",
+        };
+        // условие простыми словами, по порядку AchievementId
+        public static string[] AchText => Loc.Pick(AchTextRu, AchTextEn);
+        static readonly string[] AchTextRu =
+        {
+            "Победи в эре 1", "Победи в эре 2", "Победи в эре 3", "Победи в эре 4", "Победи в эре 5", "Победи в эре 6", "Победи в эре 7", "Победи в эре 8",
+            "Убей 500 врагов", "Убей 5000 врагов", "Убей 25000 врагов", "Набери комбо 25", "Набери комбо 50", "Набери комбо 100",
+            "Возьми эволюцию за забег", "Возьми 2 эволюции за забег", "Возьми все 8 эволюций",
+            "Собери 3 реликвии за забег", "Собери 5 реликвий за забег", "Убей 10 Вестников", "Убей 100 элитных врагов",
+            "Победи Красным гигантом", "Победи Белым карликом", "Победи Нейтронной звездой", "Победи Цефеидой",
+            "Победи, не получив урона", "Победи, не нажав способность", "Победи с одним спутником", "Собери 4 спутника сразу",
+            "Продержись 10:00 в Бесконечном", "Убей 5 боссов за забег в Бесконечном", "Пройди все 8 испытаний", "Сыграй 7 Испытаний дня",
+            "Прокачай все чертежи до максимума", "Встреть всех врагов и боссов", "Разбей 5 золотых комет",
+        };
+        static readonly string[] AchTextEn =
+        {
+            "Win era 1", "Win era 2", "Win era 3", "Win era 4", "Win era 5", "Win era 6", "Win era 7", "Win era 8",
+            "Kill 500 enemies", "Kill 5000 enemies", "Kill 25000 enemies", "Reach a combo of 25", "Reach a combo of 50", "Reach a combo of 100",
+            "Take an evolution in a run", "Take 2 evolutions in a run", "Take all 8 evolutions",
+            "Collect 3 relics in a run", "Collect 5 relics in a run", "Kill 10 Heralds", "Kill 100 elite enemies",
+            "Win as a Red Giant", "Win as a White Dwarf", "Win as a Neutron Star", "Win as a Cepheid",
+            "Win without taking damage", "Win without pressing an ability", "Win with one satellite", "Have 4 satellites at once",
+            "Last 10:00 in Endless", "Kill 5 bosses in one Endless run", "Complete all 8 challenges", "Play 7 Dailies",
+            "Max out every blueprint", "Meet every enemy and boss", "Break 5 golden comets",
+        };
+
         public static string Pips(int filled, int max)
         {
             return new string(PipOn, filled) + new string(PipOff, System.Math.Max(max - filled, 0));

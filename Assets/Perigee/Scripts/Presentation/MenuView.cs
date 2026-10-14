@@ -26,6 +26,9 @@ namespace Perigee
         [SerializeField] GameObject erasPanel;
         [SerializeField] GameObject challengesPanel;
         [SerializeField] GameObject workshopPanel;
+        [SerializeField] GameObject atlasPanel;
+        [SerializeField] GameObject achievementsPanel;
+        [SerializeField] AtlasView atlas;
         // подписи кнопок «Назад» на всех панелях
         [SerializeField] TMP_Text[] backLabels;
 
@@ -37,6 +40,8 @@ namespace Perigee
         [SerializeField] TMP_Text challengesLabel;
         [SerializeField] TMP_Text workshopLabel;
         [SerializeField] TMP_Text settingsLabel;
+        [SerializeField] TMP_Text atlasLabel;
+        [SerializeField] TMP_Text achievementsLabel;
         // кнопки, которых нет, пока не пройдено обучение
         [SerializeField] GameObject[] lateButtons;
 
@@ -108,7 +113,7 @@ namespace Perigee
 
         void Awake()
         {
-            panels = new[] { mainPanel, erasPanel, challengesPanel, workshopPanel };
+            panels = new[] { mainPanel, erasPanel, challengesPanel, workshopPanel, atlasPanel, achievementsPanel };
             panelGroups = new CanvasGroup[panels.Length];
             panelHomes = new Vector2[panels.Length];
             for (int i = 0; i < panels.Length; i++)
@@ -180,6 +185,8 @@ namespace Perigee
             challengesLabel.text = Strings.Challenges;
             workshopLabel.text = Strings.Workshop;
             settingsLabel.text = Strings.Settings;
+            atlasLabel.text = Strings.Atlas;
+            achievementsLabel.text = Strings.Achievements;
             erasHeader.text = Strings.Play;
             endlessLockText.text = Strings.EndlessLocked;
             dailyTitle.text = Strings.DailyTitle;
@@ -311,6 +318,20 @@ namespace Perigee
             ShowTab(0);
         }
 
+        public void OpenAtlas()
+        {
+            sfx.Play(SfxId.UiClick);
+            Show(atlasPanel);
+            atlas.Open();
+        }
+
+        // список строит AchievementsView при включении панели
+        public void OpenAchievements()
+        {
+            sfx.Play(SfxId.UiClick);
+            Show(achievementsPanel);
+        }
+
         public void OpenSettings()
         {
             sfx.Play(SfxId.UiClick);
@@ -439,9 +460,11 @@ namespace Perigee
             dailyBest.text = string.Format(Strings.BestScoreFormat, loop.Save.Data.bestDaily);
         }
 
-        // вся Мастерская заново: покупка меняет пыль, а с ней и то, что можно купить на других вкладках
+        // вся Мастерская заново (и проверка достижений): покупка меняет пыль, а с ней и то, что можно купить на других вкладках
         void Refresh()
         {
+            // покупка могла выполнить достижение (ИНЖЕНЕР): его пыль попадёт в счётчик
+            loop.Achievements.Check();
             Count(shopCounter, loop.Save.Data.dust);
             ShowBlueprints();
             ShowAbilities();

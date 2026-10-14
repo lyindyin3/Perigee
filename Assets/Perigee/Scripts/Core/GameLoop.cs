@@ -40,6 +40,7 @@ namespace Perigee
         [SerializeField] ReviveView reviveView;
         [SerializeField] ResultView resultView;
         [SerializeField] SettingsView settingsView;
+        [SerializeField] AchievementToast toast;
 
         public GameState State { get; private set; }
         public Stats Stats { get; } = new Stats();
@@ -48,6 +49,7 @@ namespace Perigee
         public Blueprints Blueprints { get; private set; }
         public Shop Shop { get; private set; }
         public Progress Progress { get; private set; }
+        public Achievements Achievements { get; private set; }
         public EraDef Era => config.eras[eraIndex];
         // звезда: класс забега, её радиус сейчас, фаза дыхания
         public StarController Star => star;
@@ -91,6 +93,7 @@ namespace Perigee
             Blueprints = new Blueprints(config, Save);
             Shop = new Shop(config, Save);
             Progress = new Progress(config, Save, Shop);
+            Achievements = new Achievements(config, art, Save, Blueprints, toast, sfx);
             ads = new StubAdService();
             leaderboard = new StubLeaderboardService();
             platform = new StubPlatformService();
@@ -393,6 +396,7 @@ namespace Perigee
             RecomputeStats();
             Run.time += dt;
             satellites.Tick(dt);
+            Run.maxSatellites = Mathf.Max(Run.maxSatellites, satellites.Count);
             abilities.Tick(dt);
             eraRule.Tick(dt);
             events.Tick(dt);
@@ -420,6 +424,7 @@ namespace Perigee
             combo.Break();
 
             Progress.Finish(Run, eraIndex, Stats);
+            Achievements.Check(Run, eraIndex);
             leaderboard.Submit(Run.score);
             SetState(GameState.Result);
         }

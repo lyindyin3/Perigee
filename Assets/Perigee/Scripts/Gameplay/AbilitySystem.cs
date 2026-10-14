@@ -118,6 +118,7 @@ namespace Perigee
             if (elapsed[a] < cooldown[a] || elapsed[a] < duration[a]) return;
 
             AbilityDef def = Def(id);
+            loop.Run.abilityUsed = true;
             elapsed[a] = 0f;
             duration[a] = def.duration * loop.Stats.abilityDurationMul;
             cooldown[a] = def.cooldown * loop.Stats.abilityCooldownMul;

@@ -132,7 +132,8 @@ namespace Perigee
                 if (config.cards[offer[k]].color == CardColor.Evolution) run.evoShown |= Bit(config.cards[offer[k]].id);
             if (card.color == CardColor.Evolution)
             {
-                loop.Save.Data.evolutionsTaken++;
+                // бит на каждую эволюцию: они последние в CardId, первая — String
+                loop.Save.Data.evolutionsTaken |= 1 << (card.id - CardId.String);
                 loop.Save.Save();
             }
             run.cardStacks[index]++;

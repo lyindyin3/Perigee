@@ -4854,3 +4854,207 @@ MonoBehaviour:
     price: 0
     eraWin: 3
     challenge: 0
+  achievements:
+  - id: 0
+    kind: 0
+    target: 1
+    dust: 50
+  - id: 1
+    kind: 0
+    target: 2
+    dust: 80
+  - id: 2
+    kind: 0
+    target: 3
+    dust: 110
+  - id: 3
+    kind: 0
+    target: 4
+    dust: 140
+  - id: 4
+    kind: 0
+    target: 5
+    dust: 170
+  - id: 5
+    kind: 0
+    target: 6
+    dust: 200
+  - id: 6
+    kind: 0
+    target: 7
+    dust: 230
+  - id: 7
+    kind: 0
+    target: 8
+    dust: 400
+  - id: 8
+    kind: 1
+    target: 500
+    dust: 50
+  - id: 9
+    kind: 1
+    target: 5000
+    dust: 150
+  - id: 10
+    kind: 1
+    target: 25000
+    dust: 400
+  - id: 11
+    kind: 2
+    target: 25
+    dust: 50
+  - id: 12
+    kind: 2
+    target: 50
+    dust: 120
+  - id: 13
+    kind: 2
+    target: 100
+    dust: 300
+  - id: 14
+    kind: 3
+    target: 1
+    dust: 60
+  - id: 15
+    kind: 3
+    target: 2
+    dust: 200
+  - id: 16
+    kind: 4
+    target: 8
+    dust: 400
+  - id: 17
+    kind: 5
+    target: 3
+    dust: 80
+  - id: 18
+    kind: 5
+    target: 5
+    dust: 250
+  - id: 19
+    kind: 6
+    target: 10
+    dust: 100
+  - id: 20
+    kind: 7
+    target: 100
+    dust: 150
+  - id: 21
+    kind: 8
+    target: 1
+    dust: 100
+  - id: 22
+    kind: 8
+    target: 2
+    dust: 100
+  - id: 23
+    kind: 8
+    target: 3
+    dust: 100
+  - id: 24
+    kind: 8
+    target: 4
+    dust: 100
+  - id: 25
+    kind: 9
+    target: 0
+    dust: 300
+  - id: 26
+    kind: 10
+    target: 0
+    dust: 150
+  - id: 27
+    kind: 11
+    target: 0
+    dust: 150
+  - id: 28
+    kind: 12
+    target: 4
+    dust: 80
+  - id: 29
+    kind: 13
+    target: 600
+    dust: 200
+  - id: 30
+    kind: 14
+    target: 5
+    dust: 250
+  - id: 31
+    kind: 15
+    target: 8
+    dust: 300
+  - id: 32
+    kind: 16
+    target: 7
+    dust: 150
+  - id: 33
+    kind: 17
+    target: 16
+    dust: 300
+  - id: 34
+    kind: 18
+    target: 26
+    dust: 200
+  - id: 35
+    kind: 19
+    target: 5
+    dust: 100
+  toastIn: 0.25
+  toastHold: 2.5
+  toastOut: 0.25
+  toastSlide: 160
+  achDimAlpha: 0.35
+  bestiary:
+  - type: 0
+    era: 1
+  - type: 1
+    era: 1
+  - type: 2
+    era: 1
+  - type: 3
+    era: 1
+  - type: 4
+    era: 1
+  - type: 5
+    era: 1
+  - type: 6
+    era: 1
+  - type: 8
+    era: 2
+  - type: 9
+    era: 2
+  - type: 10
+    era: 3
+  - type: 11
+    era: 3
+  - type: 12
+    era: 4
+  - type: 13
+    era: 4
+  - type: 17
+    era: 5
+  - type: 18
+    era: 6
+  - type: 19
+    era: 6
+  - type: 20
+    era: 7
+  - type: 21
+    era: 8
+  - type: 7
+    era: 1
+  - type: 14
+    era: 2
+  - type: 15
+    era: 3
+  - type: 16
+    era: 4
+  - type: 22
+    era: 5
+  - type: 23
+    era: 6
+  - type: 24
+    era: 7
+  - type: 25
+    era: 8
+  atlasSwipe: 80

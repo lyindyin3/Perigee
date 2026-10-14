@@ -66,6 +66,14 @@ namespace Perigee
         public int crystalsPicked;
         // бит на каждый CardId: эволюцию уже показывали, первое место ей больше не положено
         public long evoShown;
+        // для достижений и счётчиков сохранения: убитые элита, Вестники и золотые кометы
+        public int eliteKills;
+        public int heraldKills;
+        public int goldComets;
+        // звезда получала урон; способность нажимали; сколько спутников было сразу
+        public bool starDamaged;
+        public bool abilityUsed;
+        public int maxSatellites;
 
         // итоги: Progress заполняет их перед экраном Result
         public bool victory;
@@ -119,6 +127,12 @@ namespace Perigee
             bestCombo = 0;
             crystalsPicked = 0;
             evoShown = 0;
+            eliteKills = 0;
+            heraldKills = 0;
+            goldComets = 0;
+            starDamaged = false;
+            abilityUsed = false;
+            maxSatellites = 0;
         }
     }
 }

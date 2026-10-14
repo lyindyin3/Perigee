@@ -98,6 +98,10 @@ namespace Perigee
         [Header("Меню")]
         [Tooltip("Иконки чертежей в Мастерской, по порядку BlueprintId")]
         public SpriteSlot[] blueprintIcons;
+        [Tooltip("Значки достижений, по порядку AchievementId: список достижений и тост")]
+        public SpriteSlot[] achievementIcons;
+        [Tooltip("Картинки страниц ОСНОВЫ в Атласе, по порядку страниц")]
+        public SpriteSlot[] atlasPictures;
 
         [Header("Эры")]
         [Tooltip("Значок эры на карточке эры и на карточках эр")]
@@ -157,6 +161,9 @@ namespace Perigee
             Name(cardFrames = Fit(cardFrames, FrameNames.Length), typeof(CardColor), FrameNames);
             Name(affixIcons = Fit(affixIcons, AffixNames.Length), typeof(EliteAffix), AffixNames);
             Name(relicIcons = Fit(relicIcons, Strings.RelicTitle.Length), typeof(RelicId), Strings.RelicTitle);
+            Name(achievementIcons = Fit(achievementIcons, Strings.AchTitle.Length), typeof(AchievementId), Strings.AchTitle);
+            atlasPictures = Fit(atlasPictures, Strings.AtlasPageTitle.Length);
+            for (int i = 0; i < atlasPictures.Length; i++) atlasPictures[i].label = (i + 1) + " " + Strings.AtlasPageTitle[i];
 
             int eras = Strings.EraTitle.Length;
             eraIcons = Fit(eraIcons, eras);

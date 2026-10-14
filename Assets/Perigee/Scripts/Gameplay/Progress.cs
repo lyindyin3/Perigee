@@ -136,6 +136,11 @@ namespace Perigee
             data.runs++;
             if (!run.victory) data.defeats++;
             data.totalKills += run.kills;
+            data.eliteKills += run.eliteKills;
+            data.heraldKills += run.heraldKills;
+            data.goldComets += run.goldComets;
+            if (run.mode == RunMode.Daily) data.dailyPlayed++;
+            if (endless) data.endlessBossBest = Mathf.Max(data.endlessBossBest, run.bossKills);
             data.tutorialDone = true;
             data.lastEra = era;
             data.lastMode = (int)run.mode;

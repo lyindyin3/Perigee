@@ -89,6 +89,7 @@ namespace Perigee
             if (Immune) return;
             // КОРОНА ослабляет любой урон по звезде
             loop.Run.hp = Mathf.Max(loop.Run.hp - amount * loop.Stats.starDamageMul, 0f);
+            loop.Run.starDamaged = true;
         }
 
         // АККРЕЦИЯ: лечение сразу, не выше максимума; стеклянную звезду не лечит ничто
