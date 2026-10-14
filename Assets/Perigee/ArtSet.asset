@@ -79,6 +79,11 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 3d35837a67087d84f986e5abbe1e1dfd, type: 3}
   - {fileID: 21300000, guid: bb3da0662f6f0ce449f75ad068e3cae3, type: 3}
   - {fileID: 21300000, guid: b7b5d316e3a3c7b4293366911db8a4a7, type: 3}
+  eraBackdrops:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   eraStarSprites:
   - {fileID: 0}
   - {fileID: 0}

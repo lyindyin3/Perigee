@@ -42,9 +42,10 @@ namespace Perigee
             loop.Run.hp = Mathf.Max(loop.Run.hp - amount * loop.Stats.starDamageMul, 0f);
         }
 
-        // АККРЕЦИЯ: лечение сразу, не выше максимума
+        // АККРЕЦИЯ: лечение сразу, не выше максимума; стеклянную звезду не лечит ничто
         public void Heal(float amount)
         {
+            if (loop.Run.Has(RunModifier.GlassStar)) return;
             loop.Run.hp = Mathf.Min(loop.Run.hp + amount, loop.Stats.starMaxHp);
         }
 

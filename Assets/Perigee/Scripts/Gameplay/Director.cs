@@ -11,6 +11,13 @@ namespace Perigee
             public SpawnGroup group;
             public float centre;
             public bool spawned;
+            // кто придёт на самом деле: «Рой» меняет крупных врагов на Рой
+            public EnemyType type;
+            // сколько мест в группе и сколько врагов встаёт на каждое (больше одного только у «Роя»)
+            public int units;
+            public int pack;
+            // множитель HP: циклы Бесконечного и повтор «Марафона»
+            public float hpMul;
         }
 
         [SerializeField] GameConfig config;
@@ -24,6 +31,10 @@ namespace Perigee
         readonly List<Visual> arrowWedges = new List<Visual>();
         readonly List<Visual> arrowLines = new List<Visual>();
         Pending[] pending;
+        // с этого места в pending лежит основное расписание: Бесконечный пишет сюда каждый следующий цикл
+        int mainStart;
+        // какой цикл расписания сейчас лежит в pending
+        int filledCycle;
         Rng spawnRng;
         float ambientTimer;
         float lastCentre;
@@ -40,8 +51,13 @@ namespace Perigee
             // Расписание своё у каждой эры; обучение меняет только вступление.
             EraDef era = loop.Era;
             SpawnEvent[] opening = loop.Run.tutorial ? config.tutorialOpening : era.opening;
-            pending = new Pending[GroupCount(opening) + GroupCount(era.timeline)];
-            Fill(era.timeline, Fill(opening, 0));
+            bool marathon = loop.Run.Has(RunModifier.Marathon);
+            mainStart = GroupCount(opening, 0f);
+            filledCycle = 0;
+            pending = new Pending[mainStart + GroupCount(era.timeline, 0f) + (marathon ? GroupCount(era.timeline, config.marathonReplayFrom) : 0)];
+            int n = Fill(era.timeline, Fill(opening, 0, 0f, 0f, 1f, 1f), 0f, 0f, 1f, 1f);
+            // «Марафон»: вторая часть расписания идёт ещё раз, позже и с врагами крепче
+            if (marathon) Fill(era.timeline, n, config.marathonReplayFrom, config.marathonShift, config.marathonHpMul, 1f);
 
             // метки создаются заново из префабов: правка префаба видна со следующего забега
             for (int i = root.childCount - 1; i >= 0; i--) Destroy(root.GetChild(i).gameObject);
@@ -67,29 +83,33 @@ namespace Perigee
             if (stopped) return;
 
             float t = loop.Run.time;
+            bool endless = loop.Run.mode == RunMode.Endless;
+            // Бесконечный: цикл 0 идёт до первого босса, дальше новый цикл с каждым следующим
+            if (endless) loop.Run.cycle = Mathf.Max(0, Mathf.FloorToInt((t - config.bossTime) / config.endlessLoopTime) + 1);
 
             int usedMarkers = 0;
             int usedArrows = 0;
+            bool allSpawned = true;
             for (int i = 0; i < pending.Length; i++)
             {
                 if (pending[i].spawned) continue;
 
-                SpawnGroup group = pending[i].group;
                 if (t >= pending[i].time)
                 {
                     pending[i].spawned = true;
-                    Spawn(group, pending[i].centre);
+                    Spawn(pending[i]);
                     continue;
                 }
-                if (t < pending[i].time - Lead(group.type)) continue;
+                allSpawned = false;
+                if (t < pending[i].time - Lead(pending[i].type)) continue;
 
-                // у стаи Роя одна метка на всю группу, у остальных по метке на каждого
-                int n = Units(group);
-                int shown = IsSwarm(group, n) ? 1 : n;
+                // у стаи Роя одна метка на всю группу, у остальных по метке на каждое место
+                int n = pending[i].units;
+                int shown = IsSwarm(pending[i]) ? 1 : n;
                 for (int k = 0; k < shown; k++)
                 {
-                    float angle = UnitAngle(group, pending[i].centre, k, n);
-                    if (group.type == EnemyType.Arrow) PlaceArrowMarker(usedArrows++, angle, Radius(group));
+                    float angle = UnitAngle(pending[i].group, pending[i].centre, k, n);
+                    if (pending[i].type == EnemyType.Arrow) PlaceArrowMarker(usedArrows++, angle, Radius(pending[i]));
                     else PlaceMarker(Marker(markers, art.telegraphArrow, usedMarkers++), angle);
                 }
             }
@@ -97,62 +117,90 @@ namespace Perigee
             Hide(arrowWedges, usedArrows);
             Hide(arrowLines, usedArrows);
 
-            // в обучении фоновый поток начинается позже
+            // Бесконечный: цикл расписания вышел весь, на его место встаёт следующий: позже, с врагами крепче и гуще
+            if (endless && allSpawned)
+            {
+                filledCycle++;
+                Fill(loop.Era.timeline, mainStart, 0f, config.endlessLoopTime * filledCycle, 1f + config.endlessHpStep * filledCycle, 1f + config.endlessCountStep * filledCycle);
+            }
+
+            // в обучении фоновый поток начинается позже; в «Марафоне» идёт до нового времени босса, в Бесконечном не кончается
             float ambientStart = loop.Run.tutorial ? config.tutorialAmbientStart : config.ambientStart;
-            if (t >= ambientStart && t <= config.ambientEnd)
+            float ambientEnd = loop.Run.Has(RunModifier.Marathon) ? config.ambientEnd + config.marathonShift : config.ambientEnd;
+            if (t >= ambientStart && (endless || t <= ambientEnd))
             {
                 ambientTimer -= dt;
                 if (ambientTimer <= 0f)
                 {
-                    ambientTimer += loop.Era.ambientInterval;
+                    // в Бесконечном поток с каждым циклом чаще
+                    float pace = endless ? Mathf.Max(config.endlessAmbientMin, 1f - config.endlessAmbientStep * loop.Run.cycle) : 1f;
+                    ambientTimer += loop.Era.ambientInterval * pace;
                     enemies.Spawn(EnemyType.Swarmer, Polar(spawnRng.Range(0f, 360f), config.spawnRadius), 1f);
                 }
             }
         }
 
-        int Fill(SpawnEvent[] events, int n)
+        // события не раньше секунды from встают в pending с места n со сдвигом shift; возвращает место за последним
+        int Fill(SpawnEvent[] events, int n, float from, float shift, float hpMul, float countMul)
         {
+            RunState run = loop.Run;
             for (int i = 0; i < events.Length; i++)
             {
+                if (events[i].time < from) continue;
+
                 for (int g = 0; g < events[i].groups.Length; g++)
                 {
                     SpawnGroup group = events[i].groups[g];
                     // Opposite: напротив предыдущей группы, даже если она из прошлого события
                     lastCentre = group.angleMode == AngleMode.Opposite ? Mathf.Repeat(lastCentre + 180f, 360f) : spawnRng.Range(0f, 360f);
-                    pending[n++] = new Pending { time = events[i].time, group = group, centre = lastCentre };
+
+                    // «Рой»: вместо каждого крупного врага на его месте стая Роя; «Ливень стрел»: Стрел вдвое больше
+                    bool swarmed = run.Has(RunModifier.SwarmOnly) && group.type != EnemyType.Swarmer && group.type != EnemyType.Arrow;
+                    float count = group.count * loop.Era.countMul * countMul;
+                    if (group.type == EnemyType.Arrow && run.Has(RunModifier.DoubleArrows)) count *= config.doubleArrowsMul;
+                    pending[n++] = new Pending
+                    {
+                        time = events[i].time + shift,
+                        group = group,
+                        centre = lastCentre,
+                        type = swarmed ? EnemyType.Swarmer : group.type,
+                        units = Mathf.Max(1, Mathf.RoundToInt(count)),
+                        pack = swarmed ? config.swarmOnlyPack : 1,
+                        hpMul = hpMul,
+                    };
                 }
             }
             return n;
         }
 
-        void Spawn(SpawnGroup group, float centre)
+        void Spawn(Pending p)
         {
-            int n = Units(group);
-            float radius = Radius(group);
-            bool swarm = IsSwarm(group, n);
+            SpawnGroup group = p.group;
+            float radius = Radius(p);
+            // стая разбросана по дуге: вокруг середины группы, а у «Роя» вокруг места каждого заменённого врага
+            bool scattered = IsSwarm(p) || p.pack > 1;
 
-            for (int k = 0; k < n; k++)
+            for (int k = 0; k < p.units; k++)
             {
-                float angle = UnitAngle(group, centre, k, n);
-                float r = radius;
-                if (swarm)
+                float place = UnitAngle(group, p.centre, k, p.units);
+                for (int m = 0; m < p.pack; m++)
                 {
-                    angle += spawnRng.Range(-0.5f, 0.5f) * group.spreadDeg;
-                    r += spawnRng.Range(0f, config.swarmRadiusJitter);
+                    float angle = place;
+                    float r = radius;
+                    if (scattered)
+                    {
+                        angle += spawnRng.Range(-0.5f, 0.5f) * group.spreadDeg;
+                        r += spawnRng.Range(0f, config.swarmRadiusJitter);
+                    }
+                    enemies.Spawn(p.type, Polar(angle, r), group.speedMul, p.hpMul);
                 }
-                enemies.Spawn(group.type, Polar(angle, r), group.speedMul);
             }
         }
 
-        int Units(SpawnGroup group)
+        float Radius(Pending p)
         {
-            return Mathf.Max(1, Mathf.RoundToInt(group.count * loop.Era.countMul));
-        }
-
-        float Radius(SpawnGroup group)
-        {
-            if (group.radius > 0f) return group.radius;
-            return group.type == EnemyType.Arrow ? config.arrowSpawnRadius : config.spawnRadius;
+            if (p.group.radius > 0f) return p.group.radius;
+            return p.type == EnemyType.Arrow ? config.arrowSpawnRadius : config.spawnRadius;
         }
 
         float Lead(EnemyType type)
@@ -161,9 +209,10 @@ namespace Perigee
             return type == EnemyType.Swarmer ? config.telegraphLeadSwarm : config.telegraphLeadOther;
         }
 
-        static bool IsSwarm(SpawnGroup group, int n)
+        // стая Роя из расписания: одна группа вокруг общей середины
+        static bool IsSwarm(Pending p)
         {
-            return group.type == EnemyType.Swarmer && n > 1;
+            return p.group.type == EnemyType.Swarmer && p.units > 1;
         }
 
         static float UnitAngle(SpawnGroup group, float centre, int k, int n)
@@ -232,10 +281,12 @@ namespace Perigee
             for (int i = from; i < list.Count; i++) list[i].gameObject.SetActive(false);
         }
 
-        static int GroupCount(SpawnEvent[] events)
+        // сколько групп в событиях не раньше секунды from
+        static int GroupCount(SpawnEvent[] events, float from)
         {
             int total = 0;
-            for (int i = 0; i < events.Length; i++) total += events[i].groups.Length;
+            for (int i = 0; i < events.Length; i++)
+                if (events[i].time >= from) total += events[i].groups.Length;
             return total;
         }
 

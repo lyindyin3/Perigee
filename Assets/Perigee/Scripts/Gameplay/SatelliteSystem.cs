@@ -54,6 +54,8 @@ namespace Perigee
         bool echoing;
         // секунды с момента, когда удержание отпущено; 0 = игрок держит
         float sinceRelease;
+        // «Встречный ветер»: секунды с прошлого разворота орбиты
+        float reverseTimer;
 
         void Awake()
         {
@@ -90,8 +92,9 @@ namespace Perigee
             threads.Clear();
             for (int i = 0; i < config.threadPrewarm; i++) Thread(i).gameObject.SetActive(false);
 
-            baseR = config.rMin;
+            baseR = RestRadius;
             orbitDir = Clockwise;
+            reverseTimer = 0f;
             threadTimer = 0f;
             threadCount = 0;
             resonating = false;
@@ -111,8 +114,19 @@ namespace Perigee
             bool holding = input.IsHolding;
             sinceRelease = holding ? 0f : sinceRelease + dt;
 
+            // «Встречный ветер»: орбита сама разворачивается через равные промежутки
+            if (loop.Run.Has(RunModifier.AutoReverse))
+            {
+                reverseTimer += dt;
+                if (reverseTimer >= config.autoReverseInterval)
+                {
+                    reverseTimer -= config.autoReverseInterval;
+                    Reverse();
+                }
+            }
+
             // при удержании внешний спутник всегда доходит до внешнего кольца
-            float target = holding ? config.ringMax - (count - 1) * config.ringGap : config.rMin;
+            float target = holding ? config.ringMax - (count - 1) * config.ringGap : RestRadius;
             // эра и карточки по-разному меняют выход наружу и падение (Тяжёлая звезда, минус ПРАЩИ)
             EraDef era = loop.Era;
             float k = target > baseR ? era.riseMul * loop.Stats.radialOutMul : era.fallMul;
@@ -138,6 +152,9 @@ namespace Perigee
         }
 
         public int Count => count;
+
+        // радиус, на который спутник падает без удержания; «Высокая орбита» держит его дальше от звезды
+        float RestRadius => loop.Run.Has(RunModifier.HighOrbit) ? config.highOrbitMin : config.rMin;
 
         // больше спутников не станет: четвёртый даёт только чертёж КВАДРИГА
         public int Cap => config.satelliteCap + loop.Stats.addSatBonus;

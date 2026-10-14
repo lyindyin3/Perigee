@@ -38,6 +38,8 @@ namespace Perigee
         public Visual pulsarWave;
         // картинки эр, по порядку config.eras: значок на карточке эры
         public Sprite[] eraIcons;
+        // большая тусклая картинка за кольцами фона, по порядку config.eras; пустая запись = без неё
+        public Sprite[] eraBackdrops;
         // картинка звезды в эре, по порядку config.eras; пустая запись = обычная картинка звезды
         public Sprite[] eraStarSprites;
         // по порядку CardId

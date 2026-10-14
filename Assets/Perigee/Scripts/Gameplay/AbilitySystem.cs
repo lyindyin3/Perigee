@@ -184,8 +184,12 @@ namespace Perigee
         public void OfferAll()
         {
             offerSlot = SlotA;
-            offerCount = config.abilities.Length;
-            for (int i = 0; i < offerCount; i++) offer[i] = config.abilities[i].id;
+            offerCount = 0;
+            for (int i = 0; i < config.abilities.Length; i++)
+            {
+                AbilityId id = config.abilities[i].id;
+                if (!Banned(id)) offer[offerCount++] = id;
+            }
         }
 
         // слот B: случайные из купленных и ещё не взятых; если таких нет, предложение пустое
@@ -196,7 +200,7 @@ namespace Perigee
             for (int i = 0; i < config.abilities.Length; i++)
             {
                 AbilityId id = config.abilities[i].id;
-                if (Owned(id) && !Slotted(id)) offer[n++] = id;
+                if (Owned(id) && !Slotted(id) && !Banned(id)) offer[n++] = id;
             }
 
             offerCount = Mathf.Min(config.abilityChoices, n);
@@ -226,6 +230,18 @@ namespace Perigee
         {
             slots[slot] = id;
             filled[slot] = true;
+        }
+
+        // «Без способностей»: слотов нет. Слот B и так очищает ResetRun
+        public void Clear()
+        {
+            filled[SlotA] = false;
+        }
+
+        // «Встречный ветер» сам разворачивает орбиту: РЕВЕРС в таком забеге не предлагается
+        bool Banned(AbilityId id)
+        {
+            return id == AbilityId.Reverse && loop.Run.Has(RunModifier.AutoReverse);
         }
 
         bool Slotted(AbilityId id)

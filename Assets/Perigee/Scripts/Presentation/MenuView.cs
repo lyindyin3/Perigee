@@ -5,23 +5,56 @@ using UnityEngine.UI;
 
 namespace Perigee
 {
-    // Меню и Мастерская внутри него: чертежи, способности, облик.
+    // Меню: главная панель, экран эр с режимами, испытания и Мастерская (чертежи, способности, облик). Видна одна панель.
     public class MenuView : MonoBehaviour
     {
         [SerializeField] GameConfig config;
         [SerializeField] ArtSet art;
         [SerializeField] GameLoop loop;
+        [SerializeField] SettingsView settings;
         [SerializeField] GameObject mainPanel;
+        [SerializeField] GameObject erasPanel;
+        [SerializeField] GameObject challengesPanel;
         [SerializeField] GameObject workshopPanel;
+        // подписи кнопок «Назад» на всех панелях
+        [SerializeField] TMP_Text[] backLabels;
+
+        // главная панель
         [SerializeField] TMP_Text title;
-        [SerializeField] TMP_Text bestTime;
+        [SerializeField] TMP_Text mainDust;
+        [SerializeField] TMP_Text statsLine;
         [SerializeField] TMP_Text playLabel;
-        [SerializeField] TMP_Text dailyLabel;
-        [SerializeField] TMP_Text eraLabel;
+        [SerializeField] TMP_Text challengesLabel;
         [SerializeField] TMP_Text workshopLabel;
+        [SerializeField] TMP_Text settingsLabel;
+        // кнопки, которых нет, пока не пройдено обучение
+        [SerializeField] GameObject[] lateButtons;
+
+        // экран эр: вкладки режимов по порядку RunMode (Забег, Бесконечный, День)
+        [SerializeField] TMP_Text erasHeader;
+        [SerializeField] Button[] modeTabs;
+        [SerializeField] TMP_Text[] modeTabLabels;
+        // замок с условием поверх вкладки Бесконечного; он же не пропускает нажатие
+        [SerializeField] GameObject endlessLock;
+        [SerializeField] TMP_Text endlessLockText;
+        // лента карточек эр (Забег и Бесконечный), по индексу в config.eras
+        [SerializeField] GameObject eraList;
+        [SerializeField] EraCard[] eraCards;
+        // карточка Дня
+        [SerializeField] GameObject dailyCard;
+        [SerializeField] TMP_Text dailyTitle;
+        [SerializeField] TMP_Text dailyModifier;
+        [SerializeField] TMP_Text dailyText;
+        [SerializeField] TMP_Text dailyBonus;
+        [SerializeField] TMP_Text dailyBest;
+        [SerializeField] TMP_Text startLabel;
+
+        // испытания: строки по индексу в config.challenges
+        [SerializeField] TMP_Text challengesHeader;
+        [SerializeField] ChallengeRow[] challengeRows;
+
         [SerializeField] TMP_Text workshopHeader;
         [SerializeField] TMP_Text dustText;
-        [SerializeField] TMP_Text backLabel;
         // вкладки Мастерской: кнопка, подпись и панель; порядок как в Strings.WorkshopTab
         [SerializeField] Button[] tabButtons;
         [SerializeField] TMP_Text[] tabLabels;
@@ -44,6 +77,8 @@ namespace Perigee
 
         // выбранная эра: номер в config.eras
         int era;
+        // открытая вкладка экрана эр: номер RunMode
+        int mode;
         // выбранный узел дерева: индекс в config.blueprints
         int node;
 
@@ -51,10 +86,17 @@ namespace Perigee
         {
             title.text = Strings.GameTitle;
             playLabel.text = Strings.Play;
-            dailyLabel.text = Strings.Daily;
+            challengesLabel.text = Strings.Challenges;
             workshopLabel.text = Strings.Workshop;
+            settingsLabel.text = Strings.Settings;
+            erasHeader.text = Strings.Play;
+            endlessLockText.text = Strings.EndlessLocked;
+            dailyTitle.text = Strings.DailyTitle;
+            startLabel.text = Strings.Start;
+            challengesHeader.text = Strings.Challenges;
             workshopHeader.text = Strings.Workshop;
-            backLabel.text = Strings.Back;
+            for (int i = 0; i < backLabels.Length; i++) backLabels[i].text = Strings.Back;
+            for (int i = 0; i < modeTabLabels.Length; i++) modeTabLabels[i].text = Strings.ModeTab[i];
             for (int i = 0; i < tabLabels.Length; i++) tabLabels[i].text = Strings.WorkshopTab[i];
             for (int i = 0; i < branchLabels.Length; i++) branchLabels[i].text = Strings.BranchTitle[i];
             for (int i = 0; i < skinKindLabels.Length; i++) skinKindLabels[i].text = Strings.SkinKindTitle[i];
@@ -65,35 +107,106 @@ namespace Perigee
             ShowMain();
         }
 
+        // ИГРАТЬ: экран эр; пока обучение не пройдено, сразу забег-обучение
         public void Play()
         {
-            loop.StartFromMenu(era, RunMode.Run);
+            if (loop.Save.Data.tutorialDone) OpenEras();
+            else loop.StartFromMenu(0, RunMode.Run, 0);
         }
 
-        public void Daily()
+        public void OpenEras()
         {
-            loop.StartFromMenu(era, RunMode.Daily);
+            Show(erasPanel);
+            SaveData data = loop.Save.Data;
+            // выбрана эра прошлого забега, если она всё ещё открыта
+            era = Mathf.Min(data.lastEra, loop.Progress.ErasOpen - 1);
+            // открыта вкладка прошлого режима; после испытания и при закрытом Бесконечном это Забег
+            var last = (RunMode)data.lastMode;
+            bool known = last == RunMode.Daily || last == RunMode.Endless && loop.Progress.EndlessOpen;
+            ShowMode(known ? data.lastMode : (int)RunMode.Run);
         }
 
-        // по кругу среди открытых эр
-        public void NextEra()
+        // вызывают кнопки вкладок режимов, номер RunMode задан в сцене
+        public void ShowMode(int tab)
         {
-            era = (era + 1) % loop.Progress.ErasOpen;
-            ShowEra();
+            mode = tab;
+            // кнопка открытой вкладки не нажимается: так она выглядит выбранной
+            for (int i = 0; i < modeTabs.Length; i++) modeTabs[i].interactable = i != tab;
+            endlessLock.SetActive(!loop.Progress.EndlessOpen);
+
+            bool daily = tab == (int)RunMode.Daily;
+            eraList.SetActive(!daily);
+            dailyCard.SetActive(daily);
+            if (daily) ShowDaily();
+            else ShowEras();
+        }
+
+        // вызывают карточки эр, номер эры задан в сцене
+        public void SelectEra(int i)
+        {
+            era = i;
+            ShowEras();
+        }
+
+        // СТАРТ: забег в выбранной эре и режиме открытой вкладки
+        public void StartRun()
+        {
+            loop.StartFromMenu(era, (RunMode)mode, 0);
+        }
+
+        public void OpenChallenges()
+        {
+            Show(challengesPanel);
+            Progress progress = loop.Progress;
+            for (int i = 0; i < challengeRows.Length; i++)
+            {
+                ChallengeDef def = config.challenges[i];
+                bool open = progress.ChallengeOpen(i);
+                string status = string.Empty;
+                if (!open) status = string.Format(Strings.ChallengeLockedFormat, def.era);
+                else if (progress.ChallengeDone(i)) status = Strings.ChallengeDone;
+                string reward = def.hasSkin
+                    ? string.Format(Strings.RewardSkinFormat, Strings.SkinTitle[(int)def.rewardSkin])
+                    : string.Format(Strings.RewardDustFormat, def.rewardDust);
+
+                ChallengeRow row = challengeRows[i];
+                row.Show(i + 1, Strings.ChallengeTitle[i], string.Format(Strings.EraNumberFormat, def.era), Strings.Modifiers(def.mods, Strings.ModifierText), reward, status, open);
+                if (!def.hasSkin) continue;
+
+                // облик-награда с картинкой: в SkinId сначала идут облики спутника, за ними облики звезды
+                int k = Shop.ArtIndex(def.rewardSkin);
+                if (def.rewardSkin < SkinId.Sun) row.ShowSkin(art.satelliteSkins[k].Body);
+                else row.ShowSkin(art.starSkins[k].body);
+            }
+        }
+
+        // вызывают строки испытаний, номер испытания задан в сцене
+        public void PlayChallenge(int i)
+        {
+            loop.StartFromMenu(0, RunMode.Challenge, i);
         }
 
         public void OpenWorkshop()
         {
-            mainPanel.SetActive(false);
-            workshopPanel.SetActive(true);
+            Show(workshopPanel);
             ShowTab(0);
+        }
+
+        public void OpenSettings()
+        {
+            settings.Open();
         }
 
         public void ShowMain()
         {
-            mainPanel.SetActive(true);
-            workshopPanel.SetActive(false);
-            ShowEra();
+            Show(mainPanel);
+            SaveData data = loop.Save.Data;
+            // пока обучение не пройдено, в меню только ИГРАТЬ
+            for (int i = 0; i < lateButtons.Length; i++) lateButtons[i].SetActive(data.tutorialDone);
+            mainDust.text = string.Format(Strings.DustFormat, data.dust);
+            float best = 0f;
+            for (int i = 0; i < data.bestTimes.Length; i++) best = Mathf.Max(best, data.bestTimes[i]);
+            statsLine.text = string.Format(Strings.StatsFormat, data.runs, Strings.Clock(best));
         }
 
         // вызывают кнопки вкладок, номер вкладки задан в сцене
@@ -138,11 +251,38 @@ namespace Perigee
             Refresh();
         }
 
-        // рекорд у каждой эры свой
-        void ShowEra()
+        void Show(GameObject panel)
         {
-            eraLabel.text = string.Format(Strings.EraFormat, Strings.EraTitle[era]);
-            bestTime.text = string.Format(Strings.BestTimeFormat, Strings.Clock(loop.Save.Data.bestTimes[era]));
+            mainPanel.SetActive(panel == mainPanel);
+            erasPanel.SetActive(panel == erasPanel);
+            challengesPanel.SetActive(panel == challengesPanel);
+            workshopPanel.SetActive(panel == workshopPanel);
+        }
+
+        // карточки эр: рекорд у каждой эры свой и зависит от вкладки (Забег или Бесконечный)
+        void ShowEras()
+        {
+            SaveData data = loop.Save.Data;
+            float[] best = mode == (int)RunMode.Endless ? data.bestEndless : data.bestTimes;
+            int open = loop.Progress.ErasOpen;
+            for (int i = 0; i < eraCards.Length; i++)
+            {
+                string boss = string.Format(Strings.BossFormat, Strings.BossTitle(config.eras[i].boss));
+                string record = string.Format(Strings.BestTimeFormat, Strings.Clock(best[i]));
+                // эру открывает победа над боссом предыдущей: её номер с единицы равен i
+                string locked = string.Format(Strings.EraLockedFormat, i);
+                eraCards[i].Show(art.eraIcons[i], Strings.EraTitle[i], Strings.EraRule[i], boss, Strings.EraEnemies[i], record, (data.erasWon & 1 << i) != 0, i >= open, locked, i == era);
+            }
+        }
+
+        void ShowDaily()
+        {
+            Progress progress = loop.Progress;
+            RunModifier mods = progress.DailyMod;
+            dailyModifier.text = Strings.Modifiers(mods, Strings.ModifierTitle);
+            dailyText.text = Strings.Modifiers(mods, Strings.ModifierText);
+            dailyBonus.text = progress.DailyBonusLeft ? string.Format(Strings.DailyBonusFormat, config.dailyDustMul) : Strings.DailyPlayed;
+            dailyBest.text = string.Format(Strings.BestScoreFormat, loop.Save.Data.bestDaily);
         }
 
         // вся Мастерская заново: покупка меняет пыль, а с ней и то, что можно купить на других вкладках

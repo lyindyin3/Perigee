@@ -44,6 +44,14 @@ namespace Perigee
             PlayerPrefs.Save();
         }
 
+        public void Reset()
+        {
+            SettingsData settings = Data.settings;
+            Data = Fresh();
+            Data.settings = settings;
+            Save();
+        }
+
         SaveData Fresh()
         {
             return new SaveData

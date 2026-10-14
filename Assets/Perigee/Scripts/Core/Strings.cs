@@ -9,13 +9,104 @@ namespace Perigee
         public const string Restart = "ЗАНОВО";
         public const string Menu = "МЕНЮ";
 
+        public const string Settings = "НАСТРОЙКИ";
+
         public const string GameTitle = "ПЕРИГЕЙ";
         public const string Play = "ИГРАТЬ";
-        public const string Daily = "ДНЕВНОЙ ЗАБЕГ";
-        public const string EraFormat = "ЭРА: {0}";
+        public const string Challenges = "ИСПЫТАНИЯ";
+        // {0} = сколько забегов сыграно, {1} = лучшее время по всем эрам
+        public const string StatsFormat = "Забегов: {0} · Лучшее: {1}";
         public const string BestTimeFormat = "Рекорд {0}";
         public const string Back = "НАЗАД";
         public const string DustFormat = "Пыль: {0}";
+
+        // экран эр: вкладки по порядку RunMode
+        public static readonly string[] ModeTab = { "ЗАБЕГ", "БЕСКОНЕЧНЫЙ", "ДЕНЬ" };
+        public const string EndlessLocked = "После победы в эре 1";
+        public const string Start = "СТАРТ";
+        public const string BossFormat = "Босс: {0}";
+        // новые враги эры, по порядку config.eras
+        public static readonly string[] EraEnemies =
+        {
+            "Первая звезда",
+            "Новые враги: Дробитель, Факел",
+            "Новые враги: Кружащий, Щитник",
+            "Новые враги: Пожиратель, Призрак",
+        };
+        // {0} = номер эры, босса которой надо победить
+        public const string EraLockedFormat = "Победи босса эры {0}";
+        public const string DailyTitle = "ИСПЫТАНИЕ ДНЯ";
+        public const string DailyBonusFormat = "Сегодня: пыль ×{0}";
+        public const string DailyPlayed = "Сегодня уже сыграно";
+        public const string BestScoreFormat = "Лучший счёт: {0}";
+
+        // испытания
+        public const string EraNumberFormat = "Эра {0}";
+        // награда испытания: пыль или облик (рядом его картинка)
+        public const string RewardDustFormat = "{0} пыли";
+        public const string RewardSkinFormat = "Облик «{0}»";
+        public const string ChallengeDone = "Пройдено";
+        public const string ChallengeLockedFormat = "Откроется в эре {0}";
+        public const string ChallengePlay = "Играть";
+
+        // модификаторы забега, по номеру бита RunModifier
+        public static readonly string[] ModifierTitle =
+        {
+            "Одиночка", "Стеклянная звезда", "Высокая орбита", "Без способностей", "Рой", "Жара", "Встречный ветер", "Марафон", "Спешка", "Ливень стрел",
+        };
+
+        public static readonly string[] ModifierText =
+        {
+            "Всегда один спутник",
+            "HP звезды ×0.4, лечения нет",
+            "Спутники не опускаются ниже 3.0",
+            "Способностей нет",
+            "Вместо крупных врагов — тройные стаи",
+            "Нагрев ×2",
+            "Орбита разворачивается каждые 8 с",
+            "Босс на 5:00",
+            "Враги быстрее ×1.2",
+            "Стрел вдвое больше",
+        };
+
+        const string ModifierSeparator = " · ";
+
+        // строки включённых модификаторов из таблицы table (ModifierTitle или ModifierText) в одну строку
+        public static string Modifiers(RunModifier mods, string[] table)
+        {
+            string line = string.Empty;
+            for (int i = 0; i < table.Length; i++)
+            {
+                if (((int)mods & 1 << i) == 0) continue;
+                line = line.Length == 0 ? table[i] : line + ModifierSeparator + table[i];
+            }
+            return line;
+        }
+
+        // под таймером в Бесконечном: {0} = номер цикла с единицы
+        public const string CycleFormat = "Цикл {0}";
+        // баннер за босса в Бесконечном
+        public const string BossDustFormat = "+{0} пыли";
+
+        // настройки
+        public const string SfxVolume = "Звуки";
+        public const string DroneVolume = "Гул";
+        public const string Shake = "Тряска экрана";
+        public const string DamageNumbers = "Числа урона";
+        public const string HpRings = "Полоски HP врагов";
+        // по порядку HpRingMode
+        public static readonly string[] HpRingModes = { "После удара", "Всегда", "Никогда" };
+        public const string Background = "Фон";
+        public const string BackgroundFull = "Полный";
+        public const string BackgroundSimple = "Простой";
+        public const string ReplayTutorial = "Пройти обучение снова";
+        public const string ResetProgress = "Сбросить прогресс";
+        public const string ConfirmTutorial = "Пройти обучение снова?";
+        public const string ConfirmReset = "Сбросить всё? Пыль, чертежи, эры, способности и облик пропадут.";
+        public const string VersionFormat = "Версия {0}";
+        public const string Close = "Закрыть";
+        public const string Yes = "Да";
+        public const string No = "Нет";
 
         public const string Workshop = "МАСТЕРСКАЯ";
         // вкладки Мастерской по порядку
@@ -48,10 +139,18 @@ namespace Perigee
         public const string DustCrystalsFormat = "Кристаллы {0} ×{1:0.##}: +{2}";
         public const string DustVictoryFormat = "Победа: +{0}";
         public const string DustFirstWinFormat = "Первая победа: +{0}";
+        // Бесконечный: {0} = сколько боссов убито, {1} = пыль за них
+        public const string DustBossesFormat = "Боссы ×{0}: +{1}";
+        public const string DustRewardFormat = "Награда испытания: +{0}";
         public const string DustDailyFormat = "Первый забег дня: ×{0}";
         public const string DustAdFormat = "Реклама: ×{0}";
         public const string DustTotalFormat = "Итого пыли: +{0}";
-        public const string EraUnlockedFormat = "Открыта эра: {0}";
+        // итоги Бесконечного: {0} = номер цикла с единицы, {1} = убито боссов
+        public const string EndlessResultFormat = "Цикл {0} · Боссов убито: {1}";
+        // что открыл забег
+        public const string UnlockedEraFormat = "Открыто: эра {0}";
+        public const string UnlockedEndless = "Открыто: режим БЕСКОНЕЧНЫЙ";
+        public const string UnlockedSkinFormat = "Открыто: облик «{0}»";
 
         // кнопка с рекламой называет награду и говорит, что это реклама
         public const string ReviveTitle = "ЗВЕЗДА ГАСНЕТ";

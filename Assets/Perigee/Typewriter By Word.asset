@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eb821b3a89e0240aa91c53955ccade89, type: 3}
   m_Name: Typewriter By Word
   m_EditorClassIdentifier: Febucci.TextAnimatorForUnity.Runtime::Febucci.TextAnimatorForUnity.TypingDelaysByWord
-  waitForNormalWord: 0.3
-  waitForWordWithPunctuation: 0.4
-  disappearanceDelay: 0.6
+  waitForNormalWord: 0.035
+  waitForWordWithPunctuation: 0.25
+  disappearanceDelay: 0.04

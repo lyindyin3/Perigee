@@ -2,8 +2,8 @@ using UnityEngine;
 
 namespace Perigee
 {
-    // Босс эры: Комета, Близнецы (две кометы), Колосс или Пульсар. Приходит на секунде bossTime,
-    // победа над ним (над всеми его телами) заканчивает забег.
+    // Босс эры: Комета, Близнецы (две кометы), Колосс или Пульсар. Приходит на секунде loop.BossTime,
+    // победа над ним (над всеми его телами) заканчивает забег. В Бесконечном он приходит каждый цикл, а забег идёт дальше.
     public class BossSystem : MonoBehaviour
     {
         // у Близнецов два тела, у остальных боссов одно
@@ -63,7 +63,8 @@ namespace Perigee
         float maxHp;
         // секунды с появления, по времени врагов
         float age;
-        bool spawned;
+        // сколько сроков прихода босса уже прошло; больше одного бывает только в Бесконечном
+        int arrivals;
         // броня босса: у Колосса падает с каждой фазой
         float armor;
         // Колосс: сколько порогов HP уже пройдено
@@ -135,13 +136,19 @@ namespace Perigee
                 wave.gameObject.SetActive(false);
             }
 
-            spawned = false;
+            arrivals = 0;
             Alive = false;
         }
 
         public void Tick(float dt)
         {
-            if (!spawned && loop.Run.time >= config.bossTime) Spawn();
+            // в Бесконечном срок прихода наступает каждый цикл; босс приходит, если прошлый уже убит
+            bool endless = loop.Run.mode == RunMode.Endless;
+            if ((endless || arrivals == 0) && loop.Run.time >= loop.BossTime + arrivals * config.endlessLoopTime)
+            {
+                if (!Alive) Spawn(arrivals);
+                arrivals++;
+            }
             if (!Alive) return;
 
             // СТАЗИС замедляет босса; перезарядка удара, линии орбит и кольцо HP идут по обычному времени
@@ -274,15 +281,16 @@ namespace Perigee
             return false;
         }
 
-        void Spawn()
+        // cycle = какой по счёту срок прихода, с нуля; вне Бесконечного всегда 0
+        void Spawn(int cycle)
         {
-            spawned = true;
             Alive = true;
             aliveParts = partCount;
-            director.Stop();
+            // в Бесконечном враги приходят и при боссе
+            if (loop.Run.mode != RunMode.Endless) director.Stop();
 
-            // эра боссов не усиливает
-            maxHp = def.hp;
+            // эра боссов не усиливает; в Бесконечном босс крепче с каждым циклом
+            maxHp = def.hp * (1f + config.endlessBossHpStep * cycle);
             armor = def.armor;
             age = 0f;
             phase = 0;
@@ -330,18 +338,27 @@ namespace Perigee
             part.line.Hide();
             crystals.Spawn(part.position, def.crystals);
             aliveParts--;
-            if (aliveParts > 0)
+            bool endless = loop.Run.mode == RunMode.Endless;
+            if (aliveParts > 0 || endless)
             {
-                // бой идёт дальше (оставшийся из Близнецов летит быстрее): гибель видна и слышна, как большое убийство
+                // бой идёт дальше (оставшийся из Близнецов летит быстрее, Бесконечный не кончается): гибель видна и слышна, как большое убийство
                 fx.Shards(part.position, config.killShards * config.bigKillShardMul);
                 fx.Shake(config.bigKillShake, config.bigKillShakeTime);
                 sfx.Play(SfxId.Kill);
-                return;
             }
+            if (aliveParts > 0) return;
 
             Alive = false;
             if (def.behavior == EnemyBehavior.Pulsar) wave.gameObject.SetActive(false);
-            loop.Win();
+            if (!endless)
+            {
+                loop.Win();
+                return;
+            }
+
+            // Бесконечный: за босса будет пыль на итогах, баннер говорит сколько
+            loop.Run.bossKills++;
+            banner.Show(string.Format(Strings.BossDustFormat, loop.Progress.BossDust(loop.Era)), null, Color.white, config.bannerDustHold);
         }
 
         // Тело кометы (Комета и каждый из Близнецов): эллипс со звездой в фокусе;

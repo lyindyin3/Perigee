@@ -118,8 +118,8 @@ namespace Perigee
             CardDef card = config.cards[index];
             loop.Run.cardStacks[index]++;
             loop.RecomputeStats();
-            // STAR_PLATING лечит на столько же, на сколько поднимает максимум; ЖАДНОСТЬ срезает HP сверх нового максимума
-            float heal = card.plus.stat == StatId.StarMaxHp ? card.plus.value : 0f;
+            // STAR_PLATING лечит на столько же, на сколько поднимает максимум (стеклянную звезду не лечит ничто); ЖАДНОСТЬ срезает HP сверх нового максимума
+            float heal = card.plus.stat == StatId.StarMaxHp && !loop.Run.Has(RunModifier.GlassStar) ? card.plus.value : 0f;
             loop.Run.hp = Mathf.Min(loop.Run.hp + heal, loop.Stats.starMaxHp);
         }
 
@@ -129,8 +129,8 @@ namespace Perigee
             run.xp -= Need(run.level);
             run.level++;
 
-            // это повышение уровня открывает выбор второй способности вместо карточек
-            if (run.level == config.abilityPickLevel)
+            // это повышение уровня открывает выбор второй способности вместо карточек; «Без способностей»: карточки
+            if (run.level == config.abilityPickLevel && !run.Has(RunModifier.NoAbilities))
             {
                 abilities.OfferRandom(cardRng);
                 // свободных способностей не осталось: это повышение открывает карточки
@@ -192,9 +192,12 @@ namespace Perigee
         bool Eligible(int i)
         {
             CardDef card = config.cards[i];
-            // у ADD_SAT предела стаков нет: карточка идёт, пока спутников меньше максимума
-            if (card.id == CardId.AddSat) return 1 + loop.Stats.extraSatellites < satellites.Cap;
-            if (loop.Run.cardStacks[i] >= card.maxStacks) return false;
+            RunState run = loop.Run;
+            // у ADD_SAT предела стаков нет: карточка идёт, пока спутников меньше максимума; в «Одиночке» её нет
+            if (card.id == CardId.AddSat) return !run.Has(RunModifier.SingleSat) && 1 + loop.Stats.extraSatellites < satellites.Cap;
+            if (run.cardStacks[i] >= card.maxStacks) return false;
+            // «Без способностей»: их карточки не нужны
+            if ((card.id == CardId.AbilityHaste || card.id == CardId.AbilityLong) && run.Has(RunModifier.NoAbilities)) return false;
             // карточка эры идёт только в своей эре
             if (card.era != 0 && card.era != loop.EraNumber) return false;
             // нити нужна пара спутников

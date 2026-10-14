@@ -100,7 +100,8 @@ namespace Perigee
             }
         }
 
-        public void Spawn(EnemyType type, Vector2 position, float speedMul)
+        // hpMul = множитель HP от режима (циклы Бесконечного, повтор «Марафона»); действует там же, где множитель эры
+        public void Spawn(EnemyType type, Vector2 position, float speedMul, float hpMul = 1f)
         {
             if (count == live.Length) return;
 
@@ -113,7 +114,7 @@ namespace Perigee
             e.radius = def.radius;
             e.visual.SetSizeMul(1f);
             // эра усиливает только врагов с базовым hp от eraHpMinBaseHp
-            e.maxHp = def.hp >= config.eraHpMinBaseHp ? def.hp * loop.Era.hpMul : def.hp;
+            e.maxHp = def.hp >= config.eraHpMinBaseHp ? def.hp * loop.Era.hpMul * hpMul : def.hp;
             e.hp = e.maxHp;
             e.hurt = false;
             e.hpRing.Fill();
@@ -448,7 +449,7 @@ namespace Perigee
         // шаг к центру, но не ближе stopRadius; возвращает новое расстояние до центра
         float Advance(Enemy e, float stopRadius, float dt)
         {
-            float speed = e.def.speed * e.speedMul;
+            float speed = e.def.speed * e.speedMul * loop.Stats.enemySpeedMul;
             if (e.def.id == EnemyType.Arrow) speed *= loop.Stats.arrowSpeedMul;
 
             float r = e.position.magnitude;
@@ -493,7 +494,7 @@ namespace Perigee
             }
 
             Vector2 target = crystals.Position(c);
-            e.position = Vector2.MoveTowards(e.position, target, e.def.speed * e.speedMul * dt);
+            e.position = Vector2.MoveTowards(e.position, target, e.def.speed * e.speedMul * loop.Stats.enemySpeedMul * dt);
             float reach = e.radius + config.crystalRadius;
             if ((target - e.position).sqrMagnitude <= reach * reach)
             {
@@ -541,10 +542,10 @@ namespace Perigee
             }
         }
 
-        // первая встреча с типом врага (не в обучении): подсказка сверху. Рой и Снаряд в ней не нуждаются.
+        // первая встреча с типом врага (не в обучении и не в Дне): подсказка сверху. Рой и Снаряд в ней не нуждаются.
         void Meet(EnemyType type)
         {
-            if (loop.Run.tutorial || type == EnemyType.Swarmer || type == EnemyType.Bolt) return;
+            if (loop.Run.tutorial || loop.Run.mode == RunMode.Daily || type == EnemyType.Swarmer || type == EnemyType.Bolt) return;
 
             SaveData data = loop.Save.Data;
             int bit = 1 << (int)type;

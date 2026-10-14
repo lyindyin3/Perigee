@@ -1,5 +1,4 @@
 using System;
-using System.Globalization;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -9,11 +8,11 @@ namespace Perigee
 
     public class GameLoop : MonoBehaviour
     {
-        // зерно дневного забега = дата UTC в таком виде
-        const string DateFormat = "yyyyMMdd";
-
         [SerializeField] GameConfig config;
+        [SerializeField] ArtSet art;
         [SerializeField] Camera cam;
+        // большая тусклая картинка эры за кольцами фона
+        [SerializeField] SpriteRenderer backdrop;
         [SerializeField] InputHold input;
         [SerializeField] SatelliteSystem satellites;
         [SerializeField] EnemySystem enemies;
@@ -35,6 +34,7 @@ namespace Perigee
         [SerializeField] MenuView menuView;
         [SerializeField] ReviveView reviveView;
         [SerializeField] ResultView resultView;
+        [SerializeField] SettingsView settingsView;
 
         public GameState State { get; private set; }
         public Stats Stats { get; } = new Stats();
@@ -48,12 +48,16 @@ namespace Perigee
         public int EraNumber => eraIndex + 1;
         // СТАЗИС: враги, их таймеры и боссы живут в замедленном времени
         public float EnemyTimeScale => abilities.Active(AbilityId.Stasis) ? config.stasisSlow : 1f;
+        // секунда забега, на которой приходит босс; в «Марафоне» позже
+        public float BossTime => Run.Has(RunModifier.Marathon) ? config.marathonBossTime : config.bossTime;
 
         IAdService ads;
         ILeaderboardService leaderboard;
         IPlatformService platform;
         int eraIndex;
         RunMode mode;
+        // номер испытания в config.challenges, пока режим Challenge
+        int challenge;
         float accumulator;
         float victoryTimer;
         // вкладка свёрнута или окно без фокуса
@@ -100,6 +104,7 @@ namespace Perigee
             Run.Reset(config, 0);
             RecomputeStats();
             Run.hp = Stats.starMaxHp;
+            settingsView.Apply();
             ToMenu();
             platform.GameReady();
         }
@@ -111,14 +116,18 @@ namespace Perigee
             SetState(GameState.Menu);
         }
 
-        // забег из меню: сначала выбор способности слота A. Дневной забег и обучение всегда идут в первой эре.
-        public void StartFromMenu(int era, RunMode runMode)
+        // забег из меню: сначала выбор способности слота A. День и обучение всегда идут в первой эре, испытание в своей.
+        // challengeIndex = номер в config.challenges, нужен только режиму Challenge
+        public void StartFromMenu(int era, RunMode runMode, int challengeIndex)
         {
-            eraIndex = runMode == RunMode.Daily || !Save.Data.tutorialDone ? 0 : era;
             mode = runMode;
+            challenge = challengeIndex;
+            if (runMode == RunMode.Daily || !Save.Data.tutorialDone) eraIndex = 0;
+            else if (runMode == RunMode.Challenge) eraIndex = config.challenges[challenge].era - 1;
+            else eraIndex = era;
             ResetRun();
-            // обучение: слот A уже занят, экран выбора не нужен
-            if (Run.tutorial)
+            // обучение: слот A уже занят; «Без способностей»: слотов нет. Экран выбора не нужен
+            if (Run.tutorial || Run.Has(RunModifier.NoAbilities))
             {
                 SetState(GameState.Playing);
                 return;
@@ -129,7 +138,7 @@ namespace Perigee
             abilityPickView.Show();
         }
 
-        // Retry: экран выбора пропускается; слот A, эра и режим остаются прежними
+        // Retry и «Заново» из паузы: экран выбора пропускается; слот A, эра, режим и модификаторы остаются прежними
         public void StartRun()
         {
             if (State == GameState.Result) Interstitial();
@@ -139,11 +148,15 @@ namespace Perigee
 
         void ResetRun()
         {
-            Run.Reset(config, mode == RunMode.Daily ? Today() : UnityEngine.Random.Range(0, int.MaxValue));
+            // зерно дневного забега = дата UTC
+            Run.Reset(config, mode == RunMode.Daily ? Progress.Today() : UnityEngine.Random.Range(0, int.MaxValue));
             Run.mode = mode;
+            Run.challenge = challenge;
             // обучение = любой забег, пока ни один не доигран до итогов
             Run.tutorial = !Save.Data.tutorialDone;
+            Run.mods = Modifiers();
             abilities.ResetRun();
+            if (Run.Has(RunModifier.NoAbilities)) abilities.Clear();
             eraRule.ResetRun();
             if (Run.tutorial) abilities.Assign(AbilitySystem.SlotA, AbilityId.Pulse);
             RecomputeStats();
@@ -158,9 +171,19 @@ namespace Perigee
             fx.ResetRun();
             hints.ResetRun();
             banner.ResetRun();
-            // фон в цвете эры
+            // фон в цвете эры; картинка эры за кольцами, если она задана
             cam.backgroundColor = Era.background;
+            backdrop.sprite = art.eraBackdrops[eraIndex];
+            backdrop.enabled = backdrop.sprite != null;
             accumulator = 0f;
+        }
+
+        // модификаторы забега: у Дня один на дату, у испытания свои; в обучении их нет
+        RunModifier Modifiers()
+        {
+            if (Run.tutorial) return RunModifier.None;
+            if (mode == RunMode.Daily) return Progress.DailyMod;
+            return mode == RunMode.Challenge ? config.challenges[challenge].mods : RunModifier.None;
         }
 
         public void SetState(GameState next)
@@ -173,6 +196,8 @@ namespace Perigee
             if (State != GameState.Playing && next == GameState.Playing) platform.GameplayStart();
 
             State = next;
+            // настройки открываются поверх меню и паузы и уходят вместе с ними
+            settingsView.Close();
             hud.gameObject.SetActive(next != GameState.Menu);
             pauseView.gameObject.SetActive(next == GameState.Paused);
             menuView.gameObject.SetActive(next == GameState.Menu);
@@ -188,7 +213,7 @@ namespace Perigee
 
         public void RecomputeStats()
         {
-            Stats.Recompute(config, Era, Run.cardStacks, Save.Data.blueprints, abilities, satellites.Slinging, eraRule.Sailing);
+            Stats.Recompute(config, Era, Run.mods, Run.cardStacks, Save.Data.blueprints, abilities, satellites.Slinging, eraRule.Sailing);
             armorRing.Refresh();
         }
 
@@ -338,11 +363,6 @@ namespace Perigee
             Progress.Finish(Run, eraIndex, Stats);
             leaderboard.Submit(Run.score);
             SetState(GameState.Result);
-        }
-
-        static int Today()
-        {
-            return int.Parse(DateTime.UtcNow.ToString(DateFormat, CultureInfo.InvariantCulture), CultureInfo.InvariantCulture);
         }
     }
 }

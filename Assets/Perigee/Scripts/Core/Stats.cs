@@ -22,6 +22,8 @@ namespace Perigee
         public float satRadiusMul;
         public float crystalLifeMul;
         public float arrowSpeedMul;
+        // скорость всех врагов (модификатор «Спешка»)
+        public float enemySpeedMul;
         public float abilityCooldownMul;
         public float abilityDurationMul;
         public float xpPerCrystalMul;
@@ -69,9 +71,9 @@ namespace Perigee
         public bool Accretion => accretion >= FlagOn;
         public bool SecondSun => secondSun >= FlagOn;
 
-        // база × эра × карточки × чертежи × активные способности: множители перемножаются, бонусы складываются.
+        // база × эра × карточки × чертежи × модификаторы забега × активные способности: множители перемножаются, бонусы складываются.
         // slinging = идёт окно ПРАЩИ после отпускания, sailing = идёт окно СОЛНЕЧНОГО ПАРУСА вокруг вспышки.
-        public void Recompute(GameConfig config, EraDef era, int[] cardStacks, int[] blueprintLevels, AbilitySystem abilities, bool slinging, bool sailing)
+        public void Recompute(GameConfig config, EraDef era, RunModifier mods, int[] cardStacks, int[] blueprintLevels, AbilitySystem abilities, bool slinging, bool sailing)
         {
             radialSpeedMul = 1f;
             radialOutMul = 1f;
@@ -85,6 +87,7 @@ namespace Perigee
             satRadiusMul = 1f;
             crystalLifeMul = 1f;
             arrowSpeedMul = 1f;
+            enemySpeedMul = 1f;
             abilityCooldownMul = 1f;
             abilityDurationMul = 1f;
             xpPerCrystalMul = 1f;
@@ -130,6 +133,18 @@ namespace Perigee
             BlueprintDef[] blueprints = config.blueprints;
             for (int i = 0; i < blueprints.Length; i++)
                 for (int l = 0; l < blueprintLevels[i]; l++) Apply(blueprints[i].levels[l].mod);
+
+            // модификаторы забега (День и испытания)
+            if ((mods & RunModifier.DoubleHeat) != 0) heatMul *= config.doubleHeatMul;
+            if ((mods & RunModifier.FastEnemies) != 0) enemySpeedMul *= config.fastEnemiesMul;
+            if ((mods & RunModifier.GlassStar) != 0)
+            {
+                // стеклянная звезда: HP меньше и никакого лечения
+                starMaxHp *= config.glassStarHpMul;
+                regen = 0f;
+            }
+            // «Одиночка»: НОВЫЙ СПУТНИК и чертёж ПАРА ничего не дают
+            if ((mods & RunModifier.SingleSat) != 0) extraSatellites = 0;
 
             // временные множители способностей, отдельно от карточек
             satRadiusMul *= Mathf.Lerp(1f, config.growRadiusMul, abilities.GrowBlend);

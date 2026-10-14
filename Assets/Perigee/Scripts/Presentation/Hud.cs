@@ -27,6 +27,8 @@ namespace Perigee
         [SerializeField] TMP_Text bossName;
         [SerializeField] TMP_Text dustText;
         [SerializeField] TMP_Text timerText;
+        // под таймером: модификатор Дня или испытания, в Бесконечном номер цикла
+        [SerializeField] TMP_Text modeLabel;
         // блоки, которые меняют место при повороте экрана, и их места в двух раскладках
         [SerializeField] RectTransform bars;
         [SerializeField] RectTransform barsPortrait;
@@ -47,6 +49,8 @@ namespace Perigee
         int shownLevel = -1;
         int shownDust = -1;
         int shownSeconds = -1;
+        // что написано под таймером: номер цикла с единицы, минус набор модификаторов или 0 = пусто
+        int shownMark;
         Rect shownSafe;
         Vector2Int shownScreen;
 
@@ -99,6 +103,15 @@ namespace Perigee
                 int m = seconds / SecondsPerMinute;
                 int s = seconds % SecondsPerMinute;
                 timerText.SetText("{0}{1}:{2}{3}", m / DigitBase, m % DigitBase, s / DigitBase, s % DigitBase);
+            }
+
+            // под таймером: в Бесконечном номер цикла, в Дне и испытании имя модификатора, в Забеге пусто
+            int mark = run.mode == RunMode.Endless ? run.cycle + 1 : -(int)run.mods;
+            if (mark != shownMark)
+            {
+                shownMark = mark;
+                if (mark > 0) modeLabel.SetText(Strings.CycleFormat, mark);
+                else modeLabel.text = Strings.Modifiers(run.mods, Strings.ModifierTitle);
             }
 
             for (int i = 0; i < cardIcons.Length; i++)

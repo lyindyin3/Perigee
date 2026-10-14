@@ -984,6 +984,7 @@ MonoBehaviour:
   bannerEnemyHold: 3
   bannerBossHold: 2
   bannerRuleHold: 3
+  bannerDustHold: 2
   eras:
   - kExp: 0.9
     spinMul: 1
@@ -2039,6 +2040,66 @@ MonoBehaviour:
     background: {r: 0.019607844, g: 0.019607844, b: 0.019607844, a: 1}
     starTint: {r: 0.14901961, g: 0.14901961, b: 0.14901961, a: 1}
     raysTint: {r: 1, g: 1, b: 1, a: 1}
+  endlessLoopTime: 160
+  endlessHpStep: 0.35
+  endlessCountStep: 0.2
+  endlessBossHpStep: 0.5
+  endlessAmbientStep: 0.1
+  endlessAmbientMin: 0.5
+  endlessBossDust: 60
+  dailyMods: 000200000001000020000000100000000200000004000000
+  challenges:
+  - era: 1
+    mods: 1
+    rewardDust: 300
+    rewardSkin: 0
+    hasSkin: 0
+  - era: 1
+    mods: 2
+    rewardDust: 0
+    rewardSkin: 8
+    hasSkin: 1
+  - era: 1
+    mods: 4
+    rewardDust: 300
+    rewardSkin: 0
+    hasSkin: 0
+  - era: 1
+    mods: 16
+    rewardDust: 300
+    rewardSkin: 0
+    hasSkin: 0
+  - era: 2
+    mods: 8
+    rewardDust: 400
+    rewardSkin: 0
+    hasSkin: 0
+  - era: 2
+    mods: 32
+    rewardDust: 0
+    rewardSkin: 4
+    hasSkin: 1
+  - era: 3
+    mods: 64
+    rewardDust: 500
+    rewardSkin: 0
+    hasSkin: 0
+  - era: 3
+    mods: 128
+    rewardDust: 600
+    rewardSkin: 0
+    hasSkin: 0
+  glassStarHpMul: 0.4
+  highOrbitMin: 3
+  swarmOnlyPack: 3
+  doubleHeatMul: 2
+  autoReverseInterval: 8
+  marathonBossTime: 300
+  marathonReplayFrom: 60
+  marathonShift: 120
+  marathonHpMul: 1.3
+  fastEnemiesMul: 1.2
+  doubleArrowsMul: 2
   victoryTime: 1.5
   dailyDustMul: 2
   scorePerSecond: 2

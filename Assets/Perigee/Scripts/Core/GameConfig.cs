@@ -216,6 +216,19 @@ namespace Perigee
         public int challenge;
     }
 
+    // Испытание: забег в своей эре с модификаторами; награда даётся один раз, за первую победу.
+    [Serializable]
+    public class ChallengeDef
+    {
+        // номер эры с единицы
+        public int era;
+        public RunModifier mods;
+        public int rewardDust;
+        public SkinId rewardSkin;
+        // награда = облик rewardSkin, а не пыль
+        public bool hasSkin;
+    }
+
     [CreateAssetMenu(fileName = "GameConfig", menuName = "Perigee/GameConfig")]
     public class GameConfig : ScriptableObject
     {
@@ -618,6 +631,8 @@ namespace Perigee
         public float bannerEnemyHold = 3f;
         public float bannerBossHold = 2f;
         public float bannerRuleHold = 3f;
+        // «+N пыли» за босса в Бесконечном
+        public float bannerDustHold = 2f;
 
         [Title("Эры")]
         // СОЛНЦЕ, КРАСНЫЙ КАРЛИК, ТЯЖЁЛАЯ ЗВЕЗДА, ЧЁРНАЯ ДЫРА
@@ -760,6 +775,51 @@ namespace Perigee
                 },
             },
         };
+
+        [Title("Режимы")]
+        // Бесконечный: расписание эры повторяется циклами этой длины, босс приходит каждый цикл
+        public float endlessLoopTime = 160f;
+        // прибавка за каждый цикл: HP врагов, их число, HP босса
+        public float endlessHpStep = 0.35f;
+        public float endlessCountStep = 0.2f;
+        public float endlessBossHpStep = 0.5f;
+        // фоновый поток с каждым циклом чаще, но не чаще этой доли обычного интервала
+        public float endlessAmbientStep = 0.1f;
+        public float endlessAmbientMin = 0.5f;
+        // пыль за каждого убитого босса, умножается на множитель эры
+        public int endlessBossDust = 60;
+        // День: модификатор дня = dailyMods[дней с 1970 года % длину списка]
+        public RunModifier[] dailyMods =
+        {
+            RunModifier.DoubleArrows, RunModifier.FastEnemies, RunModifier.DoubleHeat, RunModifier.SwarmOnly, RunModifier.GlassStar, RunModifier.HighOrbit,
+        };
+        // ОДИНОЧКА, СТЕКЛЯННАЯ ЗВЕЗДА, ВЫСОКАЯ ОРБИТА, РОЙ, БЕЗ СПОСОБНОСТЕЙ, ЖАРА, ВСТРЕЧНЫЙ ВЕТЕР, МАРАФОН
+        public ChallengeDef[] challenges =
+        {
+            new ChallengeDef { era = 1, mods = RunModifier.SingleSat, rewardDust = 300 },
+            new ChallengeDef { era = 1, mods = RunModifier.GlassStar, rewardSkin = SkinId.Sunflower, hasSkin = true },
+            new ChallengeDef { era = 1, mods = RunModifier.HighOrbit, rewardDust = 300 },
+            new ChallengeDef { era = 1, mods = RunModifier.SwarmOnly, rewardDust = 300 },
+            new ChallengeDef { era = 2, mods = RunModifier.NoAbilities, rewardDust = 400 },
+            new ChallengeDef { era = 2, mods = RunModifier.DoubleHeat, rewardSkin = SkinId.RedStar, hasSkin = true },
+            new ChallengeDef { era = 3, mods = RunModifier.AutoReverse, rewardDust = 500 },
+            new ChallengeDef { era = 3, mods = RunModifier.Marathon, rewardDust = 600 },
+        };
+
+        [Title("Модификаторы")]
+        public float glassStarHpMul = 0.4f;
+        public float highOrbitMin = 3f;
+        // «Рой»: сколько Роя приходит вместо каждого крупного врага
+        public int swarmOnlyPack = 3;
+        public float doubleHeatMul = 2f;
+        public float autoReverseInterval = 8f;
+        // «Марафон»: босс позже, а до него события расписания от marathonReplayFrom идут второй раз со сдвигом marathonShift
+        public float marathonBossTime = 300f;
+        public float marathonReplayFrom = 60f;
+        public float marathonShift = 120f;
+        public float marathonHpMul = 1.3f;
+        public float fastEnemiesMul = 1.2f;
+        public int doubleArrowsMul = 2;
 
         [Title("Итоги")]
         public float victoryTime = 1.5f;

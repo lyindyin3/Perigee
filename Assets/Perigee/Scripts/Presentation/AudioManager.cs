@@ -23,11 +23,13 @@ namespace Perigee
         {
             // пустой клип = тишина
             AudioClip clip = bank.clips[(int)id];
-            if (clip != null) sfx.PlayOneShot(clip);
+            if (clip != null) sfx.PlayOneShot(clip, loop.Save.Data.settings.sfxVolume);
         }
 
         void Update()
         {
+            // громкости из настроек
+            drone.volume = loop.Save.Data.settings.droneVolume;
             // гул слышен только в забеге
             bool playing = loop.State == GameState.Playing;
             drone.mute = !playing;
