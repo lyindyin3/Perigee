@@ -28,6 +28,8 @@ namespace Perigee
             public float stun;
             public float fade;
             public bool resonant;
+            // звук перегрева уже был; снова прозвучит, когда спутник остынет
+            public bool overheatHeard;
         }
 
         [SerializeField] GameConfig config;
@@ -74,7 +76,7 @@ namespace Perigee
             for (int i = root.childCount - 1; i >= 0; i--) Destroy(root.GetChild(i).gameObject);
 
             // облик спутника: префаб, выбранный в Мастерской
-            Visual skin = art.satelliteSkins[loop.Shop.SatelliteSkin];
+            Visual skin = art.satelliteSkins[loop.Shop.SatelliteSkin].prefab;
             for (int i = 0; i < satellites.Length; i++)
             {
                 Satellite s = satellites[i];
@@ -346,6 +348,12 @@ namespace Perigee
         void Overheat(Satellite s)
         {
             s.heat = Mathf.Clamp01(s.heat);
+            if (s.heat < config.overheatReset) s.overheatHeard = false;
+            else if (!s.overheatHeard && s.heat >= config.overheatSound)
+            {
+                s.overheatHeard = true;
+                sfx.Play(SfxId.Overheat);
+            }
             if (s.heat < 1f) return;
 
             s.stun = config.stunTime;

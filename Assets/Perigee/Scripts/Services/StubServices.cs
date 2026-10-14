@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.InteropServices;
 
 namespace Perigee
 {
@@ -35,5 +36,36 @@ namespace Perigee
         public void GameplayStop()
         {
         }
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+        // Plugins/WebGL/Platform.jslib
+        [DllImport("__Internal")]
+        static extern string PlatformLanguage();
+
+        [DllImport("__Internal")]
+        static extern void PlatformVibrate(int ms);
+
+        public string Language()
+        {
+            return PlatformLanguage();
+        }
+
+        public void Vibrate(int ms)
+        {
+            PlatformVibrate(ms);
+        }
+#else
+        // в редакторе язык русский, вибрации нет
+        const string EditorLanguage = "ru";
+
+        public string Language()
+        {
+            return EditorLanguage;
+        }
+
+        public void Vibrate(int ms)
+        {
+        }
+#endif
     }
 }

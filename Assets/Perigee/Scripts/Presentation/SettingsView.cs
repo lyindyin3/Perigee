@@ -11,11 +11,21 @@ namespace Perigee
         [SerializeField] GameLoop loop;
         [SerializeField] MenuView menu;
         [SerializeField] ConfirmDialog confirm;
+        [SerializeField] AudioManager sfx;
         [SerializeField] TMP_Text title;
         [SerializeField] TMP_Text sfxLabel;
         [SerializeField] Slider sfxSlider;
         [SerializeField] TMP_Text droneLabel;
         [SerializeField] Slider droneSlider;
+        [SerializeField] TMP_Text musicLabel;
+        [SerializeField] Slider musicSlider;
+        // строка «Вибрация» видна только на телефоне
+        [SerializeField] GameObject vibrationRow;
+        [SerializeField] TMP_Text vibrationLabel;
+        [SerializeField] Toggle vibrationToggle;
+        // «Язык»: кнопка листает языки, на ней написан выбранный
+        [SerializeField] TMP_Text languageLabel;
+        [SerializeField] TMP_Text languageValue;
         [SerializeField] TMP_Text shakeLabel;
         [SerializeField] Toggle shakeToggle;
         [SerializeField] TMP_Text numbersLabel;
@@ -43,10 +53,23 @@ namespace Perigee
         {
             replayTutorial = DoReplayTutorial;
             resetProgress = DoResetProgress;
+            Loc.Changed += Localize;
+            Localize();
+        }
 
+        void OnDestroy()
+        {
+            Loc.Changed -= Localize;
+        }
+
+        void Localize()
+        {
             title.text = Strings.Settings;
             sfxLabel.text = Strings.SfxVolume;
             droneLabel.text = Strings.DroneVolume;
+            musicLabel.text = Strings.MusicVolume;
+            vibrationLabel.text = Strings.Vibration;
+            languageLabel.text = Strings.Language;
             shakeLabel.text = Strings.Shake;
             numbersLabel.text = Strings.DamageNumbers;
             ringsLabel.text = Strings.HpRings;
@@ -55,6 +78,7 @@ namespace Perigee
             resetLabel.text = Strings.ResetProgress;
             versionLabel.text = string.Format(Strings.VersionFormat, Application.version);
             closeLabel.text = Strings.Close;
+            ShowChoices();
         }
 
         public void Open()
@@ -63,6 +87,9 @@ namespace Perigee
             // значения встают без вызова обработчиков: это не правка игрока
             sfxSlider.SetValueWithoutNotify(settings.sfxVolume);
             droneSlider.SetValueWithoutNotify(settings.droneVolume);
+            musicSlider.SetValueWithoutNotify(settings.musicVolume);
+            vibrationToggle.SetIsOnWithoutNotify(settings.vibration);
+            vibrationRow.SetActive(Application.isMobilePlatform);
             shakeToggle.SetIsOnWithoutNotify(settings.shake);
             numbersToggle.SetIsOnWithoutNotify(settings.damageNumbers);
             // посреди забега прогресс не сбрасывают и обучение не начинают
@@ -73,6 +100,7 @@ namespace Perigee
 
         public void Close()
         {
+            if (gameObject.activeSelf) sfx.Play(SfxId.UiBack);
             confirm.gameObject.SetActive(false);
             gameObject.SetActive(false);
         }
@@ -101,20 +129,45 @@ namespace Perigee
             loop.Save.Save();
         }
 
+        public void SetMusic(float value)
+        {
+            Data.musicVolume = value;
+            loop.Save.Save();
+        }
+
+        public void SetVibration(bool value)
+        {
+            sfx.Play(SfxId.UiClick);
+            Data.vibration = value;
+            loop.Save.Save();
+        }
+
+        // выбор игрока заменяет язык браузера
+        public void NextLanguage()
+        {
+            sfx.Play(SfxId.UiClick);
+            Data.language = ((int)Loc.Current + 1) % Strings.LanguageNames.Length;
+            loop.Save.Save();
+            Loc.Set((Loc.Lang)Data.language);
+        }
+
         public void SetShake(bool value)
         {
+            sfx.Play(SfxId.UiClick);
             Data.shake = value;
             loop.Save.Save();
         }
 
         public void SetNumbers(bool value)
         {
+            sfx.Play(SfxId.UiClick);
             Data.damageNumbers = value;
             loop.Save.Save();
         }
 
         public void NextRings()
         {
+            sfx.Play(SfxId.UiClick);
             Data.hpRings = (Data.hpRings + 1) % Strings.HpRingModes.Length;
             loop.Save.Save();
             ShowChoices();
@@ -122,6 +175,7 @@ namespace Perigee
 
         public void NextBackground()
         {
+            sfx.Play(SfxId.UiClick);
             Data.simpleBackground = !Data.simpleBackground;
             loop.Save.Save();
             Apply();
@@ -130,11 +184,13 @@ namespace Perigee
 
         public void ReplayTutorial()
         {
+            sfx.Play(SfxId.UiClick);
             confirm.Show(Strings.ConfirmTutorial, replayTutorial);
         }
 
         public void ResetProgress()
         {
+            sfx.Play(SfxId.UiClick);
             confirm.Show(Strings.ConfirmReset, resetProgress);
         }
 
@@ -144,6 +200,7 @@ namespace Perigee
         {
             ringsValue.text = Strings.HpRingModes[Data.hpRings];
             backgroundValue.text = Data.simpleBackground ? Strings.BackgroundSimple : Strings.BackgroundFull;
+            languageValue.text = Strings.LanguageNames[(int)Loc.Current];
         }
 
         // следующий забег из меню снова будет обучением

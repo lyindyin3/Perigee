@@ -50,6 +50,8 @@ namespace Perigee
         public float EnemyTimeScale => abilities.Active(AbilityId.Stasis) ? config.stasisSlow : 1f;
         // секунда забега, на которой приходит босс; в «Марафоне» позже
         public float BossTime => Run.Has(RunModifier.Marathon) ? config.marathonBossTime : config.bossTime;
+        // музыка забега: при живом боссе его тема, иначе музыка эры
+        public MusicId RunMusic => boss.Alive ? (EraNumber == config.finalBossEra ? MusicId.FinalBoss : MusicId.Boss) : Era.music;
 
         IAdService ads;
         ILeaderboardService leaderboard;
@@ -80,6 +82,9 @@ namespace Perigee
             ads = new StubAdService();
             leaderboard = new StubLeaderboardService();
             platform = new StubPlatformService();
+            // язык: выбранный в настройках, а до выбора язык браузера
+            int language = Save.Data.settings.language;
+            Loc.Set(language >= 0 ? (Loc.Lang)language : Loc.FromCode(platform.Language()));
             onRewardedClosed = RewardedClosed;
             onRevive = Revived;
 
@@ -173,7 +178,7 @@ namespace Perigee
             banner.ResetRun();
             // фон в цвете эры; картинка эры за кольцами, если она задана
             cam.backgroundColor = Era.background;
-            backdrop.sprite = art.eraBackdrops[eraIndex];
+            backdrop.sprite = art.eraBackdrops[eraIndex].sprite;
             backdrop.enabled = backdrop.sprite != null;
             accumulator = 0f;
         }
@@ -203,10 +208,20 @@ namespace Perigee
             menuView.gameObject.SetActive(next == GameState.Menu);
             reviveView.gameObject.SetActive(next == GameState.Defeat);
             resultView.gameObject.SetActive(next == GameState.Result);
+
+            if (next == GameState.Menu || next == GameState.Result) sfx.PlayMusic(MusicId.Menu);
+            else if (next == GameState.Playing) sfx.PlayMusic(RunMusic);
+        }
+
+        // вибрация телефона, если она не выключена в настройках
+        public void Vibrate(int ms)
+        {
+            if (Save.Data.settings.vibration) platform.Vibrate(ms);
         }
 
         public void TogglePause()
         {
+            if (State == GameState.Playing || State == GameState.Paused) sfx.Play(SfxId.UiClick);
             if (State == GameState.Playing) SetState(GameState.Paused);
             else if (State == GameState.Paused) SetState(GameState.Playing);
         }
@@ -273,6 +288,7 @@ namespace Perigee
             Run.immuneUntil = Run.time + config.reviveImmuneTime;
             enemies.Wipe(config.reviveKillRadius);
             satellites.Cool();
+            sfx.Play(SfxId.Revive);
             SetState(GameState.Playing);
         }
 

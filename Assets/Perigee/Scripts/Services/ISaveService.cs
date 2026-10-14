@@ -15,6 +15,11 @@ namespace Perigee
         // кольца HP врагов: номер HpRingMode
         public int hpRings;
         public bool simpleBackground;
+        public float musicVolume = 0.7f;
+        // только на телефоне
+        public bool vibration = true;
+        // номер Loc.Lang; -1 = язык браузера, пока игрок не выбрал сам
+        public int language = -1;
     }
 
     [Serializable]
@@ -54,6 +59,27 @@ namespace Perigee
         // номер RunMode
         public int lastMode;
         public SettingsData settings = new SettingsData();
+        // R4 (version 3)
+        // бит на каждый StarClassId
+        public int starClassesOwned;
+        public int lastStarClass;
+        // бит на каждый AchievementId
+        public long achievements;
+        // бит на каждый CardId: карточку уже предлагали
+        public long seenCards;
+        // бит на каждый RelicId
+        public int seenRelics;
+        public int evolutionsTaken;
+        // бит на каждый StarClassId: с этим классом уже побеждали
+        public int classesWon;
+        public int bestCombo;
+        public int eliteKills;
+        public int heraldKills;
+        public int goldComets;
+        public int dailyPlayed;
+        public int endlessBossBest;
+        public bool introSeen;
+        public bool endingSeen;
         // поле R2.1: его читает только перенос
         public float bestTime;
     }

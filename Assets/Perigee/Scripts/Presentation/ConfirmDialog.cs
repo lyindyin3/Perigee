@@ -7,6 +7,7 @@ namespace Perigee
     // Вопрос с ответами «Да» и «Нет» поверх настроек.
     public class ConfirmDialog : MonoBehaviour
     {
+        [SerializeField] AudioManager sfx;
         [SerializeField] TMP_Text text;
         [SerializeField] TMP_Text yesLabel;
         [SerializeField] TMP_Text noLabel;
@@ -14,6 +15,17 @@ namespace Perigee
         Action onYes;
 
         void Awake()
+        {
+            Loc.Changed += Localize;
+            Localize();
+        }
+
+        void OnDestroy()
+        {
+            Loc.Changed -= Localize;
+        }
+
+        void Localize()
         {
             yesLabel.text = Strings.Yes;
             noLabel.text = Strings.No;
@@ -29,12 +41,14 @@ namespace Perigee
 
         public void Yes()
         {
+            sfx.Play(SfxId.UiClick);
             gameObject.SetActive(false);
             onYes();
         }
 
         public void No()
         {
+            sfx.Play(SfxId.UiBack);
             gameObject.SetActive(false);
         }
     }

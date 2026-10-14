@@ -23,11 +23,11 @@ namespace Perigee
         public void Show(CardDef card, int stacks)
         {
             int id = (int)card.id;
-            frame.sprite = art.cardFrames[(int)card.color];
+            frame.sprite = art.cardFrames[(int)card.color].sprite;
             rareRim.SetActive(card.rarity == CardRarity.Rare);
             eraBadge.gameObject.SetActive(card.era != 0);
-            if (card.era != 0) eraBadge.sprite = art.eraIcons[card.era - 1];
-            icon.sprite = art.cardIcons[id];
+            if (card.era != 0) eraBadge.sprite = art.eraIcons[card.era - 1].sprite;
+            icon.sprite = art.cardIcons[id].sprite;
             title.text = Strings.CardTitle[id];
             pips.text = Strings.Pips(stacks, card.maxStacks);
             plusLine.text = Strings.CardPlus[id];

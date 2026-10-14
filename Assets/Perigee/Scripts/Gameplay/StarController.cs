@@ -57,7 +57,7 @@ namespace Perigee
             regenBank = 0f;
             // облик звезды: картинки тела и лучей, выбранные в Мастерской; своя картинка эры важнее тела облика
             StarSkin skin = art.starSkins[loop.Shop.StarSkin];
-            Sprite eraSprite = art.eraStarSprites[loop.EraNumber - 1];
+            Sprite eraSprite = art.eraStarSprites[loop.EraNumber - 1].sprite;
             visual.Body.sprite = eraSprite != null ? eraSprite : skin.body;
             rays.sprite = skin.rays;
             // звезда и лучи в цвете эры
@@ -81,6 +81,7 @@ namespace Perigee
                 run.hp = loop.Stats.starMaxHp * config.secondSunHp;
                 run.immuneUntil = run.time + config.reviveImmuneTime;
                 abilities.PulseWave();
+                sfx.Play(SfxId.SecondSun);
             }
 
             // лечение копится и приходит порциями по regenStep: так на полоске виден золотой «хвост»

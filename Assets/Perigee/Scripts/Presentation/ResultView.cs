@@ -9,6 +9,7 @@ namespace Perigee
     {
         [SerializeField] GameConfig config;
         [SerializeField] GameLoop loop;
+        [SerializeField] AudioManager sfx;
         [SerializeField] TMP_Text title;
         [SerializeField] TMP_Text timeLine;
         // Бесконечный: цикл и убитые боссы; поражение в Забеге и Бесконечном: сколько не хватило до рекорда
@@ -27,6 +28,17 @@ namespace Perigee
 
         void Awake()
         {
+            Loc.Changed += Localize;
+            Localize();
+        }
+
+        void OnDestroy()
+        {
+            Loc.Changed -= Localize;
+        }
+
+        void Localize()
+        {
             retryLabel.text = Strings.Retry;
             menuLabel.text = Strings.Menu;
             doubleLabel.text = Strings.DoubleDustAd;
@@ -42,20 +54,24 @@ namespace Perigee
             ShowDust();
             ShowUnlocked();
             doubleButton.SetActive(run.earned > 0);
+            if (unlockLines.text.Length > 0) sfx.Play(SfxId.Unlock);
         }
 
         public void Retry()
         {
+            sfx.Play(SfxId.UiClick);
             loop.StartRun();
         }
 
         public void Menu()
         {
+            sfx.Play(SfxId.UiClick);
             loop.ToMenu();
         }
 
         public void DoubleDust()
         {
+            sfx.Play(SfxId.UiClick);
             loop.Rewarded(Doubled);
         }
 

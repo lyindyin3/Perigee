@@ -304,7 +304,11 @@ namespace Perigee
                     {
                         // ЛОМ ломает щит первым же ударом в него
                         e.shieldHits = stats.Crowbar ? 0 : e.shieldHits - 1;
-                        if (e.shieldHits == 0) fx.Sparks(e.position, config.shieldBreakSparks);
+                        if (e.shieldHits == 0)
+                        {
+                            fx.Sparks(e.position, config.shieldBreakSparks);
+                            sfx.Play(SfxId.ShieldBreak);
+                        }
                         Clink(e, hitter);
                         continue;
                     }
@@ -554,8 +558,8 @@ namespace Perigee
             data.seenEnemies |= bit;
             loop.Save.Save();
             // пустая запись в enemyIcons: на баннере картинка и цвет Body из префаба врага
-            Sprite icon = art.enemyIcons[(int)type];
-            SpriteRenderer look = art.enemies[(int)type].Body;
+            Sprite icon = art.enemyIcons[(int)type].sprite;
+            SpriteRenderer look = art.enemies[(int)type].prefab.Body;
             banner.Show(Strings.EnemyTip[(int)type], icon != null ? icon : look.sprite, icon != null ? Color.white : look.color, config.bannerEnemyHold);
         }
 
@@ -606,7 +610,11 @@ namespace Perigee
             // большой враг: осколков больше и экран вздрагивает
             bool big = e.radius >= config.bigRadius;
             fx.Shards(e.position, big ? config.killShards * config.bigKillShardMul : config.killShards);
-            if (big) fx.Shake(config.bigKillShake, config.bigKillShakeTime);
+            if (big)
+            {
+                fx.Shake(config.bigKillShake, config.bigKillShakeTime);
+                sfx.Play(SfxId.BigKill);
+            }
             // мелочь гибнет без остановки, иначе стая Роя превращается в слайд-шоу
             if (e.def.hp >= config.hitStopMinBaseHp) fx.HitStop(config.hitStopTime);
             sfx.Play(SfxId.Kill);
@@ -642,7 +650,7 @@ namespace Perigee
 
         Enemy Create(EnemyDef def)
         {
-            Visual visual = Instantiate(art.enemies[(int)def.id], root);
+            Visual visual = Instantiate(art.enemies[(int)def.id].prefab, root);
             visual.gameObject.SetActive(false);
 
             // перезарядка удара своя на каждый хиттер: спутники и их тени

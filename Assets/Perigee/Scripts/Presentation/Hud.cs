@@ -59,6 +59,21 @@ namespace Perigee
             cardIcons = new GameObject[config.cards.Length];
             cardIconTexts = new TMP_Text[cardIcons.Length];
             shownStacks = new int[cardIcons.Length];
+            Loc.Changed += Localize;
+        }
+
+        void OnDestroy()
+        {
+            Loc.Changed -= Localize;
+        }
+
+        // смена языка на паузе: подписи под таймером, у босса и на иконках карточек пишутся заново
+        void Localize()
+        {
+            shownMark = int.MinValue;
+            bossName.text = Strings.BossTitle(loop.Era.boss);
+            for (int i = 0; i < cardIcons.Length; i++)
+                if (shownStacks[i] > 0) cardIconTexts[i].text = Strings.CardShort[(int)config.cards[i].id] + "\n" + shownStacks[i];
         }
 
         void Update()
@@ -124,7 +139,7 @@ namespace Perigee
                 if (shownStacks[i] == 0)
                 {
                     cardIcons[i] = Instantiate(cardIconPrefab, cardIconsRoot);
-                    cardIcons[i].transform.Find(IconName).GetComponent<Image>().sprite = art.cardIcons[(int)id];
+                    cardIcons[i].transform.Find(IconName).GetComponent<Image>().sprite = art.cardIcons[(int)id].sprite;
                     cardIconTexts[i] = cardIcons[i].GetComponentInChildren<TMP_Text>();
                 }
                 shownStacks[i] = stacks;

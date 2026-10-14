@@ -122,7 +122,7 @@ namespace Perigee
                 part.line.Hide();
                 if (p >= partCount) continue;
 
-                part.visual = Instantiate(art.enemies[(int)def.id], root);
+                part.visual = Instantiate(art.enemies[(int)def.id].prefab, root);
                 part.visual.gameObject.SetActive(false);
                 part.transform = part.visual.transform;
                 part.body = part.visual.Body.transform;
@@ -329,6 +329,7 @@ namespace Perigee
 
             banner.Show(Strings.BossTitle(def.id), null, Color.white, config.bannerBossHold);
             sfx.Play(SfxId.BossIn);
+            sfx.PlayMusic(loop.RunMusic);
         }
 
         void Die(Part part)
@@ -345,10 +346,12 @@ namespace Perigee
                 fx.Shards(part.position, config.killShards * config.bigKillShardMul);
                 fx.Shake(config.bigKillShake, config.bigKillShakeTime);
                 sfx.Play(SfxId.Kill);
+                sfx.Play(SfxId.BigKill);
             }
             if (aliveParts > 0) return;
 
             Alive = false;
+            sfx.Play(SfxId.BossKill);
             if (def.behavior == EnemyBehavior.Pulsar) wave.gameObject.SetActive(false);
             if (!endless)
             {
@@ -358,6 +361,7 @@ namespace Perigee
 
             // Бесконечный: за босса будет пыль на итогах, баннер говорит сколько
             loop.Run.bossKills++;
+            sfx.PlayMusic(loop.RunMusic);
             banner.Show(string.Format(Strings.BossDustFormat, loop.Progress.BossDust(loop.Era)), null, Color.white, config.bannerDustHold);
         }
 
@@ -440,6 +444,7 @@ namespace Perigee
             {
                 phase++;
                 armor -= config.colossusArmorStep;
+                sfx.Play(SfxId.BossPhase);
                 for (int k = 0; k < config.colossusShed; k++)
                     enemies.Spawn(EnemyType.Swarmer, part.position + Polar(k * 360f / config.colossusShed, def.radius + config.colossusShedOffset), 1f);
             }

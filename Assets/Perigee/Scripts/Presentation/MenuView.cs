@@ -12,6 +12,7 @@ namespace Perigee
         [SerializeField] ArtSet art;
         [SerializeField] GameLoop loop;
         [SerializeField] SettingsView settings;
+        [SerializeField] AudioManager sfx;
         [SerializeField] GameObject mainPanel;
         [SerializeField] GameObject erasPanel;
         [SerializeField] GameObject challengesPanel;
@@ -84,6 +85,19 @@ namespace Perigee
 
         void Awake()
         {
+            Loc.Changed += Localize;
+            Localize();
+        }
+
+        void OnDestroy()
+        {
+            Loc.Changed -= Localize;
+        }
+
+        // смена языка идёт из настроек, а они открываются только над главной панелью
+        void Localize()
+        {
+            if (mainPanel.activeSelf) Main();
             title.text = Strings.GameTitle;
             playLabel.text = Strings.Play;
             challengesLabel.text = Strings.Challenges;
@@ -104,18 +118,20 @@ namespace Perigee
 
         void OnEnable()
         {
-            ShowMain();
+            Main();
         }
 
         // ИГРАТЬ: экран эр; пока обучение не пройдено, сразу забег-обучение
         public void Play()
         {
+            sfx.Play(SfxId.UiClick);
             if (loop.Save.Data.tutorialDone) OpenEras();
             else loop.StartFromMenu(0, RunMode.Run, 0);
         }
 
         public void OpenEras()
         {
+            sfx.Play(SfxId.UiClick);
             Show(erasPanel);
             SaveData data = loop.Save.Data;
             // выбрана эра прошлого забега, если она всё ещё открыта
@@ -129,6 +145,7 @@ namespace Perigee
         // вызывают кнопки вкладок режимов, номер RunMode задан в сцене
         public void ShowMode(int tab)
         {
+            sfx.Play(SfxId.UiClick);
             mode = tab;
             // кнопка открытой вкладки не нажимается: так она выглядит выбранной
             for (int i = 0; i < modeTabs.Length; i++) modeTabs[i].interactable = i != tab;
@@ -144,6 +161,7 @@ namespace Perigee
         // вызывают карточки эр, номер эры задан в сцене
         public void SelectEra(int i)
         {
+            sfx.Play(SfxId.UiClick);
             era = i;
             ShowEras();
         }
@@ -151,11 +169,13 @@ namespace Perigee
         // СТАРТ: забег в выбранной эре и режиме открытой вкладки
         public void StartRun()
         {
+            sfx.Play(SfxId.UiClick);
             loop.StartFromMenu(era, (RunMode)mode, 0);
         }
 
         public void OpenChallenges()
         {
+            sfx.Play(SfxId.UiClick);
             Show(challengesPanel);
             Progress progress = loop.Progress;
             for (int i = 0; i < challengeRows.Length; i++)
@@ -175,7 +195,7 @@ namespace Perigee
 
                 // облик-награда с картинкой: в SkinId сначала идут облики спутника, за ними облики звезды
                 int k = Shop.ArtIndex(def.rewardSkin);
-                if (def.rewardSkin < SkinId.Sun) row.ShowSkin(art.satelliteSkins[k].Body);
+                if (def.rewardSkin < SkinId.Sun) row.ShowSkin(art.satelliteSkins[k].prefab.Body);
                 else row.ShowSkin(art.starSkins[k].body);
             }
         }
@@ -183,21 +203,31 @@ namespace Perigee
         // вызывают строки испытаний, номер испытания задан в сцене
         public void PlayChallenge(int i)
         {
+            sfx.Play(SfxId.UiClick);
             loop.StartFromMenu(0, RunMode.Challenge, i);
         }
 
         public void OpenWorkshop()
         {
+            sfx.Play(SfxId.UiClick);
             Show(workshopPanel);
             ShowTab(0);
         }
 
         public void OpenSettings()
         {
+            sfx.Play(SfxId.UiClick);
             settings.Open();
         }
 
+        // кнопки «Назад»
         public void ShowMain()
+        {
+            sfx.Play(SfxId.UiBack);
+            Main();
+        }
+
+        void Main()
         {
             Show(mainPanel);
             SaveData data = loop.Save.Data;
@@ -212,6 +242,7 @@ namespace Perigee
         // вызывают кнопки вкладок, номер вкладки задан в сцене
         public void ShowTab(int tab)
         {
+            sfx.Play(SfxId.UiClick);
             for (int i = 0; i < tabPanels.Length; i++)
             {
                 tabPanels[i].SetActive(i == tab);
@@ -224,6 +255,7 @@ namespace Perigee
         // вызывают узлы дерева, номер чертежа задан в сцене
         public void SelectNode(int i)
         {
+            sfx.Play(SfxId.UiClick);
             node = i;
             Refresh();
         }
@@ -232,6 +264,7 @@ namespace Perigee
         public void BuyNode()
         {
             loop.Blueprints.Buy(node);
+            sfx.Play(SfxId.Buy);
             Refresh();
         }
 
@@ -239,6 +272,7 @@ namespace Perigee
         public void BuyAbility(int i)
         {
             loop.Shop.Buy(config.abilities[i]);
+            sfx.Play(SfxId.Buy);
             Refresh();
         }
 
@@ -246,8 +280,16 @@ namespace Perigee
         public void PressSkin(int i)
         {
             SkinDef def = config.skins[i];
-            if (loop.Shop.Owned(def.id)) loop.Shop.Select(def);
-            else loop.Shop.Buy(def);
+            if (loop.Shop.Owned(def.id))
+            {
+                loop.Shop.Select(def);
+                sfx.Play(SfxId.UiClick);
+            }
+            else
+            {
+                loop.Shop.Buy(def);
+                sfx.Play(SfxId.Buy);
+            }
             Refresh();
         }
 
@@ -271,7 +313,7 @@ namespace Perigee
                 string record = string.Format(Strings.BestTimeFormat, Strings.Clock(best[i]));
                 // эру открывает победа над боссом предыдущей: её номер с единицы равен i
                 string locked = string.Format(Strings.EraLockedFormat, i);
-                eraCards[i].Show(art.eraIcons[i], Strings.EraTitle[i], Strings.EraRule[i], boss, Strings.EraEnemies[i], record, (data.erasWon & 1 << i) != 0, i >= open, locked, i == era);
+                eraCards[i].Show(art.eraIcons[i].sprite, Strings.EraTitle[i], Strings.EraRule[i], boss, Strings.EraEnemies[i], record, (data.erasWon & 1 << i) != 0, i >= open, locked, i == era);
             }
         }
 
@@ -301,7 +343,7 @@ namespace Perigee
             for (int i = 0; i < nodes.Length; i++)
             {
                 int id = (int)defs[i].id;
-                nodes[i].Show(art.blueprintIcons[id], Strings.BlueprintTitle[id], Strings.Pips(blueprints.Level(i), defs[i].levels.Length), !blueprints.Open(i), i == node);
+                nodes[i].Show(art.blueprintIcons[id].sprite, Strings.BlueprintTitle[id], Strings.Pips(blueprints.Level(i), defs[i].levels.Length), !blueprints.Open(i), i == node);
             }
 
             int selected = (int)defs[node].id;
@@ -324,7 +366,7 @@ namespace Perigee
                     ? string.Format(CultureInfo.InvariantCulture, Strings.AbilityTimingFormat, def.duration, def.cooldown)
                     : string.Format(CultureInfo.InvariantCulture, Strings.AbilityInstantFormat, def.cooldown);
                 string state = shop.Owned(def.id) ? Strings.Owned : string.Format(Strings.BuyFormat, def.price);
-                abilityRows[i].Show(art.abilityIcons[id], Strings.AbilityTitle[id], Strings.AbilityText[id], timing, state, shop.CanBuy(def));
+                abilityRows[i].Show(art.abilityIcons[id].sprite, Strings.AbilityTitle[id], Strings.AbilityText[id], timing, state, shop.CanBuy(def));
             }
         }
 
@@ -348,7 +390,7 @@ namespace Perigee
                 bool active = owned ? !selected : shop.CanBuy(def);
 
                 int k = Shop.ArtIndex(def.id);
-                if (def.kind == SkinKind.Satellite) skinTiles[i].Show(art.satelliteSkins[k].Body, name, state, active);
+                if (def.kind == SkinKind.Satellite) skinTiles[i].Show(art.satelliteSkins[k].prefab.Body, name, state, active);
                 else skinTiles[i].Show(art.starSkins[k], name, state, active);
             }
         }

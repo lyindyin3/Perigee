@@ -936,6 +936,12 @@ MonoBehaviour:
   xpFlashTime: 0.2
   dronePitchMin: 0.8
   dronePitchMax: 1.5
+  maxVoices: 16
+  musicFade: 1
+  musicPauseMul: 0.4
+  finalBossEra: 8
+  overheatSound: 0.8
+  overheatReset: 0.5
   ambientStart: 6
   ambientEnd: 175
   swarmRadiusJitter: 1
@@ -985,6 +991,7 @@ MonoBehaviour:
   bannerBossHold: 2
   bannerRuleHold: 3
   bannerDustHold: 2
+  maxEras: 8
   eras:
   - kExp: 0.9
     spinMul: 1
@@ -996,6 +1003,7 @@ MonoBehaviour:
     fallMul: 1
     rule: 0
     boss: 7
+    music: 1
     opening:
     - time: 2
       groups:
@@ -1217,6 +1225,7 @@ MonoBehaviour:
     fallMul: 1
     rule: 1
     boss: 14
+    music: 1
     opening:
     - time: 2
       groups:
@@ -1478,6 +1487,7 @@ MonoBehaviour:
     fallMul: 1.3
     rule: 2
     boss: 15
+    music: 2
     opening:
     - time: 2
       groups:
@@ -1757,6 +1767,7 @@ MonoBehaviour:
     fallMul: 1
     rule: 3
     boss: 16
+    music: 2
     opening:
     - time: 2
       groups:

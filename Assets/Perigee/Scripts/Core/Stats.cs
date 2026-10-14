@@ -71,6 +71,19 @@ namespace Perigee
         public bool Accretion => accretion >= FlagOn;
         public bool SecondSun => secondSun >= FlagOn;
 
+        // статы R4 (от Shockwave и дальше): просто суммы стаков
+        readonly float[] sums = new float[System.Enum.GetValues(typeof(StatId)).Length];
+
+        public float Sum(StatId id)
+        {
+            return sums[(int)id];
+        }
+
+        public bool Has(StatId id)
+        {
+            return sums[(int)id] >= FlagOn;
+        }
+
         // база × эра × карточки × чертежи × модификаторы забега × активные способности: множители перемножаются, бонусы складываются.
         // slinging = идёт окно ПРАЩИ после отпускания, sailing = идёт окно СОЛНЕЧНОГО ПАРУСА вокруг вспышки.
         public void Recompute(GameConfig config, EraDef era, RunModifier mods, int[] cardStacks, int[] blueprintLevels, AbilitySystem abilities, bool slinging, bool sailing)
@@ -118,6 +131,7 @@ namespace Perigee
             darkMatter = 0f;
             accretion = 0f;
             secondSun = 0f;
+            System.Array.Clear(sums, 0, sums.Length);
 
             CardDef[] cards = config.cards;
             for (int i = 0; i < cards.Length; i++)
@@ -201,6 +215,7 @@ namespace Perigee
                 case StatId.SecondSun: secondSun += mod.value; break;
                 case StatId.FreeRerolls: freeRerolls += (int)mod.value; break;
                 case StatId.ExtraChoices: extraChoices += (int)mod.value; break;
+                default: sums[(int)mod.stat] += mod.value; break;
             }
         }
     }

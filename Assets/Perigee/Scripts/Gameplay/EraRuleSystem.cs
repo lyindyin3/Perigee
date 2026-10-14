@@ -13,6 +13,7 @@ namespace Perigee
         [SerializeField] FlareSector sector;
         [SerializeField] BannerView banner;
         [SerializeField] Fx fx;
+        [SerializeField] AudioManager sfx;
 
         // правило эры уже показано строкой сверху
         bool announced;
@@ -75,6 +76,7 @@ namespace Perigee
                 burst = true;
                 sinceBurst = 0f;
                 sector.Burst();
+                sfx.Play(SfxId.FlareBurst);
                 enemies.Flare(centre, config.flareArc * 0.5f, config.flareDamage);
                 fx.Shake(config.flareShakeAmp, config.flareShakeTime);
             }
@@ -97,6 +99,7 @@ namespace Perigee
             burst = false;
             age = 0f;
             nextFlare += config.flareInterval;
+            sfx.Play(SfxId.FlareWarn);
 
             // новый сектор не ближе flareMinGap к прошлому
             Rng rng = loop.Run.simRng;

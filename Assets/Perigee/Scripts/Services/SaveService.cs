@@ -6,10 +6,16 @@ namespace Perigee
     public class SaveService : ISaveService
     {
         const string Key = "perigee_save";
-        const int Version = 2;
+        const int Version = 3;
+        // сохранение R3
+        const int VersionR3 = 2;
         // способности и облики, которые есть с начала игры
         const int StartAbilities = 1 << (int)AbilityId.Reverse | 1 << (int)AbilityId.Grow | 1 << (int)AbilityId.Pulse;
         const int StartSkins = 1 << (int)SkinId.Romb | 1 << (int)SkinId.Sun;
+        const int StartClasses = 1 << (int)StarClassId.Yellow;
+        // первые победы в этих эрах (номера в config.eras) дают классы КРАСНЫЙ ГИГАНТ и БЕЛЫЙ КАРЛИК
+        const int RedGiantEra = 1;
+        const int WhiteDwarfEra = 3;
 
         readonly GameConfig config;
 
@@ -35,7 +41,10 @@ namespace Perigee
                 Data = Fresh();
             }
 
-            if (Data.version < Version) Migrate();
+            if (Data.version >= Version) return;
+            if (Data.version < VersionR3) MigrateR3();
+            MigrateR4();
+            Save();
         }
 
         public void Save()
@@ -62,13 +71,14 @@ namespace Perigee
                 skinsOwned = StartSkins,
                 satelliteSkin = (int)SkinId.Romb,
                 starSkin = (int)SkinId.Sun,
-                bestTimes = new float[config.eras.Length],
-                bestEndless = new float[config.eras.Length],
+                bestTimes = new float[config.maxEras],
+                bestEndless = new float[config.maxEras],
+                starClassesOwned = StartClasses,
             };
         }
 
         // Перенос сохранения R2.1: старые чертежи возвращаются пылью, остальное встаёт на места R3.
-        void Migrate()
+        void MigrateR3()
         {
             // полная цена каждого купленного уровня старого чертежа
             LegacyBlueprint[] legacy = config.legacyBlueprintCosts;
@@ -88,8 +98,26 @@ namespace Perigee
                 if (skins[i].eraWin > 0 && skins[i].eraWin <= won) Data.skinsOwned |= 1 << (int)skins[i].id;
             // старые РОСТ и ИМПУЛЬС значат то же, остальные номера были ЯКОРЕМ, ХОЛОДОМ и ВСПЛЕСКОМ
             if (Data.lastAbilityA != (int)AbilityId.Grow && Data.lastAbilityA != (int)AbilityId.Pulse) Data.lastAbilityA = (int)AbilityId.Reverse;
+            Data.version = VersionR3;
+        }
+
+        // Перенос сохранения R3: 8 эр, классы за уже пройденные эры, новые настройки со значениями по умолчанию.
+        void MigrateR4()
+        {
+            System.Array.Resize(ref Data.bestTimes, config.maxEras);
+            System.Array.Resize(ref Data.bestEndless, config.maxEras);
+            Data.starClassesOwned = StartClasses;
+            if ((Data.erasWon & 1 << RedGiantEra) != 0) Data.starClassesOwned |= 1 << (int)StarClassId.RedGiant;
+            if ((Data.erasWon & 1 << WhiteDwarfEra) != 0) Data.starClassesOwned |= 1 << (int)StarClassId.WhiteDwarf;
+            // старому игроку вступление не навязывается: его можно посмотреть из настроек
+            Data.introSeen = Data.tutorialDone;
+
+            SettingsData defaults = new SettingsData();
+            SettingsData settings = Data.settings;
+            settings.musicVolume = defaults.musicVolume;
+            settings.vibration = defaults.vibration;
+            settings.language = defaults.language;
             Data.version = Version;
-            Save();
         }
     }
 }

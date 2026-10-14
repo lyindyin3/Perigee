@@ -41,7 +41,7 @@ namespace Perigee
 
                 AbilityDef def = abilities.Offer(i);
                 frames[i].sprite = art.abilityFrame;
-                icons[i].sprite = art.abilityIcons[(int)def.id];
+                icons[i].sprite = art.abilityIcons[(int)def.id].sprite;
                 titles[i].text = Strings.AbilityTitle[(int)def.id];
                 effectLines[i].text = Strings.AbilityText[(int)def.id];
                 cooldownLines[i].text = string.Format(CultureInfo.InvariantCulture, Strings.CooldownFormat, def.cooldown * loop.Stats.abilityCooldownMul);

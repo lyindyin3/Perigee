@@ -54,7 +54,7 @@ namespace Perigee
             if (id == shownId) return;
 
             shownId = id;
-            icon.sprite = art.abilityIcons[id];
+            icon.sprite = art.abilityIcons[id].sprite;
         }
 
         void SetReady(bool ready)

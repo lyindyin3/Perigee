@@ -84,6 +84,8 @@ namespace Perigee
         public float fallMul;
         public EraRule rule;
         public EnemyType boss;
+        // музыка забега в этой эре
+        public MusicId music;
         public SpawnEvent[] opening;
         public SpawnEvent[] timeline;
         public int victoryDust;
@@ -115,8 +117,15 @@ namespace Perigee
         ArrowSpeedMul, AbilityCooldownMul, AbilityDurationMul, XpPerCrystalMul, XpNeedMul, StarDamageMul, DustMul, MagnetRadius,
         PowerFarBonus, StarMaxHp, Regen, Satellites, AddSatBonus, Beacon, CritChance, ArmorPierce, Execute, SawThread, Burn, Chain,
         Heatproof, SolarSail, Firebird, Slingshot, AnchorField, Crowbar, Horizon, DarkMatter, Accretion, SecondSun, FreeRerolls,
-        ExtraChoices
+        ExtraChoices,
+        // R4: складываются, системы читают их через Stats.Sum и Stats.Has
+        Shockwave, Prism, SolarWind, TideHeal, Inertia, Overload, Condensate, Smooth, CloudSeed, GravAssist, Sapper, Tidal, Stabilizer,
+        Lock, Singularity, Lantern, NightSight, LastLight, String, Wildfire, Prominence, Hammer, Harvest, Guillotine, LivingStar, Reactor,
+        ThirdHit, CritMulBonus, Aegis, AutoStasis, ComboWindow, LastBreath, Thorns, Feather
     }
+
+    // классы звёзд (GDD 8.6): бит в SaveData.starClassesOwned
+    public enum StarClassId { Yellow, RedGiant, WhiteDwarf, Neutron, Cepheid }
 
     [Serializable]
     public struct StatMod
@@ -592,6 +601,17 @@ namespace Perigee
         [Title("Звук")]
         public float dronePitchMin = 0.8f;
         public float dronePitchMax = 1.5f;
+        // голосов эффектов одновременно (столько AudioSource лежит под Systems/Sfx)
+        public int maxVoices = 16;
+        // переход между треками музыки, секунды
+        public float musicFade = 1f;
+        // музыка на паузе
+        public float musicPauseMul = 0.4f;
+        // номер эры с единицы, где у босса музыка FinalBoss
+        public int finalBossEra = 8;
+        // звук Overheat: нагрев дошёл до первого числа; снова звучит, когда спутник остыл ниже второго
+        public float overheatSound = 0.8f;
+        public float overheatReset = 0.5f;
 
         [Title("Расписание")]
         // сами расписания лежат в эрах: eras[].opening и eras[].timeline
@@ -635,13 +655,15 @@ namespace Perigee
         public float bannerDustHold = 2f;
 
         [Title("Эры")]
+        // длина списков эр в сохранении (bestTimes, bestEndless)
+        public int maxEras = 8;
         // СОЛНЦЕ, КРАСНЫЙ КАРЛИК, ТЯЖЁЛАЯ ЗВЕЗДА, ЧЁРНАЯ ДЫРА
         public EraDef[] eras =
         {
             new EraDef
             {
                 kExp = 0.9f, spinMul = 1f, hpMul = 1f, countMul = 1f, ambientInterval = 3.5f, dustMul = 1f, riseMul = 1f, fallMul = 1f,
-                rule = EraRule.None, boss = EnemyType.Boss, victoryDust = 100, firstWinDust = 200,
+                rule = EraRule.None, boss = EnemyType.Boss, music = MusicId.Chapter1, victoryDust = 100, firstWinDust = 200,
                 background = new Color32(0x0E, 0x0E, 0x0E, 0xFF), starTint = Color.white, raysTint = Color.white,
                 opening = new[]
                 {
@@ -674,7 +696,7 @@ namespace Perigee
             new EraDef
             {
                 kExp = 0.9f, spinMul = 1.15f, hpMul = 1.4f, countMul = 1.2f, ambientInterval = 3.3f, dustMul = 1.25f, riseMul = 1f, fallMul = 1f,
-                rule = EraRule.Flares, boss = EnemyType.Twin, victoryDust = 150, firstWinDust = 400,
+                rule = EraRule.Flares, boss = EnemyType.Twin, music = MusicId.Chapter1, victoryDust = 150, firstWinDust = 400,
                 background = new Color32(0x16, 0x0B, 0x0A, 0xFF), starTint = new Color32(0xFF, 0x9A, 0x80, 0xFF), raysTint = new Color32(0xFF, 0x9A, 0x80, 0xFF),
                 opening = new[]
                 {
@@ -709,7 +731,7 @@ namespace Perigee
             new EraDef
             {
                 kExp = 1.2f, spinMul = 1f, hpMul = 1.8f, countMul = 1.35f, ambientInterval = 3.1f, dustMul = 1.5f, riseMul = 0.8f, fallMul = 1.3f,
-                rule = EraRule.Heavy, boss = EnemyType.Colossus, victoryDust = 200, firstWinDust = 600,
+                rule = EraRule.Heavy, boss = EnemyType.Colossus, music = MusicId.Chapter2, victoryDust = 200, firstWinDust = 600,
                 background = new Color32(0x0B, 0x0E, 0x14, 0xFF), starTint = new Color32(0xC9, 0xD8, 0xFF, 0xFF), raysTint = new Color32(0xC9, 0xD8, 0xFF, 0xFF),
                 opening = new[]
                 {
@@ -744,7 +766,7 @@ namespace Perigee
             new EraDef
             {
                 kExp = 1f, spinMul = 1.1f, hpMul = 2.3f, countMul = 1.5f, ambientInterval = 3f, dustMul = 1.8f, riseMul = 1f, fallMul = 1f,
-                rule = EraRule.Vortex, boss = EnemyType.Pulsar, victoryDust = 250, firstWinDust = 800,
+                rule = EraRule.Vortex, boss = EnemyType.Pulsar, music = MusicId.Chapter2, victoryDust = 250, firstWinDust = 800,
                 background = new Color32(0x05, 0x05, 0x05, 0xFF), starTint = new Color32(0x26, 0x26, 0x26, 0xFF), raysTint = Color.white,
                 opening = new[]
                 {

@@ -18,6 +18,7 @@ namespace Perigee
         [SerializeField] CardPickView view;
         [SerializeField] AbilityPickView abilityView;
         [SerializeField] Visual beaconRing;
+        [SerializeField] AudioManager sfx;
 
         Rng cardRng;
         // индексы в config.cards
@@ -102,6 +103,7 @@ namespace Perigee
                     enemies.Blast(Vector2.zero, config.beaconRadius, config.beaconDamage);
                     boss.Blast(Vector2.zero, config.beaconRadius, config.beaconDamage);
                     BeaconFx();
+                    sfx.Play(SfxId.Pulse);
                 }
             }
             // волна МАЯКА добила босса: победа важнее экрана карточек
@@ -128,6 +130,7 @@ namespace Perigee
             RunState run = loop.Run;
             run.xp -= Need(run.level);
             run.level++;
+            sfx.Play(SfxId.LevelUp);
 
             // это повышение уровня открывает выбор второй способности вместо карточек; «Без способностей»: карточки
             if (run.level == config.abilityPickLevel && !run.Has(RunModifier.NoAbilities))

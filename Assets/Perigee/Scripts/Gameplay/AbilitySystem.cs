@@ -17,6 +17,7 @@ namespace Perigee
         [SerializeField] BossSystem boss;
         [SerializeField] SatelliteSystem satellites;
         [SerializeField] Fx fx;
+        [SerializeField] AudioManager sfx;
         [SerializeField] Visual pulseRing;
         [SerializeField] Visual reverseFx;
         [SerializeField] GameObject stasisFx;
@@ -25,6 +26,8 @@ namespace Perigee
 
         readonly AbilityId[] slots = new AbilityId[SlotCount];
         readonly bool[] filled = new bool[SlotCount];
+        // слот нажат и ждёт конца перезарядки: тогда прозвучит AbilityReady
+        readonly bool[] recharging = new bool[SlotCount];
         // таймеры по номеру AbilityId; длительность и перезарядка запоминаются в момент нажатия
         float[] elapsed;
         float[] duration;
@@ -86,12 +89,19 @@ namespace Perigee
             System.Array.Clear(elapsed, 0, elapsed.Length);
             System.Array.Clear(duration, 0, duration.Length);
             System.Array.Clear(cooldown, 0, cooldown.Length);
+            System.Array.Clear(recharging, 0, recharging.Length);
             ShowFx();
         }
 
         public void Tick(float dt)
         {
             for (int i = 0; i < elapsed.Length; i++) elapsed[i] += dt;
+            for (int s = 0; s < SlotCount; s++)
+            {
+                if (!recharging[s] || Charge(s) < 1f) continue;
+                recharging[s] = false;
+                sfx.Play(SfxId.AbilityReady);
+            }
             ShowFx();
         }
 
@@ -109,8 +119,11 @@ namespace Perigee
             elapsed[a] = 0f;
             duration[a] = def.duration * loop.Stats.abilityDurationMul;
             cooldown[a] = def.cooldown * loop.Stats.abilityCooldownMul;
+            recharging[slot] = true;
             if (id == AbilityId.Pulse) PulseWave();
             if (id == AbilityId.Reverse) Reverse();
+            // звуки способностей идут в SfxId подряд, в порядке AbilityId
+            sfx.Play(SfxId.Reverse + a);
         }
 
         public bool Filled(int slot)

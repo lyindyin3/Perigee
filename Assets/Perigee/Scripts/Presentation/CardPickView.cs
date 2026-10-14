@@ -61,6 +61,7 @@ namespace Perigee
         {
             if (closing) return;
 
+            sfx.Play(SfxId.UiClick);
             cards.FreeReroll();
             Fill();
         }
@@ -70,6 +71,7 @@ namespace Perigee
         {
             if (closing) return;
 
+            sfx.Play(SfxId.UiClick);
             loop.Rewarded(Rerolled);
         }
 
