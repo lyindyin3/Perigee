@@ -115,6 +115,12 @@ namespace Perigee
         [Tooltip("Аномалия-отталкиватель (эра 7): толкает орбиту и врагов")]
         public Visual anomalyRepulsor;
 
+        [Header("Сюжет")]
+        [Tooltip("Слайды вступления перед первым забегом, по порядку")]
+        public SpriteSlot[] storyIntro;
+        [Tooltip("Слайды финала после первой победы в эре 8, по порядку")]
+        public SpriteSlot[] storyEnding;
+
         // русские имена типов врагов для подписей в инспекторе, по порядку EnemyType
         static readonly string[] EnemyNames =
         {
@@ -176,6 +182,11 @@ namespace Perigee
                 eraBackdrops[i].label = label;
                 eraStarSprites[i].label = label;
             }
+
+            storyIntro = Fit(storyIntro, Strings.StoryIntro.Length);
+            for (int i = 0; i < storyIntro.Length; i++) storyIntro[i].label = "Слайд " + (i + 1);
+            storyEnding = Fit(storyEnding, Strings.StoryEnding.Length);
+            for (int i = 0; i < storyEnding.Length; i++) storyEnding[i].label = "Слайд " + (i + 1);
 
             Loc.Use(current);
         }

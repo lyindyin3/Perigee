@@ -46,14 +46,14 @@ namespace Perigee
             eraBadge.gameObject.SetActive(card.era != 0);
             if (card.era != 0) eraBadge.sprite = art.eraIcons[card.era - 1].sprite;
             icon.sprite = art.cardIcons[id].sprite;
-            title.text = Strings.CardTitle[id];
+            Typing.Show(title, Strings.CardTitle[id]);
             pips.text = Strings.Pips(stacks, card.maxStacks);
-            plusLine.text = Strings.CardPlus[id];
+            Typing.Show(plusLine, Strings.CardPlus[id]);
 
             bool evolution = card.color == CardColor.Evolution;
             // у эволюции минуса нет, вместо него рецепт под названием
             minusLine.gameObject.SetActive(!evolution);
-            minusLine.text = Strings.CardMinus[id];
+            Typing.Show(minusLine, Strings.CardMinus[id]);
             evoSources.SetActive(evolution);
             if (!evolution) return;
             sourceA.sprite = art.cardIcons[(int)card.sourceA].sprite;
@@ -78,9 +78,9 @@ namespace Perigee
             evoSources.SetActive(false);
             minusLine.gameObject.SetActive(false);
             icon.sprite = relicIcon;
-            title.text = relicTitle;
+            Typing.Show(title, relicTitle);
             pips.text = Strings.Pips(stacks, maxStacks);
-            plusLine.text = line;
+            Typing.Show(plusLine, line);
         }
 
         // выбрана эволюция: значки источников въезжают в главную иконку, карточка вспыхивает белым, иконка подпрыгивает

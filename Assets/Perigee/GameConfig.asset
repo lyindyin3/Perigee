@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 02cdd2e74b496334d8baed45d6a88bd7, type: 3}
   m_Name: GameConfig
   m_EditorClassIdentifier: Assembly-CSharp::Perigee.GameConfig
-  debugUnlockAll: 0
+  debugUnlockAll: 1
   starLowHpFraction: 0.3
   secondSunHp: 0.25
   starHitFlashColor: {r: 0.8392157, g: 0.15686275, b: 0.12156863, a: 1}
@@ -2129,10 +2129,10 @@ MonoBehaviour:
   markerPrewarm: 8
   bannerFadeIn: 0.2
   bannerFadeOut: 0.3
-  bannerEnemyHold: 3
-  bannerBossHold: 2
-  bannerRuleHold: 3
-  bannerDustHold: 2
+  bannerEnemyHold: 4
+  bannerBossHold: 4
+  bannerRuleHold: 4
+  bannerDustHold: 4
   maxEras: 8
   eras:
   - kExp: 0.9
@@ -4455,6 +4455,12 @@ MonoBehaviour:
   dailyDustMul: 2
   scorePerSecond: 2
   scoreVictory: 500
+  storyCharsPerSec: 40
+  storyTypeEvery: 3
+  storyFadeTime: 0.5
+  storyZoom: 1.06
+  storyZoomTime: 8
+  storyHintBlink: 0.6
   reviveHpFraction: 0.5
   reviveKillRadius: 4
   reviveImmuneTime: 1.5

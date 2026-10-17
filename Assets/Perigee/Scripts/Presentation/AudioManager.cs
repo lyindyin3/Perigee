@@ -100,7 +100,7 @@ namespace Perigee
             SettingsData settings = loop.Save.Data.settings;
 
             // музыка: на паузе тише
-            float level = settings.musicVolume * (loop.State == GameState.Paused ? config.musicPauseMul : 1f);
+            float level = settings.musicVolume * (loop.State == GameState.Paused || loop.State == GameState.Deck ? config.musicPauseMul : 1f);
             float k = Mathf.Clamp01((Time.unscaledTime - fadeStart) / config.musicFade);
             if (hasMusic) musicSources[front].volume = k * bank.music[(int)currentMusic].volume * level;
             AudioSource back = musicSources[1 - front];

@@ -46,7 +46,7 @@ namespace Perigee
             if (!busy) return;
 
             Entry e = queue.Dequeue();
-            label.text = e.text;
+            Typing.Show(label, e.text);
             icon.sprite = e.icon;
             icon.color = e.iconColor;
             icon.gameObject.SetActive(e.icon != null);

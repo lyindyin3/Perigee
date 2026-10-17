@@ -30,6 +30,22 @@ namespace Perigee
             sourceB.sprite = art.cardIcons[(int)card.sourceB].sprite;
         }
 
+        // «Твои карточки» на паузе: взятая карточка с её стаками
+        public void ShowTaken(CardDef card, int stacks)
+        {
+            view.gameObject.SetActive(true);
+            back.SetActive(false);
+            view.Show(card, stacks);
+        }
+
+        public void ShowTakenRelic(RelicDef relic, int stacks)
+        {
+            view.gameObject.SetActive(true);
+            back.SetActive(false);
+            int id = (int)relic.id;
+            view.ShowRelic(art.relicIcons[id].sprite, Strings.RelicTitle[id], Strings.RelicText[id], stacks, relic.maxStacks);
+        }
+
         public void ShowRelic(RelicDef relic, bool seen)
         {
             view.gameObject.SetActive(seen);

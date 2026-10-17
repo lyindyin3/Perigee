@@ -146,6 +146,50 @@ namespace Perigee
         public static readonly string[] LanguageNames = { "Русский", "English" };
         public static string ReplayTutorial => Loc.Pick("Пройти обучение снова", "Replay the tutorial");
         public static string ResetProgress => Loc.Pick("Сбросить прогресс", "Reset progress");
+        public static string WatchIntro => Loc.Pick("Смотреть вступление", "Watch the intro");
+        public static string WatchEnding => Loc.Pick("Смотреть финал", "Watch the ending");
+        public static string Narrator => Loc.Pick("РАССКАЗЧИК", "NARRATOR");
+        public static string StoryNextHint => Loc.Pick("Нажми, чтобы продолжить", "Tap to continue");
+        public static string StorySkip => Loc.Pick("Пропустить", "Skip");
+        public static string EndlessAwaits => Loc.Pick("Бесконечный режим ждёт", "Endless mode awaits");
+        public static string[] StoryIntro => Loc.Pick(StoryIntroRu, StoryIntroEn);
+        static readonly string[] StoryIntroRu =
+        {
+            "Когда-то небо было полно звёзд. Их было так много, что ночь казалась светлой.",
+            "Потом пришла Тьма. Она не горела и не светила. Она просто гасила — звезду за звездой.",
+            "Тьма посылала своих слуг: рои, стрелы, бастионы. Каждый летел к свету, чтобы его потушить.",
+            "Осталась одна звезда. Маленькая, упрямая, на самом краю неба.",
+            "У неё был один спутник. Он не умел стрелять. Он умел только кружить — и бить всё, что встанет на пути.",
+            "Держи — и он уйдёт к дальним орбитам. Отпусти — и упадёт к звезде. Так началась оборона Перигея.",
+        };
+        static readonly string[] StoryIntroEn =
+        {
+            "Once the sky was full of stars. There were so many that the night seemed bright.",
+            "Then the Darkness came. It did not burn or shine. It simply put out the stars, one by one.",
+            "The Darkness sent its servants: swarms, arrows, bastions. Each flew at the light to put it out.",
+            "One star was left. Small, stubborn, at the very edge of the sky.",
+            "It had one satellite. It could not shoot. It could only circle — and strike anything in its way.",
+            "Hold, and it climbs to the far orbits. Let go, and it falls to the star. So began the defence of Perigee.",
+        };
+        public static string[] StoryEnding => Loc.Pick(StoryEndingRu, StoryEndingEn);
+        static readonly string[] StoryEndingRu =
+        {
+            "Сердце Тьмы треснуло. Впервые за тысячу лет в пустоте стало тихо.",
+            "Звезда не погасла. Она вспыхнула так ярко, что свет дошёл до самых дальних орбит.",
+            "Из её пламени родились новые звёзды. Сначала одна, потом десять, потом целое небо.",
+            "А спутник всё кружил. Ему некуда было спешить.",
+            "Тьма ещё вернётся. Но теперь у неба есть кому светить.",
+            "КОНЕЦ. Спасибо, что дошли до рассвета.",
+        };
+        static readonly string[] StoryEndingEn =
+        {
+            "The Heart of Darkness cracked. For the first time in a thousand years the void fell quiet.",
+            "The star did not go out. It flared so bright that its light reached the farthest orbits.",
+            "New stars were born from its flame. First one, then ten, then a whole sky.",
+            "And the satellite kept circling. It had nowhere to hurry.",
+            "The Darkness will return. But now the sky has someone to shine.",
+            "THE END. Thank you for reaching the dawn.",
+        };
         public static string ConfirmTutorial => Loc.Pick("Пройти обучение снова?", "Replay the tutorial?");
         public static string ConfirmReset => Loc.Pick(
             "Сбросить всё? Пыль, чертежи, эры, способности и облик пропадут.",
@@ -245,21 +289,23 @@ namespace Perigee
         public static string[] Hint => Loc.Pick(HintRu, HintEn);
         static readonly string[] HintRu =
         {
-            "Держи — спутник уходит наружу",
-            "Отпусти — спутник падает к звезде",
-            "Перегрев! Держи, чтобы остыть",
-            "Броня: бей внутри серебряного кольца",
-            "Жми Q или кнопку: ИМПУЛЬС",
-            "Резонанс: урон ×2",
+            "Зажми мышь или Пробел и держи: спутник полетит от звезды к врагам",
+            "Отпусти: спутник вернётся к звезде и защитит её",
+            "Спутник перегрелся! Держи нажатым, чтобы он остыл",
+            "У этого врага броня. Бей его там, где серебряное кольцо",
+            "Способность готова! Нажми Q или кнопку Q на экране: ИМПУЛЬС отталкивает врагов",
+            "Два спутника рядом усилили друг друга: урон ×2",
+            "Вторая способность готова! Нажми E или кнопку E на экране",
         };
         static readonly string[] HintEn =
         {
-            "Hold — the satellite moves out",
-            "Release — the satellite falls to the star",
-            "Overheat! Hold to cool down",
-            "Armor: strike inside the silver ring",
-            "Press Q or the button: PULSE",
-            "Resonance: damage ×2",
+            "Press and hold the mouse or Space: the satellite flies out to the enemies",
+            "Let go: the satellite flies back and guards the star",
+            "The satellite is overheating! Keep holding to let it cool",
+            "This enemy has armor. Hit it where the silver ring is",
+            "Ability ready! Press Q or the Q button on screen: PULSE pushes enemies away",
+            "Two satellites close together boosted each other: damage ×2",
+            "Second ability ready! Press E or the E button on screen",
         };
 
         // имя босса: над полосой HP и на баннере
@@ -896,8 +942,8 @@ namespace Perigee
         public static string BestiaryStatsFormat => Loc.Pick("HP {0:0.##} · скорость {1:0.##} · броня {2:0.##}", "HP {0:0.##} · speed {1:0.##} · armor {2:0.##}");
         // страницы ОСНОВЫ
         public static string[] AtlasPageTitle => Loc.Pick(AtlasPageTitleRu, AtlasPageTitleEn);
-        static readonly string[] AtlasPageTitleRu = { "УДЕРЖАНИЕ", "СИЛА УДАРА", "НАГРЕВ", "БРОНЯ", "РЕЗОНАНС", "КАРТОЧКИ", "ЭВОЛЮЦИИ", "СПОСОБНОСТИ", "КОМБО И РЕЛИКВИИ" };
-        static readonly string[] AtlasPageTitleEn = { "HOLD", "STRIKE POWER", "HEAT", "ARMOR", "RESONANCE", "CARDS", "EVOLUTIONS", "ABILITIES", "COMBO AND RELICS" };
+        static readonly string[] AtlasPageTitleRu = { "УДЕРЖАНИЕ", "СИЛА УДАРА", "НАГРЕВ", "БРОНЯ", "РЕЗОНАНС", "КАРТОЧКИ", "ЭВОЛЮЦИИ", "СПОСОБНОСТИ", "КОМБО И РЕЛИКВИИ", "ТВОИ КАРТОЧКИ" };
+        static readonly string[] AtlasPageTitleEn = { "HOLD", "STRIKE POWER", "HEAT", "ARMOR", "RESONANCE", "CARDS", "EVOLUTIONS", "ABILITIES", "COMBO AND RELICS", "YOUR CARDS" };
         public static string[] AtlasPageText => Loc.Pick(AtlasPageTextRu, AtlasPageTextEn);
         static readonly string[] AtlasPageTextRu =
         {
@@ -910,6 +956,7 @@ namespace Perigee
             "Две карточки на максимуме сливаются в эволюцию — она сильнее обеих. Рецепты — во вкладке КАРТОЧКИ.",
             "Две кнопки внизу справа. Первую выбираешь перед забегом, вторую дают на 3-м уровне. После нажатия идёт перезарядка.",
             "Убивай без пауз — растёт комбо, и кристаллы дороже. Вестник в середине забега несёт реликвию — сильный бонус до конца забега.",
+            "Взятые карточки видны внизу слева. Нажми на любую из них (или Tab) — игра встанет на паузу и покажет все твои карточки и реликвии с уровнями.",
         };
         static readonly string[] AtlasPageTextEn =
         {
@@ -922,7 +969,12 @@ namespace Perigee
             "Two maxed cards merge into an evolution — stronger than both. Recipes are in the CARDS tab.",
             "Two buttons at the bottom right. You pick the first before a run, the second comes at level 3. After a press it recharges.",
             "Kill without pauses — the combo grows and crystals are worth more. The Herald brings a relic mid-run — a strong bonus until the run ends.",
+            "Your cards are shown at the bottom left. Tap any of them (or press Tab) — the game pauses and shows all your cards and relics with their levels.",
         };
+
+        // «Твои карточки»: пауза с карточками забега
+        public static string DeckTitle => Loc.Pick("ТВОИ КАРТОЧКИ", "YOUR CARDS");
+        public static string DeckEmpty => Loc.Pick("Карточек пока нет", "No cards yet");
 
         // достижения
         public static string Achievements => Loc.Pick("ДОСТИЖЕНИЯ", "ACHIEVEMENTS");

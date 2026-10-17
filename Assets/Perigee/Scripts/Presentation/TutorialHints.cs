@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Perigee
 {
-    public enum HintId { Hold, Release, Heat, Armor, Pulse, Resonance }
+    public enum HintId { Hold, Release, Heat, Armor, Pulse, Resonance, AbilityB }
 
     // Подсказки первого забега: на экране одна, каждая показывается один раз.
     public class TutorialHints : MonoBehaviour
@@ -90,6 +90,7 @@ namespace Perigee
                 // в обучении слот A всегда занят ИМПУЛЬСОМ
                 case HintId.Pulse: return abilities.Charge(AbilitySystem.SlotA) >= 1f && enemies.Within(config.hintPulseRadius) >= config.hintPulseEnemies;
                 case HintId.Resonance: return satellites.Resonating;
+                case HintId.AbilityB: return abilities.Filled(AbilitySystem.SlotB) && abilities.Charge(AbilitySystem.SlotB) >= 1f;
                 default: return true;
             }
         }
@@ -105,6 +106,7 @@ namespace Perigee
                 case HintId.Heat: return satellites.MaxHeat < config.hintHeatHide;
                 case HintId.Armor: return !FirstBastion;
                 case HintId.Pulse: return abilities.Charge(AbilitySystem.SlotA) < 1f;
+                case HintId.AbilityB: return abilities.Charge(AbilitySystem.SlotB) < 1f;
                 default: return shown >= config.hintResonanceTime;
             }
         }

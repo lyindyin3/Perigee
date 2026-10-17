@@ -1506,6 +1506,18 @@ namespace Perigee
         public float scorePerSecond = 2f;
         public int scoreVictory = 500;
 
+        [Title("Сюжет")]
+        // печать текста рассказчика, символов в секунду; звук печати раз в storyTypeEvery символов
+        public float storyCharsPerSec = 40f;
+        public int storyTypeEvery = 3;
+        // смена слайда: новая картинка проявляется поверх старой
+        public float storyFadeTime = 0.5f;
+        // медленное приближение картинки 1 → storyZoom за storyZoomTime
+        public float storyZoom = 1.06f;
+        public float storyZoomTime = 8f;
+        // мигание «Нажми, чтобы продолжить»: полупериод
+        public float storyHintBlink = 0.6f;
+
         [Title("Реклама")]
         public float reviveHpFraction = 0.5f;
         public float reviveKillRadius = 4f;

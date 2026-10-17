@@ -31,7 +31,7 @@ namespace Perigee
 
         public void Show()
         {
-            header.text = Strings.CardPickTitle;
+            Typing.Show(header, Strings.CardPickTitle);
             rerollLabel.text = Strings.NewCardsAd;
             gameObject.SetActive(true);
             // карточки вылетают, когда кольцо нового уровня дошло до края поля

@@ -110,9 +110,11 @@ namespace Perigee
         // купленное в этом кадре прыгает само, толчок нажатия его не перебивает
         Transform bought;
         int boughtFrame = -1;
+        System.Action startTutorial;
 
         void Awake()
         {
+            startTutorial = StartTutorial;
             panels = new[] { mainPanel, erasPanel, challengesPanel, workshopPanel, atlasPanel, achievementsPanel };
             panelGroups = new CanvasGroup[panels.Length];
             panelHomes = new Vector2[panels.Length];
@@ -211,8 +213,15 @@ namespace Perigee
         public void Play()
         {
             sfx.Play(SfxId.UiClick);
-            if (loop.Save.Data.tutorialDone) OpenEras();
-            else loop.StartFromMenu(0, RunMode.Run, 0);
+            // первое ИГРАТЬ: сначала вступление, потом обучение
+            if (!loop.Save.Data.introSeen) loop.ShowStory(false, startTutorial);
+            else if (loop.Save.Data.tutorialDone) OpenEras();
+            else StartTutorial();
+        }
+
+        void StartTutorial()
+        {
+            loop.StartFromMenu(0, RunMode.Run, 0);
         }
 
         public void OpenEras()

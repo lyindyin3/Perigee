@@ -27,36 +27,36 @@ MonoBehaviour:
     prefab: {fileID: 1517822749181867722, guid: 1b6efae2b111fed45a5bcddfd71835b0, type: 3}
   starSkins:
   - label: "Sun \u2014 \u0421\u043E\u043B\u043D\u0446\u0435"
-    body: {fileID: 21300000, guid: ed470b70804955348a84cc116cd7ecfe, type: 3}
+    body: {fileID: -2067852787430084372, guid: b3c40daff984e8041a7df88822c2cfa5, type: 3}
     rays: {fileID: 21300000, guid: e83b9d87cdc95554296f8b32252bcef9, type: 3}
   - label: "Oko \u2014 \u041E\u043A\u043E"
-    body: {fileID: 21300000, guid: c9d30c5c81e548f479407d552704b26b, type: 3}
+    body: {fileID: -409711793, guid: b3c40daff984e8041a7df88822c2cfa5, type: 3}
     rays: {fileID: 21300000, guid: a2bd664199ec1df4ea413d9258cf51ce, type: 3}
   - label: "Sunflower \u2014 \u041F\u043E\u0434\u0441\u043E\u043B\u043D\u0443\u0445"
-    body: {fileID: 21300000, guid: 54ec53525e98fb9468c54cc5dfb5a7d7, type: 3}
-    rays: {fileID: 21300000, guid: 6a4ea0724ba4ce54daf5379434269c73, type: 3}
+    body: {fileID: 636413536, guid: b3c40daff984e8041a7df88822c2cfa5, type: 3}
+    rays: {fileID: 5052372736383594654, guid: b3c40daff984e8041a7df88822c2cfa5, type: 3}
   - label: "Motor \u2014 \u041C\u043E\u0442\u043E\u0440"
-    body: {fileID: 21300000, guid: 86509bcdb5471d347804e1258040784d, type: 3}
+    body: {fileID: -7527305710229354213, guid: b3c40daff984e8041a7df88822c2cfa5, type: 3}
     rays: {fileID: 21300000, guid: 988840d63c8e7b94e96decd541cd1c46, type: 3}
   echo: {fileID: 5187077046948144319, guid: 39724e1bcfa1b8941b28a2520dc1bf60, type: 3}
   crystal: {fileID: 4764373594962635259, guid: 875babf7df9991845a0a695afce1554e, type: 3}
   resonanceThread: {fileID: 1654234894692130570, guid: 59b7b556ebf8896458be467ad18ccce6, type: 3}
   starClasses:
   - label: "Yellow \u2014 \u0416\u0401\u041B\u0422\u042B\u0419 \u041A\u0410\u0420\u041B\u0418\u041A"
-    icon: {fileID: 21300000, guid: ed470b70804955348a84cc116cd7ecfe, type: 3}
+    icon: {fileID: -2067852787430084372, guid: b3c40daff984e8041a7df88822c2cfa5, type: 3}
     aura: {fileID: 0}
   - label: "RedGiant \u2014 \u041A\u0420\u0410\u0421\u041D\u042B\u0419 \u0413\u0418\u0413\u0410\u041D\u0422"
-    icon: {fileID: 21300000, guid: ed470b70804955348a84cc116cd7ecfe, type: 3}
+    icon: {fileID: -2067852787430084372, guid: b3c40daff984e8041a7df88822c2cfa5, type: 3}
     aura: {fileID: 5694983718492883482, guid: b0ea2fbcf09261244a8a201e5e8cff9c, type: 3}
   - label: "WhiteDwarf \u2014 \u0411\u0415\u041B\u042B\u0419 \u041A\u0410\u0420\u041B\u0418\u041A"
-    icon: {fileID: 21300000, guid: ed470b70804955348a84cc116cd7ecfe, type: 3}
+    icon: {fileID: -2067852787430084372, guid: b3c40daff984e8041a7df88822c2cfa5, type: 3}
     aura: {fileID: 2113631724374844496, guid: 755eaceae9451ca40b5792df8c166766, type: 3}
   - label: "Neutron \u2014 \u041D\u0415\u0419\u0422\u0420\u041E\u041D\u041D\u0410\u042F
       \u0417\u0412\u0415\u0417\u0414\u0410"
-    icon: {fileID: 21300000, guid: ed470b70804955348a84cc116cd7ecfe, type: 3}
+    icon: {fileID: -2067852787430084372, guid: b3c40daff984e8041a7df88822c2cfa5, type: 3}
     aura: {fileID: 597145194061377201, guid: 959c70c3ba25c224fa6fe57de08a927c, type: 3}
   - label: "Cepheid \u2014 \u0426\u0415\u0424\u0415\u0418\u0414\u0410"
-    icon: {fileID: 21300000, guid: ed470b70804955348a84cc116cd7ecfe, type: 3}
+    icon: {fileID: -2067852787430084372, guid: b3c40daff984e8041a7df88822c2cfa5, type: 3}
     aura: {fileID: 6232158795079961906, guid: 560d81d00fda369429250c28ad66ddb0, type: 3}
   enemies:
   - label: "Swarmer \u2014 \u0420\u043E\u0439"
@@ -482,17 +482,19 @@ MonoBehaviour:
   - label: "3 \u041D\u0410\u0413\u0420\u0415\u0412"
     sprite: {fileID: 21300000, guid: 2895d2b133b192e458106ea0e8341b82, type: 3}
   - label: "4 \u0411\u0420\u041E\u041D\u042F"
-    sprite: {fileID: 21300000, guid: efdf04229d09e104b9f32b10fc13fa2e, type: 3}
+    sprite: {fileID: 21300000, guid: 624ca138cd03e694a928f7891697615c, type: 3}
   - label: "5 \u0420\u0415\u0417\u041E\u041D\u0410\u041D\u0421"
     sprite: {fileID: 21300000, guid: 371e9ea31a672c64c991ef43fcb253e0, type: 3}
   - label: "6 \u041A\u0410\u0420\u0422\u041E\u0427\u041A\u0418"
-    sprite: {fileID: 21300000, guid: 52fc0527390a4a948b4c3d341fea9bec, type: 3}
+    sprite: {fileID: 7511885716949343904, guid: d80b5f31be07b344487fad20504e0cb3, type: 3}
   - label: "7 \u042D\u0412\u041E\u041B\u042E\u0426\u0418\u0418"
     sprite: {fileID: 21300000, guid: f20af9d1964599748b60fb8398549322, type: 3}
   - label: "8 \u0421\u041F\u041E\u0421\u041E\u0411\u041D\u041E\u0421\u0422\u0418"
-    sprite: {fileID: 21300000, guid: 6ffd6324143cea845b2c38c49ec4bd7c, type: 3}
+    sprite: {fileID: 8408589976447491269, guid: 0c9d94210673f0e4393fbf236ef068f2, type: 3}
   - label: "9 \u041A\u041E\u041C\u0411\u041E \u0418 \u0420\u0415\u041B\u0418\u041A\u0412\u0418\u0418"
     sprite: {fileID: 21300000, guid: ba739edc94f26684da93ea2abf4e955d, type: 3}
+  - label: "10 \u0422\u0412\u041E\u0418 \u041A\u0410\u0420\u0422\u041E\u0427\u041A\u0418"
+    sprite: {fileID: 7511885716949343904, guid: d80b5f31be07b344487fad20504e0cb3, type: 3}
   eraIcons:
   - label: "1 \u0421\u041E\u041B\u041D\u0426\u0415"
     sprite: {fileID: 21300000, guid: e1ec8a52b79b31b439a6f2fcff121b76, type: 3}
@@ -546,3 +548,29 @@ MonoBehaviour:
     sprite: {fileID: 0}
   anomalyWell: {fileID: 1240810125467223434, guid: e9c10a1cfa8bced45ae7e5a0ec2d5d9b, type: 3}
   anomalyRepulsor: {fileID: 3318677852488444289, guid: d85cda21b89e06540aade858eac8ed82, type: 3}
+  storyIntro:
+  - label: "\u0421\u043B\u0430\u0439\u0434 1"
+    sprite: {fileID: 21300000, guid: 10900d410c254f34a9800cba235404f2, type: 3}
+  - label: "\u0421\u043B\u0430\u0439\u0434 2"
+    sprite: {fileID: 21300000, guid: 10900d410c254f34a9800cba235404f2, type: 3}
+  - label: "\u0421\u043B\u0430\u0439\u0434 3"
+    sprite: {fileID: 21300000, guid: 10900d410c254f34a9800cba235404f2, type: 3}
+  - label: "\u0421\u043B\u0430\u0439\u0434 4"
+    sprite: {fileID: 21300000, guid: 10900d410c254f34a9800cba235404f2, type: 3}
+  - label: "\u0421\u043B\u0430\u0439\u0434 5"
+    sprite: {fileID: 21300000, guid: 10900d410c254f34a9800cba235404f2, type: 3}
+  - label: "\u0421\u043B\u0430\u0439\u0434 6"
+    sprite: {fileID: 21300000, guid: 10900d410c254f34a9800cba235404f2, type: 3}
+  storyEnding:
+  - label: "\u0421\u043B\u0430\u0439\u0434 1"
+    sprite: {fileID: 21300000, guid: 10900d410c254f34a9800cba235404f2, type: 3}
+  - label: "\u0421\u043B\u0430\u0439\u0434 2"
+    sprite: {fileID: 21300000, guid: 10900d410c254f34a9800cba235404f2, type: 3}
+  - label: "\u0421\u043B\u0430\u0439\u0434 3"
+    sprite: {fileID: 21300000, guid: 10900d410c254f34a9800cba235404f2, type: 3}
+  - label: "\u0421\u043B\u0430\u0439\u0434 4"
+    sprite: {fileID: 21300000, guid: 10900d410c254f34a9800cba235404f2, type: 3}
+  - label: "\u0421\u043B\u0430\u0439\u0434 5"
+    sprite: {fileID: 21300000, guid: 10900d410c254f34a9800cba235404f2, type: 3}
+  - label: "\u0421\u043B\u0430\u0439\u0434 6"
+    sprite: {fileID: 21300000, guid: 10900d410c254f34a9800cba235404f2, type: 3}

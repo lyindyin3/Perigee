@@ -8,6 +8,8 @@ namespace Perigee
     {
         [SerializeField] float speed = 0.4f;
         [SerializeField] float length = 32f;
+        // с какой доли пути объект начинает (0..1): копии с разной фазой не едут строем
+        [SerializeField, Range(0f, 1f)] float phase;
 
         Vector3 start;
         float offset;
@@ -15,6 +17,7 @@ namespace Perigee
         void Awake()
         {
             start = transform.localPosition;
+            offset = phase * length;
         }
 
         void Update()

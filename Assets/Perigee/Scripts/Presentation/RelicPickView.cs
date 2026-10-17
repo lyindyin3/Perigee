@@ -21,7 +21,7 @@ namespace Perigee
 
         public void Show()
         {
-            header.text = Strings.RelicPickTitle;
+            Typing.Show(header, Strings.RelicPickTitle);
             for (int i = 0; i < views.Length; i++)
             {
                 bool used = i < relics.OfferCount;

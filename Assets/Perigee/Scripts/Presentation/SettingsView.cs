@@ -39,6 +39,10 @@ namespace Perigee
         [SerializeField] GameObject progressButtons;
         [SerializeField] TMP_Text replayLabel;
         [SerializeField] TMP_Text resetLabel;
+        // «Смотреть вступление» и «Смотреть финал» (второй — после первого финала)
+        [SerializeField] TMP_Text watchIntroLabel;
+        [SerializeField] TMP_Text watchEndingLabel;
+        [SerializeField] GameObject watchEndingButton;
         [SerializeField] TMP_Text versionLabel;
         [SerializeField] TMP_Text closeLabel;
         // простой фон прячет полосы фона и лучи звезды и останавливает вращение колец
@@ -48,11 +52,13 @@ namespace Perigee
 
         Action replayTutorial;
         Action resetProgress;
+        Action backToMenu;
 
         void Awake()
         {
             replayTutorial = DoReplayTutorial;
             resetProgress = DoResetProgress;
+            backToMenu = BackToMenu;
             Loc.Changed += Localize;
             Localize();
         }
@@ -76,6 +82,8 @@ namespace Perigee
             backgroundLabel.text = Strings.Background;
             replayLabel.text = Strings.ReplayTutorial;
             resetLabel.text = Strings.ResetProgress;
+            watchIntroLabel.text = Strings.WatchIntro;
+            watchEndingLabel.text = Strings.WatchEnding;
             versionLabel.text = string.Format(Strings.VersionFormat, Application.version);
             closeLabel.text = Strings.Close;
             ShowChoices();
@@ -94,6 +102,7 @@ namespace Perigee
             numbersToggle.SetIsOnWithoutNotify(settings.damageNumbers);
             // посреди забега прогресс не сбрасывают и обучение не начинают
             progressButtons.SetActive(loop.State == GameState.Menu);
+            watchEndingButton.SetActive(loop.Save.Data.endingSeen);
             gameObject.SetActive(true);
             ShowChoices();
         }
@@ -192,6 +201,24 @@ namespace Perigee
         {
             sfx.Play(SfxId.UiClick);
             confirm.Show(Strings.ConfirmReset, resetProgress);
+        }
+
+        // пересмотр сюжета из меню: после него снова главная панель
+        public void WatchIntro()
+        {
+            sfx.Play(SfxId.UiClick);
+            loop.ShowStory(false, backToMenu);
+        }
+
+        public void WatchEnding()
+        {
+            sfx.Play(SfxId.UiClick);
+            loop.ShowStory(true, backToMenu);
+        }
+
+        void BackToMenu()
+        {
+            loop.SetState(GameState.Menu);
         }
 
         SettingsData Data => loop.Save.Data.settings;

@@ -116,7 +116,7 @@ namespace Perigee
             if (bossPanel.activeSelf != boss.Alive)
             {
                 bossPanel.SetActive(boss.Alive);
-                bossName.text = Strings.BossTitle(loop.Era.boss);
+                Typing.Show(bossName, Strings.BossTitle(loop.Era.boss));
             }
             if (boss.Alive) bossBar.Set(boss.Hp, boss.MaxHp);
 
@@ -159,7 +159,10 @@ namespace Perigee
                 {
                     cardIcons[i] = Instantiate(cardIconPrefab, cardIconsRoot);
                     cardIcons[i].transform.Find(IconName).GetComponent<Image>().sprite = art.cardIcons[(int)id].sprite;
-                    cardIconTexts[i] = cardIcons[i].GetComponentInChildren<TMP_Text>();
+                    // подпись в префабе может быть выключена: ищем и среди выключенных
+                    cardIconTexts[i] = cardIcons[i].GetComponentInChildren<TMP_Text>(true);
+                    // нажатие на иконку открывает «Твои карточки»
+                    cardIcons[i].GetComponent<Button>().onClick.AddListener(loop.ToggleDeck);
                     if (card.color == CardColor.Evolution) Evolve(i, card);
                 }
                 shownStacks[i] = stacks;

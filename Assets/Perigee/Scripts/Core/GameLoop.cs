@@ -4,7 +4,7 @@ using UnityEngine.InputSystem;
 
 namespace Perigee
 {
-    public enum GameState { Menu, AbilityPick, Playing, Paused, CardPick, Defeat, Victory, Result }
+    public enum GameState { Menu, AbilityPick, Playing, Paused, CardPick, Defeat, Victory, Result, Story, Deck }
 
     public class GameLoop : MonoBehaviour
     {
@@ -35,12 +35,15 @@ namespace Perigee
         [SerializeField] TutorialHints hints;
         [SerializeField] BannerView banner;
         [SerializeField] PauseView pauseView;
+        // «Твои карточки»: пауза с карточками и реликвиями забега
+        [SerializeField] DeckView deckView;
         [SerializeField] AbilityPickView abilityPickView;
         [SerializeField] MenuView menuView;
         [SerializeField] ReviveView reviveView;
         [SerializeField] ResultView resultView;
         [SerializeField] SettingsView settingsView;
         [SerializeField] AchievementToast toast;
+        [SerializeField] StoryView storyView;
 
         public GameState State { get; private set; }
         public Stats Stats { get; } = new Stats();
@@ -84,8 +87,13 @@ namespace Perigee
         Action<bool> rewardedDone;
         Action<bool> onRewardedClosed;
         Action<bool> onRevive;
+        Action onStoryDone;
+        Action showResult;
+        // сюжет сейчас: финал (иначе вступление)
+        bool storyEnding;
         InputAction restartKey;
         InputAction pauseKey;
+        InputAction deckKey;
 
         void Awake()
         {
@@ -102,6 +110,7 @@ namespace Perigee
             Loc.Set(language >= 0 ? (Loc.Lang)language : Loc.FromCode(platform.Language()));
             onRewardedClosed = RewardedClosed;
             onRevive = Revived;
+            showResult = ShowResult;
 
             restartKey = new InputAction(binding: "<Keyboard>/r");
             restartKey.Enable();
@@ -110,12 +119,16 @@ namespace Perigee
             pauseKey.AddBinding("<Keyboard>/escape");
             pauseKey.AddBinding("<Keyboard>/p");
             pauseKey.Enable();
+
+            deckKey = new InputAction(binding: "<Keyboard>/tab");
+            deckKey.Enable();
         }
 
         void OnDestroy()
         {
             restartKey.Dispose();
             pauseKey.Dispose();
+            deckKey.Dispose();
         }
 
         void Start()
@@ -233,14 +246,33 @@ namespace Perigee
             State = next;
             // настройки открываются поверх меню и паузы и уходят вместе с ними
             settingsView.Close();
-            hud.gameObject.SetActive(next != GameState.Menu);
+            hud.gameObject.SetActive(next != GameState.Menu && next != GameState.Story);
             pauseView.gameObject.SetActive(next == GameState.Paused);
+            deckView.gameObject.SetActive(next == GameState.Deck);
             menuView.gameObject.SetActive(next == GameState.Menu);
             reviveView.gameObject.SetActive(next == GameState.Defeat);
             resultView.gameObject.SetActive(next == GameState.Result);
 
             if (next == GameState.Menu || next == GameState.Result) sfx.PlayMusic(MusicId.Menu);
             else if (next == GameState.Playing) sfx.PlayMusic(RunMusic);
+            else if (next == GameState.Story) sfx.PlayMusic(MusicId.Story);
+        }
+
+        // вступление или финал; после последнего слайда или «Пропустить» он отмечается просмотренным и зовётся done
+        public void ShowStory(bool ending, Action done)
+        {
+            storyEnding = ending;
+            onStoryDone = done;
+            SetState(GameState.Story);
+            storyView.Show(ending, StoryDone);
+        }
+
+        void StoryDone()
+        {
+            if (storyEnding) Save.Data.endingSeen = true;
+            else Save.Data.introSeen = true;
+            Save.Save();
+            onStoryDone();
         }
 
         // вибрация телефона, если она не выключена в настройках
@@ -251,9 +283,17 @@ namespace Perigee
 
         public void TogglePause()
         {
-            if (State == GameState.Playing || State == GameState.Paused) sfx.Play(SfxId.UiClick);
+            if (State == GameState.Playing || State == GameState.Paused || State == GameState.Deck) sfx.Play(SfxId.UiClick);
             if (State == GameState.Playing) SetState(GameState.Paused);
-            else if (State == GameState.Paused) SetState(GameState.Playing);
+            else if (State == GameState.Paused || State == GameState.Deck) SetState(GameState.Playing);
+        }
+
+        // Tab или иконка карточки в HUD: пауза с карточками забега; повторный Tab продолжает забег
+        public void ToggleDeck()
+        {
+            if (State == GameState.Playing || State == GameState.Deck) sfx.Play(SfxId.UiClick);
+            if (State == GameState.Playing) SetState(GameState.Deck);
+            else if (State == GameState.Deck) SetState(GameState.Playing);
         }
 
         public void RecomputeStats()
@@ -366,6 +406,7 @@ namespace Perigee
             cam.orthographicSize = config.H * Mathf.Max(1f, 1f / cam.aspect) * fx.Zoom;
 
             if (pauseKey.WasPressedThisFrame()) TogglePause();
+            if (deckKey.WasPressedThisFrame()) ToggleDeck();
             if (State == GameState.Result && restartKey.WasPressedThisFrame()) StartRun();
             if (State == GameState.Victory)
             {
@@ -426,6 +467,13 @@ namespace Perigee
             Progress.Finish(Run, eraIndex, Stats);
             Achievements.Check(Run, eraIndex);
             leaderboard.Submit(Run.score);
+            // первая победа над Тьмой: финал сюжета перед итогами
+            if (victory && EraNumber == config.finalBossEra && !Save.Data.endingSeen) ShowStory(true, showResult);
+            else ShowResult();
+        }
+
+        void ShowResult()
+        {
             SetState(GameState.Result);
         }
     }

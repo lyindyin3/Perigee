@@ -9,7 +9,6 @@ namespace Perigee
     public class AbilityPickView : MonoBehaviour
     {
         [SerializeField] GameConfig config;
-        [SerializeField] ArtSet art;
         [SerializeField] GameLoop loop;
         [SerializeField] AbilitySystem abilities;
         [SerializeField] AudioManager sfx;
@@ -17,7 +16,6 @@ namespace Perigee
         [SerializeField] TMP_Text header;
         [SerializeField] GameObject[] slots;
         [SerializeField] Button[] buttons;
-        [SerializeField] Image[] frames;
         [SerializeField] Image[] icons;
         [SerializeField] TMP_Text[] titles;
         [SerializeField] TMP_Text[] effectLines;
@@ -26,13 +24,21 @@ namespace Perigee
         [SerializeField] GameObject[] locks;
         [SerializeField] TMP_Text[] prices;
 
+        // картинки берутся из сцены: Ability<номер> показывает иконку способности с этим номером
+        Sprite[] sceneIcons;
         float openTime;
         bool closing;
 
         // показывает предложение, которое перед этим собрал AbilitySystem (OfferAll или OfferRandom)
         public void Show()
         {
-            header.text = Strings.AbilityPickTitle;
+            if (sceneIcons == null)
+            {
+                sceneIcons = new Sprite[icons.Length];
+                for (int i = 0; i < icons.Length; i++) sceneIcons[i] = icons[i].sprite;
+            }
+
+            Typing.Show(header, Strings.AbilityPickTitle);
             for (int i = 0; i < slots.Length; i++)
             {
                 bool used = i < abilities.OfferCount;
@@ -40,9 +46,8 @@ namespace Perigee
                 if (!used) continue;
 
                 AbilityDef def = abilities.Offer(i);
-                frames[i].sprite = art.abilityFrame;
-                icons[i].sprite = art.abilityIcons[(int)def.id].sprite;
-                titles[i].text = Strings.AbilityTitle[(int)def.id];
+                icons[i].sprite = sceneIcons[(int)def.id];
+                Typing.Show(titles[i], Strings.AbilityTitle[(int)def.id]);
                 effectLines[i].text = Strings.AbilityText[(int)def.id];
                 cooldownLines[i].text = string.Format(CultureInfo.InvariantCulture, Strings.CooldownFormat, def.cooldown * loop.Stats.abilityCooldownMul);
 
